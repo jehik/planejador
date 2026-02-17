@@ -17,19 +17,22 @@ const BottomNav = () => {
 
     return (
         <nav style={{
-            position: 'sticky',
+            position: 'fixed',
             bottom: 0,
-            left: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
             width: '100%',
+            maxWidth: '480px',
             height: '70px',
             backgroundColor: darkMode ? 'var(--surface-color)' : '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-around',
             alignItems: 'center',
             borderTop: '1px solid var(--border-color)',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
-            zIndex: 100,
-            paddingBottom: 'env(safe-area-inset-bottom)'
+            boxShadow: '0 -4px 15px rgba(0,0,0,0.08)',
+            zIndex: 200,
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            boxSizing: 'border-box'
         }}>
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;

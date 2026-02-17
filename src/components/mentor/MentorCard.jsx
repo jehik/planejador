@@ -7,22 +7,26 @@ const MentorCard = () => {
     const { activeUser, users } = useAppStore();
     const [advice, setAdvice] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [showDebug, setShowDebug] = useState(false);
 
     const isDebora = users[activeUser]?.name === 'Débora';
 
     const handleConsultMentor = async () => {
         setLoading(true);
         setError(false);
+        setErrorMsg("");
         try {
             const data = await fetchMentorAdvice(activeUser);
             if (data) {
                 setAdvice(data);
             } else {
                 setError(true);
+                setErrorMsg("O Mentor não retornou planos válidos. Verifique a chave API ou sua conexão.");
             }
         } catch (e) {
             setError(true);
+            setErrorMsg(e.message || "Erro desconhecido ao consultar o Mentor.");
         } finally {
             setLoading(false);
         }
@@ -187,10 +191,31 @@ const MentorCard = () => {
             )}
 
             {error && (
-                <div style={{ textAlign: 'center', color: 'var(--danger-color)', padding: '20px' }}>
-                    <AlertTriangle size={32} style={{ marginBottom: '8px' }} />
-                    <p>O Mentor está offline no momento. Tente novamente.</p>
-                    <button onClick={() => setError(false)}>Tentar Novamente</button>
+                <div style={{ textAlign: 'center', color: '#ef4444', padding: '20px' }}>
+                    <AlertTriangle size={32} style={{ marginBottom: '8px', margin: '0 auto' }} />
+                    <p style={{ fontSize: '0.9rem', marginBottom: '12px' }}>{errorMsg}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <button
+                            onClick={handleConsultMentor}
+                            style={{ background: '#ef4444', color: 'white', padding: '8px', borderRadius: '8px', fontSize: '0.85rem' }}
+                        >
+                            Tentar Novamente
+                        </button>
+                        <button
+                            onClick={() => setShowDebug(!showDebug)}
+                            style={{ fontSize: '0.7rem', opacity: 0.6, color: 'var(--text-secondary)' }}
+                        >
+                            {showDebug ? "Ocultar Detalhes" : "Ver Detalhes Técnicos"}
+                        </button>
+                    </div>
+
+                    {showDebug && (
+                        <div style={{ marginTop: '16px', textAlign: 'left', fontSize: '0.7rem', padding: '10px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', fontFamily: 'monospace' }}>
+                            Referer: {window.location.origin}<br />
+                            Config: VITE_OPENROUTER_API_KEY vinculada?<br />
+                            Status: Verifique o console do navegador na Vercel.
+                        </div>
+                    )}
                 </div>
             )}
         </div>

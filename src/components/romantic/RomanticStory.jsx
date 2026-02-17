@@ -278,11 +278,11 @@ const RomanticStory = ({ onClose }) => {
                 {currentSlide.type === 'text' && (
                     <>
                         <h2 style={{
-                            fontSize: currentSlide.highlight ? '2.4rem' : '1.8rem',
-                            lineHeight: '1.3',
+                            fontSize: currentSlide.highlight ? '2.6rem' : '2rem',
+                            lineHeight: '1.2',
                             marginBottom: '20px',
-                            fontWeight: '700', // Bold for better readability
-                            letterSpacing: '-0.03em',
+                            fontWeight: '800', // Extra Bold for Maximum Legibility
+                            letterSpacing: '-0.04em',
                             whiteSpace: 'pre-line',
                             color: '#000000'
                         }}>
@@ -290,10 +290,10 @@ const RomanticStory = ({ onClose }) => {
                         </h2>
                         {currentSlide.subtext && (
                             <p style={{
-                                fontSize: '1rem',
-                                color: '#666',
-                                fontWeight: '400',
-                                maxWidth: '85%'
+                                fontSize: '1.1rem',
+                                color: '#333333',
+                                fontWeight: '600',
+                                maxWidth: '90%'
                             }}>
                                 {currentSlide.subtext}
                             </p>
@@ -302,61 +302,61 @@ const RomanticStory = ({ onClose }) => {
                             <p style={{
                                 position: 'absolute',
                                 bottom: '60px',
-                                fontSize: '0.8rem',
-                                color: '#999',
-                                fontWeight: '600',
-                                letterSpacing: '0.1em',
+                                fontSize: '0.9rem',
+                                color: '#666666',
+                                fontWeight: '700',
+                                letterSpacing: '0.15em',
                                 textTransform: 'uppercase'
                             }}>
                                 {currentSlide.footer}
                             </p>
                         )}
-                        {currentSlide.highlight && <Heart fill="#000" size={40} style={{ marginTop: '40px' }} className="pulse" />}
+                        {currentSlide.highlight && <Heart fill="#000" size={48} style={{ marginTop: '40px' }} className="pulse" />}
                     </>
                 )}
 
                 {currentSlide.type === 'image' && (
                     <>
                         <div style={{
-                            width: '90%',
+                            width: '92%',
                             aspectRatio: '4/5',
                             backgroundImage: `url(${currentSlide.content})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            borderRadius: '16px',
+                            borderRadius: '20px',
                             marginBottom: '32px',
-                            boxShadow: '0 15px 45px rgba(0,0,0,0.1)',
-                            border: '1px solid rgba(0,0,0,0.05)'
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+                            border: '1px solid rgba(0,0,0,0.1)'
                         }} />
                         <p style={{
-                            fontSize: '1.2rem',
-                            fontWeight: '600',
-                            lineHeight: '1.5',
+                            fontSize: '1.3rem',
+                            fontWeight: '700',
+                            lineHeight: '1.4',
                             maxWidth: '90%',
                             color: '#000'
                         }}>
                             {currentSlide.caption}
                         </p>
-                        <Heart size={24} fill="#000" color="#000" style={{ marginTop: '24px' }} className="pulse" />
+                        <Heart size={30} fill="#000" color="#000" style={{ marginTop: '24px' }} className="pulse" />
                     </>
                 )}
             </div>
 
             <style>
                 {`
-                    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
                     
                     @keyframes slideUp {
-                        from { opacity: 0; transform: translateY(20px); }
+                        from { opacity: 0; transform: translateY(40px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
                     .pulse {
                         animation: pulse 2s infinite ease-in-out;
                     }
                     @keyframes pulse {
-                        0% { transform: scale(1); opacity: 0.8; }
+                        0% { transform: scale(1); opacity: 0.9; }
                         50% { transform: scale(1.1); opacity: 1; }
-                        100% { transform: scale(1); opacity: 0.8; }
+                        100% { transform: scale(1); opacity: 0.9; }
                     }
                 `}
             </style>
