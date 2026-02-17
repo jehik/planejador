@@ -89,14 +89,27 @@ export const fetchMentorAdvice = async (userType) => {
 
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
 
+    // DEBUG LOGS (Visible in Vercel Logs)
+    console.log("Mentor Service: Fetching for", userType);
+    console.log("API Key present:", !!apiKey);
+
+    if (!apiKey) {
+        console.error("CRITICAL: VITE_OPENROUTER_API_KEY is missing!");
+        return {
+            alinhamentoSonho: 0,
+            analiseComportamental: "Erro: Chave API não configurada corretamente na Vercel.",
+            fraseMentor: "Configure as variáveis de ambiente."
+        };
+    }
+
     try {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://antigravity.local",
-                "X-Title": "Antigravity Planner Local",
+                "HTTP-Referer": "https://planejador-casal.vercel.app", // Updated for your project
+                "X-Title": "Planejador Casal",
             },
             body: JSON.stringify({
                 "model": "mistralai/mistral-7b-instruct:free",
@@ -108,27 +121,25 @@ export const fetchMentorAdvice = async (userType) => {
             })
         });
 
+        console.log("Mentor Service: Response status:", response.status);
+
         if (!response.ok) {
             const err = await response.text();
-            throw new Error(`API Error: ${err}`);
+            console.error("Mentor Service: API Error Body:", err);
+            throw new Error(`API Error: ${response.status}`);
         }
 
         const data = await response.json();
         let content = data.choices[0].message.content;
 
-        // Sanitize: ensure only JSON is parsed if there's extra text (common with smaller models)
+        // Sanitize: ensure only JSON is parsed
         const jsonStart = content.indexOf('{');
         const jsonEnd = content.lastIndexOf('}');
         if (jsonStart !== -1 && jsonEnd !== -1) {
             content = content.substring(jsonStart, jsonEnd + 1);
         }
 
-        try {
-            return JSON.parse(content);
-        } catch (e) {
-            console.error("JSON Parse Error", content);
-            throw new Error("Invalid JSON response from Mentor");
-        }
+        return JSON.parse(content);
 
     } catch (error) {
         console.error("Mentor Service Error:", error);
