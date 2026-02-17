@@ -108,11 +108,11 @@ export const fetchMentorAdvice = async (userType) => {
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://planejador-casal.vercel.app", // Updated for your project
-                "X-Title": "Planejador Casal",
+                "HTTP-Referer": window.location.origin,
+                "X-Title": "Antigravity Plan",
             },
             body: JSON.stringify({
-                "model": "mistralai/mistral-7b-instruct:free",
+                "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
                 "messages": [
                     { "role": "system", "content": systemPrompt },
                     { "role": "user", "content": userPrompt }
@@ -124,12 +124,17 @@ export const fetchMentorAdvice = async (userType) => {
         console.log("Mentor Service: Response status:", response.status);
 
         if (!response.ok) {
-            const err = await response.text();
-            console.error("Mentor Service: API Error Body:", err);
-            throw new Error(`API Error: ${response.status}`);
+            const errBody = await response.text();
+            console.error("Mentor Service: API Error Body:", errBody);
+            throw new Error(`Status ${response.status}: ${errBody.substring(0, 100)}`);
         }
 
         const data = await response.json();
+
+        if (!data.choices || data.choices.length === 0) {
+            throw new Error("OpenRouter não retornou escolhas (choices vazio).");
+        }
+
         let content = data.choices[0].message.content;
 
         // Sanitize: ensure only JSON is parsed
@@ -143,6 +148,7 @@ export const fetchMentorAdvice = async (userType) => {
 
     } catch (error) {
         console.error("Mentor Service Error:", error);
-        return null;
+        // Throw the error so MentorCard can capture the message
+        throw error;
     }
 };

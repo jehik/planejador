@@ -11,7 +11,7 @@ const STORY_SLIDES = [
     {
         id: 2,
         type: 'image',
-        content: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=2670&auto=format&fit=crop", // Placeholder couple/love image
+        content: "/assets/story/story1.jpg",
         caption: "Algumas coisas na vida a gente sente antes de entender."
     },
     {
@@ -23,7 +23,7 @@ const STORY_SLIDES = [
     {
         id: 4,
         type: 'image',
-        content: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=2574&auto=format&fit=crop", // Another placeholder
+        content: "/assets/story/story2.jpg",
         caption: "Você me inspira mais do que imagina."
     },
     {
@@ -57,14 +57,13 @@ const STORY_SLIDES = [
 const RomanticStory = ({ onClose }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [progress, setProgress] = useState(0);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
     const audioRef = useRef(null);
     const progressInterval = useRef(null);
-    const nextCalled = useRef(false); // Ref to prevent double calling handleNext
+    const nextCalled = useRef(false);
 
     // Initialize Audio
     useEffect(() => {
-        // High quality piano music from a stable CDN
         const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
         audioRef.current = new Audio(audioUrl);
         audioRef.current.loop = true;
@@ -103,11 +102,11 @@ const RomanticStory = ({ onClose }) => {
     // Robust Timer Logic
     useEffect(() => {
         setProgress(0);
-        nextCalled.current = false; // Reset flag for new slide
+        nextCalled.current = false;
 
         if (progressInterval.current) clearInterval(progressInterval.current);
 
-        const duration = 7500; // Even slower for better reading
+        const duration = 7500;
         const tick = 50;
         const step = 100 / (duration / tick);
 
@@ -136,7 +135,7 @@ const RomanticStory = ({ onClose }) => {
         if (currentIndex < STORY_SLIDES.length - 1) {
             setCurrentIndex(prev => prev + 1);
         } else {
-            onClose(); // Finish story
+            onClose();
         }
     };
 
@@ -155,7 +154,7 @@ const RomanticStory = ({ onClose }) => {
             left: 0,
             width: '100vw',
             height: '100vh',
-            backgroundColor: currentSlide.type === 'image' ? '#000' : '#FFF', // Black for images, White for text
+            backgroundColor: currentSlide.type === 'image' ? '#000' : '#FFF',
             zIndex: 10000,
             display: 'flex',
             flexDirection: 'column',
@@ -165,7 +164,7 @@ const RomanticStory = ({ onClose }) => {
             fontFamily: "'Inter', sans-serif",
             overflow: 'hidden',
         }}>
-            {/* Background for Image slides: The Image itself */}
+            {/* Background for Image slides */}
             {currentSlide.type === 'image' && (
                 <div style={{
                     position: 'absolute',
@@ -219,33 +218,33 @@ const RomanticStory = ({ onClose }) => {
                 display: 'flex',
                 gap: '16px'
             }}>
-                <button onClick={toggleAudio} style={{ background: 'none', border: 'none', color: '#000', opacity: 0.5 }}>
-                    {isMuted ? <VolumeX size={22} /> : <Volume2 size={22} />}
+                <button onClick={toggleAudio} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.6 }}>
+                    {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                 </button>
-                <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#000', opacity: 0.5 }}>
-                    <X size={26} />
+                <button onClick={onClose} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.6 }}>
+                    <X size={28} />
                 </button>
             </div>
 
-            {/* Initial Interaction Prompt for Audio */}
-            {isMuted && currentIndex === 0 && (
+            {/* Audio Activation Prompt */}
+            {isMuted && (
                 <div style={{
                     position: 'absolute',
-                    bottom: '100px',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    color: 'white',
-                    padding: '12px 24px',
-                    borderRadius: '30px',
-                    zIndex: 40,
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
+                    bottom: '120px',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '10px',
-                    animation: 'pulse 2s infinite'
+                    gap: '12px',
+                    zIndex: 100,
+                    backgroundColor: currentSlide.type === 'image' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    padding: '16px 24px',
+                    borderRadius: '20px',
+                    color: currentSlide.type === 'image' ? '#FFF' : '#000',
                 }}>
-                    <Volume2 size={18} />
-                    Toque na tela para ouvir a música ❤️
+                    <Volume2 size={32} />
+                    <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>
+                        Aumente o volume &<br />Toque para ouvir a música
+                    </span>
                 </div>
             )}
 
@@ -259,109 +258,87 @@ const RomanticStory = ({ onClose }) => {
                 onClick={handleNext}
             />
 
-                {/* Audio Activation Prompt / Tap anywhere to play */}
-                {isMuted && (
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '120px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '12px',
-                        zIndex: 100,
-                        backgroundColor: 'rgba(0,0,0,0.05)',
-                        padding: '16px 24px',
-                        borderRadius: '20px',
-                        color: currentSlide.type === 'image' ? '#FFF' : '#000',
-                    }}>
-                        <Volume2 size={32} />
-                        <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>
-                            Aumente o volume &<br/>Toque para ouvir a música
-                        </span>
-                    </div>
+            {/* Content Overlay */}
+            <div key={currentIndex} style={{
+                position: 'relative',
+                zIndex: 10,
+                width: '100%',
+                maxWidth: '420px',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '40px 24px',
+                textAlign: 'center',
+                animation: 'slideUp 0.8s ease-out'
+            }}>
+                {currentSlide.type === 'text' && (
+                    <>
+                        <h2 style={{
+                            fontSize: currentSlide.highlight ? '2.8rem' : '2.2rem',
+                            lineHeight: '1.2',
+                            marginBottom: '24px',
+                            fontWeight: '800',
+                            letterSpacing: '-0.04em',
+                            whiteSpace: 'pre-line',
+                            color: currentSlide.type === 'image' ? '#FFF' : '#000'
+                        }}>
+                            {currentSlide.content}
+                        </h2>
+                        {currentSlide.subtext && (
+                            <p style={{
+                                fontSize: '1.2rem',
+                                color: currentSlide.type === 'image' ? '#DDD' : '#333',
+                                fontWeight: '600',
+                                maxWidth: '90%'
+                            }}>
+                                {currentSlide.subtext}
+                            </p>
+                        )}
+                        {currentSlide.footer && (
+                            <p style={{
+                                position: 'absolute',
+                                bottom: '60px',
+                                fontSize: '0.9rem',
+                                color: currentSlide.type === 'image' ? '#AAA' : '#666',
+                                fontWeight: '700',
+                                letterSpacing: '0.15em',
+                                textTransform: 'uppercase'
+                            }}>
+                                {currentSlide.footer}
+                            </p>
+                        )}
+                        {currentSlide.highlight && <Heart fill={currentSlide.type === 'image' ? '#FFF' : '#000'} size={48} style={{ marginTop: '40px' }} className="pulse" />}
+                    </>
                 )}
 
-                {/* Content Overlay */}
-                <div style={{
-                    position: 'relative',
-                    zIndex: 10,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: '40px 24px',
-                    textAlign: 'center',
-                    animation: 'slideUp 0.8s ease-out'
-                }}>
-                    {currentSlide.type === 'text' && (
-                        <>
-                            <h2 style={{
-                                fontSize: currentSlide.highlight ? '2.8rem' : '2.2rem',
-                                lineHeight: '1.2',
-                                marginBottom: '24px',
-                                fontWeight: '800', 
-                                letterSpacing: '-0.04em',
-                                whiteSpace: 'pre-line',
-                                color: '#000'
-                            }}>
-                                {currentSlide.content}
-                            </h2>
-                            {currentSlide.subtext && (
-                                <p style={{
-                                    fontSize: '1.2rem',
-                                    color: '#333',
-                                    fontWeight: '600',
-                                    maxWidth: '90%'
-                                }}>
-                                    {currentSlide.subtext}
-                                </p>
-                            )}
-                            {currentSlide.footer && (
-                                <p style={{
-                                    position: 'absolute',
-                                    bottom: '60px',
-                                    fontSize: '0.9rem',
-                                    color: '#666',
-                                    fontWeight: '700',
-                                    letterSpacing: '0.15em',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    {currentSlide.footer}
-                                </p>
-                            )}
-                            {currentSlide.highlight && <Heart fill="#000" size={48} style={{ marginTop: '40px' }} className="pulse" />}
-                        </>
-                    )}
-
-                    {currentSlide.type === 'image' && (
-                        <>
-                            <div style={{
-                                width: '92%',
-                                aspectRatio: '4/5',
-                                backgroundImage: `url(${currentSlide.content})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                borderRadius: '24px',
-                                marginBottom: '32px',
-                                boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
-                                border: '2px solid rgba(255,255,255,0.2)'
-                            }} />
-                            <p style={{ 
-                                fontSize: '1.4rem', 
-                                fontWeight: '800', 
-                                lineHeight: '1.4',
-                                maxWidth: '92%',
-                                color: '#FFF',
-                                textShadow: '0 2px 10px rgba(0,0,0,0.5)'
-                            }}>
-                                {currentSlide.caption}
-                            </p>
-                            <Heart size={36} fill="#FFF" color="#FFF" style={{ marginTop: '24px' }} className="pulse" />
-                        </>
-                    )}
-                </div>
+                {currentSlide.type === 'image' && (
+                    <>
+                        <div style={{
+                            width: '92%',
+                            aspectRatio: '4/5',
+                            backgroundImage: `url(${currentSlide.content})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            borderRadius: '24px',
+                            marginBottom: '32px',
+                            boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
+                            border: '2px solid rgba(255,255,255,0.2)'
+                        }} />
+                        <p style={{
+                            fontSize: '1.4rem',
+                            fontWeight: '800',
+                            lineHeight: '1.4',
+                            maxWidth: '92%',
+                            color: '#FFF',
+                            textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                        }}>
+                            {currentSlide.caption}
+                        </p>
+                        <Heart size={36} fill="#FFF" color="#FFF" style={{ marginTop: '24px' }} className="pulse" />
+                    </>
+                )}
             </div>
 
             <style>
@@ -382,7 +359,7 @@ const RomanticStory = ({ onClose }) => {
                     }
                 `}
             </style>
-        </div >
+        </div>
     );
 };
 
