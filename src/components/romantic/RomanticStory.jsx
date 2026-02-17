@@ -64,10 +64,13 @@ const RomanticStory = ({ onClose }) => {
 
     // Initialize Audio
     useEffect(() => {
-        const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+        // High quality ROMANTIC piano music (Gymnopedie No. 1 - Satie)
+        // Direct reliable reliable URL from a stable source
+        const audioUrl = "https://cdn.pixabay.com/download/audio/2022/03/10/audio_5b364177e0.mp3?filename=gymnopedie-no-1-erik-satie-6548.mp3";
+
         audioRef.current = new Audio(audioUrl);
         audioRef.current.loop = true;
-        audioRef.current.volume = 0.5;
+        audioRef.current.volume = 0.6; // Slightly louder
 
         const startAudio = () => {
             if (audioRef.current && audioRef.current.paused) {
@@ -250,11 +253,11 @@ const RomanticStory = ({ onClose }) => {
 
             {/* Tap Zones */}
             <div
-                style={{ position: 'absolute', top: 0, left: 0, width: '30%', height: '100%', zIndex: 10 }}
+                style={{ position: 'absolute', top: 0, left: 0, width: '30%', height: '100%', zIndex: 50 }}
                 onClick={handlePrev}
             />
             <div
-                style={{ position: 'absolute', top: 0, right: 0, width: '70%', height: '100%', zIndex: 10 }}
+                style={{ position: 'absolute', top: 0, right: 0, width: '70%', height: '100%', zIndex: 50 }}
                 onClick={handleNext}
             />
 
