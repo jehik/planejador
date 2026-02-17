@@ -78,10 +78,6 @@ const HomeView = () => {
                 )}
             </div>
 
-            {/* AI Mentor Card */}
-            <section style={{ marginBottom: '20px' }}>
-                <MentorCard />
-            </section>
 
             {/* Daily Focus Section - ALWAYS VISIBLE */}
             <section>
@@ -110,6 +106,11 @@ const HomeView = () => {
                 {/* Dream Board Section */}
                 <section style={{ marginTop: '32px' }}>
                     <DreamBoard />
+                </section>
+
+                {/* AI Mentor Card at the bottom */}
+                <section style={{ marginTop: '32px' }}>
+                    <MentorCard />
                 </section>
             </div>
 

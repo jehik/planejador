@@ -17,7 +17,7 @@ const BottomNav = () => {
 
     return (
         <nav style={{
-            position: 'absolute',
+            position: 'sticky',
             bottom: 0,
             left: 0,
             width: '100%',
@@ -27,8 +27,9 @@ const BottomNav = () => {
             justifyContent: 'space-around',
             alignItems: 'center',
             borderTop: '1px solid var(--border-color)',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
-            zIndex: 20
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            zIndex: 100,
+            paddingBottom: 'env(safe-area-inset-bottom)'
         }}>
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;

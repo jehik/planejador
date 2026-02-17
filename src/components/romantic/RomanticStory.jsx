@@ -64,22 +64,15 @@ const RomanticStory = ({ onClose }) => {
 
     // Initialize Audio
     useEffect(() => {
-        // Piano Romantic Music (Archive.org)
-        audioRef.current = new Audio('https://ia800401.us.archive.org/24/items/PianoRomanticMusic/Piano%20Romantic%20Music.mp3');
+        // More reliable piano music link (Lofi/Chill Piano)
+        audioRef.current = new Audio('https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_1MB_MP3.mp3'); // Temporary for testing connectivity, will look for a better one or use a known stable one
+        // Better music choice for Pinterest/Tumblr vibe:
+        audioRef.current.src = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Testing with standard mp3
+        // Actually, let's use a soft piano one from a CD
+        audioRef.current.src = 'https://ia800401.us.archive.org/24/items/PianoRomanticMusic/Piano%20Romantic%20Music.mp3';
+
         audioRef.current.loop = true;
-        audioRef.current.volume = 0.3;
-
-        const playAudio = async () => {
-            try {
-                await audioRef.current.play();
-                setIsMuted(false);
-            } catch (err) {
-                console.log("Autoplay blocked, user interaction needed", err);
-                setIsMuted(true);
-            }
-        };
-
-        playAudio();
+        audioRef.current.volume = 0.4;
 
         return () => {
             if (audioRef.current) {
@@ -91,9 +84,9 @@ const RomanticStory = ({ onClose }) => {
 
     const toggleAudio = () => {
         if (!audioRef.current) return;
-
         if (audioRef.current.paused) {
-            audioRef.current.play().then(() => setIsMuted(false)).catch(e => console.error(e));
+            audioRef.current.play().catch(e => console.log("Play blocked", e));
+            setIsMuted(false);
         } else {
             audioRef.current.pause();
             setIsMuted(true);
@@ -152,26 +145,39 @@ const RomanticStory = ({ onClose }) => {
         <div style={{
             position: 'fixed',
             top: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100%',
-            maxWidth: '480px', // Match app-container
-            height: '100%',
-            backgroundColor: '#0F1115',
-            zIndex: 9999,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#000',
+            zIndex: 10000,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             color: 'white',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Playfair Display', serif",
             overflow: 'hidden',
-            boxShadow: '0 0 20px rgba(0,0,0,0.5)' // Add shadow to blend with app
         }}>
+            {/* Background Blur Aesthetic */}
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundImage: currentSlide.type === 'image' ? `url(${currentSlide.content})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(30px) brightness(0.4)',
+                opacity: 0.6,
+                zIndex: 0,
+                transition: 'all 1s ease'
+            }} />
+
             {/* Top Progress Bars */}
             <div style={{
                 position: 'absolute',
-                top: '20px',
+                top: 'env(safe-area-inset-top, 20px)',
                 left: '10px',
                 right: '10px',
                 display: 'flex',
@@ -249,6 +255,7 @@ const RomanticStory = ({ onClose }) => {
             {/* Content Content to render */}
             <div className="fade-in" key={currentIndex} style={{
                 width: '100%',
+                maxWidth: '500px',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -257,24 +264,29 @@ const RomanticStory = ({ onClose }) => {
                 textAlign: 'center',
                 padding: '40px',
                 position: 'relative',
-                animation: 'fadeIn 0.8s ease'
+                zIndex: 1,
+                animation: 'slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }}>
                 {currentSlide.type === 'text' && (
                     <>
                         <h2 style={{
-                            fontSize: currentSlide.highlight ? '2.5rem' : '1.8rem',
-                            lineHeight: '1.4',
+                            fontSize: currentSlide.highlight ? '2.8rem' : '2rem',
+                            lineHeight: '1.3',
                             marginBottom: '20px',
-                            fontWeight: '300',
-                            whiteSpace: 'pre-line'
+                            fontWeight: '400',
+                            letterSpacing: '-0.02em',
+                            whiteSpace: 'pre-line',
+                            fontFamily: "'Playfair Display', serif"
                         }}>
                             {currentSlide.content}
                         </h2>
                         {currentSlide.subtext && (
                             <p style={{
-                                fontSize: '1rem',
-                                color: 'rgba(255,255,255,0.7)',
-                                fontWeight: '300'
+                                fontSize: '1.1rem',
+                                color: 'rgba(255,255,255,0.8)',
+                                fontWeight: '300',
+                                fontStyle: 'italic',
+                                maxWidth: '80%'
                             }}>
                                 {currentSlide.subtext}
                             </p>
@@ -283,49 +295,61 @@ const RomanticStory = ({ onClose }) => {
                             <p style={{
                                 position: 'absolute',
                                 bottom: '60px',
-                                fontSize: '0.8rem',
-                                color: 'rgba(255,255,255,0.5)',
+                                fontSize: '0.9rem',
+                                color: 'rgba(255,255,255,0.6)',
+                                letterSpacing: '0.1em',
+                                textTransform: 'uppercase'
                             }}>
                                 {currentSlide.footer}
                             </p>
                         )}
-                        {currentSlide.highlight && <Heart fill="white" size={32} style={{ marginTop: '30px' }} className="pulse" />}
+                        {currentSlide.highlight && <Heart fill="white" size={40} style={{ marginTop: '40px' }} className="pulse" />}
                     </>
                 )}
 
                 {currentSlide.type === 'image' && (
                     <>
                         <div style={{
-                            width: '100%',
-                            height: '60%',
+                            width: '90%',
+                            aspectRatio: '4/5',
                             backgroundImage: `url(${currentSlide.content})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            borderRadius: '16px',
-                            marginBottom: '30px',
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+                            borderRadius: '12px',
+                            marginBottom: '32px',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+                            border: '1px solid rgba(255,255,255,0.1)'
                         }} />
-                        <p style={{ fontSize: '1.2rem', fontWeight: '300', fontStyle: 'italic' }}>
+                        <p style={{
+                            fontSize: '1.4rem',
+                            fontWeight: '400',
+                            fontStyle: 'italic',
+                            lineHeight: '1.4',
+                            maxWidth: '90%',
+                            fontFamily: "'Playfair Display', serif"
+                        }}>
                             {currentSlide.caption}
                         </p>
-                        <Heart size={20} fill="#ef4444" color="#ef4444" style={{ marginTop: '20px' }} />
+                        <Heart size={24} fill="#ff4d4d" color="#ff4d4d" style={{ marginTop: '24px' }} className="pulse" />
                     </>
                 )}
             </div>
 
             <style>
                 {`
-                    @keyframes fadeIn {
-                        from { opacity: 0; transform: translateY(10px); }
-                        to { opacity: 1; transform: translateY(0); }
+                    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+                    
+                    @keyframes slideUp {
+                        from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+                        to { opacity: 1; transform: translateY(0); filter: blur(0); }
                     }
                     .pulse {
-                        animation: pulse 2s infinite;
+                        animation: pulse 2.5s infinite ease-in-out;
                     }
                     @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                        100% { transform: scale(1); }
+                        0% { transform: scale(1); opacity: 0.8; }
+                        50% { transform: scale(1.1); opacity: 1; }
+                        100% { transform: scale(1); opacity: 0.8; }
                     }
                 `}
             </style>
