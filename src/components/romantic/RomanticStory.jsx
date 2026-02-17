@@ -65,28 +65,35 @@ const RomanticStory = ({ onClose }) => {
     // Initialize Audio
     useEffect(() => {
         // High quality stable romantic piano music (Direct Link)
-        const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"; // Stable testing link
-        const realRomantic = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kosta_T/Soft_Piano_and_Violin/Kosta_T_-_01_-_Soft_Piano_and_Violin.mp3";
+        // Using a link from a known stable source
+        const pianoUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3";
 
-        audioRef.current = new Audio(realRomantic);
+        audioRef.current = new Audio(pianoUrl);
         audioRef.current.loop = true;
         audioRef.current.volume = 0.5;
 
-        // Handle browser autoplay policy: play as soon as user interacts
-        const handleInteraction = () => {
+        // Auto-play is restricted by Safari/Mobile browsers
+        // We rely on the user interaction (click/touch) to start the music
+        const startMusic = () => {
             if (audioRef.current && audioRef.current.paused) {
-                audioRef.current.play().then(() => setIsMuted(false)).catch(e => console.log("Still blocked", e));
+                audioRef.current.play()
+                    .then(() => setIsMuted(false))
+                    .catch(e => console.warn("Autoplay still restricted", e));
             }
-            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('click', startMusic);
+            window.removeEventListener('touchstart', startMusic);
         };
-        window.addEventListener('click', handleInteraction);
+
+        window.addEventListener('click', startMusic);
+        window.addEventListener('touchstart', startMusic);
 
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
             }
-            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('click', startMusic);
+            window.removeEventListener('touchstart', startMusic);
         };
     }, []);
 

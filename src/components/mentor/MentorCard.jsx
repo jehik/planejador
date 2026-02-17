@@ -7,6 +7,7 @@ const MentorCard = () => {
     const { activeUser, users } = useAppStore();
     const [advice, setAdvice] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [showDebug, setShowDebug] = useState(false);
 
