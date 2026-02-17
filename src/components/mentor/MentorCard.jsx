@@ -21,6 +21,7 @@ const MentorCard = () => {
             const data = await fetchMentorAdvice(activeUser);
             if (data) {
                 setAdvice(data);
+                setError(false);
             } else {
                 setError(true);
                 setErrorMsg("O Mentor não retornou planos válidos. Verifique a chave API ou sua conexão.");
@@ -212,7 +213,7 @@ const MentorCard = () => {
 
                     {showDebug && (
                         <div style={{ marginTop: '16px', textAlign: 'left', fontSize: '0.7rem', padding: '10px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', fontFamily: 'monospace' }}>
-                            Referer: {window.location.origin}<br />
+                            Referer: {window.location.host}<br />
                             Config: VITE_OPENROUTER_API_KEY vinculada?<br />
                             Status: Verifique o console do navegador na Vercel.
                         </div>
