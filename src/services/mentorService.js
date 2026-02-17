@@ -90,21 +90,16 @@ export const fetchMentorAdvice = async (userType) => {
     console.log("Mentor Service: Calling secure backend /api/mentor");
 
     // Localhost Check: Vercel Functions don't run on standard `npm run dev`
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.warn("Mentor Service: Backend API not available on localhost (requires 'vercel dev' or deployment). Returning Mock.");
-        return {
-            alinhamentoSonho: 100,
-            analiseComportamental: "MODO LOCAL (MOCK): A IA via Backend só funciona no ambiente Vercel (Deploy).",
-            padraoDetectado: "Teste Local Detectado",
-            ajusteImediato: "Faça o deploy para testar a inteligência real.",
-            acaoMinimaAmanha: "Testar na URL da Vercel.",
-            alertaDisciplina: "Ambiente de Desenvolvimento",
-            fraseMentor: "Acesse o site publicado para falar comigo de verdade.",
-            // Debora compatibility
-            explicacaoNeurocientifica: "Simulação local.",
-            visualizacaoGuiada: "Imagine o sistema funcionando na nuvem.",
-            fraseProsperidade: "O deploy é o caminho."
-        };
+    // Includes standard private IPs for mobile testing: 192.168.x.x, 10.x.x.x, 172.16.x.x
+    const isLocalhost = window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname.startsWith('192.168.') ||
+        window.location.hostname.startsWith('10.') ||
+        window.location.hostname.startsWith('172.');
+
+    if (isLocalhost) {
+        console.warn("Mentor Service: Backend API not available on localhost/LAN (requires 'vercel dev' or deployment). Returning Mock.");
+        return getMockResponse();
     }
 
     try {
@@ -123,6 +118,10 @@ export const fetchMentorAdvice = async (userType) => {
 
         if (!response.ok) {
             console.error("Mentor Backend Error Status:", response.status);
+            // If 404, it might mean we are in a preview env where the API isn't set up, or local.
+            if (response.status === 404) {
+                return getMockResponse();
+            }
             throw new Error(`Erro no servidor do Mentor (${response.status})`);
         }
 
@@ -132,7 +131,13 @@ export const fetchMentorAdvice = async (userType) => {
     } catch (error) {
         console.error("Mentor Service Client Error:", error);
 
-        // Client-side fallback if network totally fails
+        // If it's a network error (API not found/blocked), fallback to mock in dev/preview
+        if (window.location.hostname !== 'planejador-casal.vercel.app') { // Replace with actual prod domain if known, or just being safe
+            console.warn("Falling back to Mock due to Network Error in non-prod environment.");
+            return getMockResponse();
+        }
+
+        // Client-side fallback if network totally fails in Production
         return {
             alinhamentoSonho: 0,
             analiseComportamental: "Erro de conexão com o Mentor (Network Error).",
@@ -142,3 +147,20 @@ export const fetchMentorAdvice = async (userType) => {
         };
     }
 };
+
+const getMockResponse = () => {
+    return {
+        alinhamentoSonho: 100,
+        analiseComportamental: "MODO LOCAL (MOCK): A IA via Backend só funciona no ambiente Vercel (Deploy).",
+        padraoDetectado: "Teste Local Detectado",
+        ajusteImediato: "Faça o deploy para testar a inteligência real.",
+        acaoMinimaAmanha: "Testar na URL da Vercel.",
+        alertaDisciplina: "Ambiente de Desenvolvimento",
+        fraseMentor: "Acesse o site publicado para falar comigo de verdade.",
+        // Debora compatibility
+        explicacaoNeurocientifica: "Simulação local.",
+        visualizacaoGuiada: "Imagine o sistema funcionando na nuvem.",
+        fraseProsperidade: "O deploy é o caminho."
+    };
+};
+
