@@ -89,6 +89,24 @@ export const fetchMentorAdvice = async (userType) => {
 
     console.log("Mentor Service: Calling secure backend /api/mentor");
 
+    // Localhost Check: Vercel Functions don't run on standard `npm run dev`
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.warn("Mentor Service: Backend API not available on localhost (requires 'vercel dev' or deployment). Returning Mock.");
+        return {
+            alinhamentoSonho: 100,
+            analiseComportamental: "MODO LOCAL (MOCK): A IA via Backend só funciona no ambiente Vercel (Deploy).",
+            padraoDetectado: "Teste Local Detectado",
+            ajusteImediato: "Faça o deploy para testar a inteligência real.",
+            acaoMinimaAmanha: "Testar na URL da Vercel.",
+            alertaDisciplina: "Ambiente de Desenvolvimento",
+            fraseMentor: "Acesse o site publicado para falar comigo de verdade.",
+            // Debora compatibility
+            explicacaoNeurocientifica: "Simulação local.",
+            visualizacaoGuiada: "Imagine o sistema funcionando na nuvem.",
+            fraseProsperidade: "O deploy é o caminho."
+        };
+    }
+
     try {
         // Calls the Vercel Serverless Function
         // This keeps the API KEY hidden in the backend
