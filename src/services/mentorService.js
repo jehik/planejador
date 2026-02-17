@@ -106,9 +106,8 @@ export const fetchMentorAdvice = async (userType) => {
 
     // List of models to try in order
     const models = [
-        "google/gemini-2.0-flash-lite-preview-02-05:free",
-        "google/gemini-2.0-pro-exp-02-05:free",
-        "meta-llama/llama-3-8b-instruct:free"
+        "mistralai/mistral-7b-instruct",
+        "google/gemma-7b-it"
     ];
 
     for (const model of models) {
@@ -128,7 +127,7 @@ export const fetchMentorAdvice = async (userType) => {
                         { "role": "system", "content": systemPrompt },
                         { "role": "user", "content": userPrompt }
                     ],
-                    "response_format": { "type": "json_object" }
+
                 })
             });
 
