@@ -484,10 +484,22 @@ const useAppStore = create(
         }
       })),
 
-      // Cloud Sync (Placeholder for now, implementation in component)
+      // Cloud Sync
       syncToCloud: async () => {
-        // This will be handled by a separate service or effect
-        console.log('Syncing to cloud...');
+        const state = get();
+        const userId = state.activeUser;
+        if (!userId) return false;
+
+        const currentUserData = state.users[userId];
+        try {
+          // Dynamically import to avoid circular dependencies if any, though explicit import is better
+          const { saveUserToCloud } = await import('../services/cloudSyncService');
+          const success = await saveUserToCloud(userId, currentUserData);
+          return success;
+        } catch (error) {
+          console.error("Sync failed:", error);
+          return false;
+        }
       }
     }),
     {
