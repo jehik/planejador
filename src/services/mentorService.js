@@ -70,7 +70,7 @@ export const fetchMentorAdvice = async (userType) => {
         3. Avanço real?
         4. Micro-ajuste amanhã.
         5. Observação relacionamento/disciplina.
-        Return JSON format: { "alinhamentoSonho": 0-100, "analiseComportamental": "", "padraoDetectado": "", "ajusteImediato": "", "acaoMinimaAmanha": "", "alertaDisciplina": "", "fraseMentor": "" }
+        Return JSON format.
         `;
     } else {
         systemPrompt = DEBORA_SYSTEM_PROMPT;
@@ -83,87 +83,44 @@ export const fetchMentorAdvice = async (userType) => {
         2. Estabilidade emocional.
         3. Regularidade.
         4. Neurociência/Visualização.
-        Return JSON format: { "alinhamentoSonho": 0-100, "analiseComportamental": "", "padraoDetectado": "", "ajusteImediato": "", "acaoMinimaAmanha": "", "alertaDisciplina": "", "fraseMentor": "", "explicacaoNeurocientifica": "", "visualizacaoGuiada": "", "fraseProsperidade": "" }
+        Return JSON format.
         `;
     }
 
-    const rawApiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-    const apiKey = rawApiKey ? rawApiKey.trim() : "";
+    console.log("Mentor Service: Calling secure backend /api/mentor");
 
-    // DEBUG LOGS (Visible in Vercel Logs)
-    console.log("Mentor Service: Fetching for", userType);
-    console.log("API Key present:", !!apiKey);
-    if (apiKey) console.log("API Key prefix:", apiKey.substring(0, 10) + "...");
+    try {
+        // Calls the Vercel Serverless Function
+        // This keeps the API KEY hidden in the backend
+        const response = await fetch("/api/mentor", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                userPrompt,
+                systemPrompt
+            })
+        });
 
-    if (!apiKey) {
-        console.error("CRITICAL: VITE_OPENROUTER_API_KEY is missing!");
+        if (!response.ok) {
+            console.error("Mentor Backend Error Status:", response.status);
+            throw new Error(`Erro no servidor do Mentor (${response.status})`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error("Mentor Service Client Error:", error);
+
+        // Client-side fallback if network totally fails
         return {
             alinhamentoSonho: 0,
-            analiseComportamental: "Erro: Chave API não configurada corretamente na Vercel (Settings > Environment Variables).",
-            fraseMentor: "Configure as variáveis de ambiente: VITE_OPENROUTER_API_KEY"
+            analiseComportamental: "Erro de conexão com o Mentor (Network Error).",
+            fraseMentor: "Verifique sua internet e tente novamente.",
+            ajusteImediato: "Foco no básico.",
+            acaoMinimaAmanha: "Tentar novamente mais tarde."
         };
-    }
-
-    // List of models to try in order
-    const models = [
-        "mistralai/mistral-7b-instruct",
-        "google/gemma-7b-it"
-    ];
-
-    for (const model of models) {
-        try {
-            console.log(`Trying model: ${model}`);
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${apiKey}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.origin,
-                    "X-Title": "Antigravity Plan",
-                },
-                body: JSON.stringify({
-                    "model": model,
-                    "messages": [
-                        { "role": "system", "content": systemPrompt },
-                        { "role": "user", "content": userPrompt }
-                    ],
-
-                })
-            });
-
-            console.log("Mentor Service: Response status:", response.status);
-
-            if (!response.ok) {
-                const errBody = await response.text();
-                console.warn(`Model ${model} failed:`, errBody);
-                // If it's the last model, throw error
-                if (model === models[models.length - 1]) {
-                    throw new Error(`OpenRouter Error (${response.status}): ${errBody.substring(0, 100)}`);
-                }
-                continue; // Try next model
-            }
-
-            const data = await response.json();
-
-            if (!data.choices || data.choices.length === 0) {
-                if (model === models[models.length - 1]) throw new Error("OpenRouter: Sem resposta (choices vazio).");
-                continue;
-            }
-
-            let content = data.choices[0].message.content;
-
-            // Sanitize: ensure only JSON is parsed
-            const jsonStart = content.indexOf('{');
-            const jsonEnd = content.lastIndexOf('}');
-            if (jsonStart !== -1 && jsonEnd !== -1) {
-                content = content.substring(jsonStart, jsonEnd + 1);
-            }
-
-            return JSON.parse(content);
-
-        } catch (error) {
-            console.error(`Error with model ${model}:`, error);
-            if (model === models[models.length - 1]) throw error;
-        }
     }
 };
