@@ -1,0 +1,166 @@
+import React from 'react';
+import { CheckCircle2, Circle, Dumbbell, Calendar, Droplet } from 'lucide-react';
+import useAppStore from '../../store/useAppStore';
+
+const TodayOverview = () => {
+    const { activeUser, users, toggleTask, toggleWorkout } = useAppStore();
+    const currentUser = users[activeUser];
+
+    // Get today's date in YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get day of week (Seg, Ter, Qua...)
+    const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    const currentDayOfWeek = daysMap[new Date().getDay()];
+
+    // Filter Tasks for Today
+    const todayTasks = currentUser?.tasks?.filter(t => t.date === today) || [];
+
+    // Filter Workouts for Today
+    const todayWorkouts = currentUser?.workouts?.filter(w => w.days.includes(currentDayOfWeek)) || [];
+
+    const hasNothingToday = todayTasks.length === 0 && todayWorkouts.length === 0;
+
+    return (
+        <div className="fade-in">
+            <h3 style={{
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                marginBottom: '16px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+            }}>
+                <Calendar size={20} color="var(--primary-color)" />
+                O que você deve fazer hoje
+            </h3>
+
+            {hasNothingToday ? (
+                <div style={{
+                    padding: '20px',
+                    backgroundColor: 'var(--surface-color)',
+                    borderRadius: '16px',
+                    textAlign: 'center',
+                    color: 'var(--text-secondary)',
+                    border: '1px dashed var(--border-color)'
+                }}>
+                    <p>Nada agendado para hoje. Aproveite!</p>
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {/* Workouts First (Priority) */}
+                    {todayWorkouts.map(workout => {
+                        const isCompleted = workout.lastCompleted === today;
+                        return (
+                            <div key={workout.id}
+                                onClick={() => toggleWorkout(workout.id)}
+                                style={{
+                                    backgroundColor: 'var(--surface-color)',
+                                    padding: '16px',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    cursor: 'pointer',
+                                    border: isCompleted ? '1px solid var(--success-color)' : '1px solid var(--border-color)',
+                                    opacity: isCompleted ? 0.7 : 1
+                                }}
+                            >
+                                <div style={{
+                                    backgroundColor: isCompleted ? 'var(--success-color)' : 'var(--primary-soft)', // Orange/Amber for Workout
+                                    padding: '10px',
+                                    borderRadius: '12px',
+                                    color: isCompleted ? 'white' : 'var(--primary-color)'
+                                }}>
+                                    <Dumbbell size={20} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ fontWeight: '600', textDecoration: isCompleted ? 'line-through' : 'none' }}>
+                                        {workout.title}
+                                    </p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                        Treino de Hoje
+                                    </p>
+                                </div>
+                                {isCompleted && <CheckCircle2 size={24} color="var(--success-color)" />}
+                            </div>
+                        );
+                    })}
+
+                    {/* Water Goal */}
+                    <div
+                        onClick={() => useAppStore.getState().setActiveTab('nutrition')}
+                        style={{
+                            backgroundColor: 'var(--surface-color)',
+                            padding: '16px',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            cursor: 'pointer',
+                            border: (currentUser?.nutrition?.water || 0) >= 4000 ? '1px solid var(--success-color)' : '1px solid var(--border-color)',
+                            opacity: (currentUser?.nutrition?.water || 0) >= 4000 ? 0.7 : 1
+                        }}
+                    >
+                        <div style={{
+                            backgroundColor: (currentUser?.nutrition?.water || 0) >= 4000 ? 'var(--success-color)' : '#3b82f6', // Blue for water
+                            padding: '10px',
+                            borderRadius: '12px',
+                            color: 'white'
+                        }}>
+                            <Droplet size={20} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontWeight: '600' }}>
+                                Beber 4L de Água
+                            </p>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                {currentUser?.nutrition?.water || 0} / 4000 ml
+                            </p>
+                        </div>
+                        {(currentUser?.nutrition?.water || 0) >= 4000 ? (
+                            <CheckCircle2 size={24} color="var(--success-color)" />
+                        ) : (
+                            <Circle size={24} color="var(--text-secondary)" />
+                        )}
+                    </div>
+
+                    {/* Tasks */}
+                    {todayTasks.map(task => (
+                        <div key={task.id}
+                            onClick={() => toggleTask(task.id)}
+                            style={{
+                                backgroundColor: 'var(--surface-color)',
+                                padding: '16px',
+                                borderRadius: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                cursor: 'pointer',
+                                border: '1px solid var(--border-color)'
+                            }}
+                        >
+                            <div style={{
+                                color: task.completed ? 'var(--success-color)' : 'var(--text-secondary)'
+                            }}>
+                                {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <p style={{
+                                    fontWeight: '500',
+                                    textDecoration: task.completed ? 'line-through' : 'none',
+                                    color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)'
+                                }}>
+                                    {task.title}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default TodayOverview;
