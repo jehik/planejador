@@ -65,8 +65,8 @@ const RomanticStory = ({ onClose }) => {
     // Initialize Audio
     useEffect(() => {
         // High quality ROMANTIC piano music (Gymnopedie No. 1 - Satie)
-        // Direct reliable reliable URL from a stable source
-        const audioUrl = "https://cdn.pixabay.com/download/audio/2022/03/10/audio_5b364177e0.mp3?filename=gymnopedie-no-1-erik-satie-6548.mp3";
+        // Direct reliable reliable URL from Wikimedia Commons (Public Domain)
+        const audioUrl = "https://upload.wikimedia.org/wikipedia/commons/3/34/Gymnopedie_No_1.ogg"; // OGG is widely supported and reliable here
 
         audioRef.current = new Audio(audioUrl);
         audioRef.current.loop = true;
@@ -229,30 +229,38 @@ const RomanticStory = ({ onClose }) => {
                 </button>
             </div>
 
-            {/* Audio Activation Prompt - ONLY on First Slide */}
+            {/* Audio Activation Prompt - ONLY on First Slide - CLICKABLE */}
             {isMuted && currentIndex === 0 && (
-                <div className="fade-in" style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '16px',
-                    zIndex: 100,
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    padding: '32px',
-                    borderRadius: '24px',
-                    color: '#FFF',
-                    backdropFilter: 'blur(8px)',
-                    width: '80%',
-                    maxWidth: '300px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-                }}>
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent slide change
+                        toggleAudio();
+                    }}
+                    className="fade-in"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '16px',
+                        zIndex: 100,
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        color: '#FFF',
+                        backdropFilter: 'blur(8px)',
+                        width: '80%',
+                        maxWidth: '300px',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                        cursor: 'pointer' // Indicate interactivity
+                    }}
+                >
                     <Volume2 size={48} className="pulse" />
                     <span style={{ fontWeight: '600', fontSize: '1.1rem', textAlign: 'center', lineHeight: '1.5' }}>
-                        Toque na tela para ligar o som
+                        Toque para ligar a música
                     </span>
                     <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
                         (Aumente o volume)
