@@ -40,7 +40,7 @@ const AutoSync = () => {
                     } catch (e) {
                         setStatus('error');
                     }
-                }, 5000);
+                }, 1000); // Faster auto-save (1s)
             }
         );
 
