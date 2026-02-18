@@ -5,14 +5,14 @@ const STORY_SLIDES = [
     {
         id: 1,
         type: 'text',
-        content: "Eu não fiz isso por acaso.",
-        subtext: "Eu pensei em você em cada detalhe."
+        content: "Eu não fiz isso por impulso.",
+        subtext: "Eu pensei com calma em cada detalhe."
     },
     {
         id: 2,
         type: 'image',
         content: "/assets/story/story1.jpg",
-        caption: "Algumas coisas na vida a gente sente antes de entender."
+        caption: "Eu quis criar algo que fosse confortável para você."
     },
     {
         id: 3,
@@ -24,33 +24,33 @@ const STORY_SLIDES = [
         id: 4,
         type: 'image',
         content: "/assets/story/story2.jpg",
-        caption: "Você me inspira mais do que imagina."
+        caption: "Eu admiro seu jeito mais do que você imagina."
     },
     {
         id: 5,
         type: 'text',
-        content: "Eu poderia ter feito só um app.",
-        subtext: "Mas eu fiz pensando na gente."
+        content: "Eu poderia ter feito só um aplicativo.",
+        subtext: "Mas eu fiz pensando em como você se sentiria usando."
     },
     {
         id: 6,
         type: 'text',
-        content: "Eu te amo.",
-        subtext: "",
+        content: "Eu te amo, muitão!",
+        subtext: "Eu amo seu jeito",
         highlight: true
     },
     {
         id: 7,
         type: 'text',
-        content: "Eu penso no nosso futuro todos os dias.",
-        subtext: "E eu escolho você nele."
+        content: "Eu escolho você.",
+        subtext: "Eu penso no nosso futuro todos os dias."
     },
     {
         id: 8,
         type: 'text',
-        content: "Eu escolho você.",
-        subtext: "Em cada detalhe. Até nesse.",
-        footer: "Feito por Cássio ❤️"
+        content: "Eu estou aqui.",
+        subtext: "Com calma. Com paciência. Com verdade.",
+        footer: "Feito com carinho, Cássio ❤️"
     }
 ];
 
