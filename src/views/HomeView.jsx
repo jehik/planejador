@@ -7,7 +7,7 @@ import SupportMessages from '../components/dream/SupportMessages';
 import useAppStore from '../store/useAppStore';
 
 import RomanticStory from '../components/romantic/RomanticStory';
-import MentorCard from '../components/mentor/MentorCard';
+// import MentorCard from '../components/mentor/MentorCard'; // Archived
 
 const HomeView = () => {
     const { focusMode, activeUser, users, setRomanticStoryViewed } = useAppStore();
@@ -108,10 +108,11 @@ const HomeView = () => {
                     <DreamBoard />
                 </section>
 
-                {/* AI Mentor Card at the bottom */}
+                {/* Mentor AI Archived
                 <section style={{ marginTop: '32px' }}>
                     <MentorCard />
                 </section>
+                */}
             </div>
 
             {focusMode && (
