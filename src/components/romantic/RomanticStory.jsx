@@ -229,44 +229,6 @@ const RomanticStory = ({ onClose }) => {
                 </button>
             </div>
 
-            {/* Audio Activation Prompt - ONLY on First Slide - CLICKABLE */}
-            {isMuted && currentIndex === 0 && (
-                <div
-                    onClick={(e) => {
-                        e.stopPropagation(); // Prevent slide change
-                        toggleAudio();
-                    }}
-                    className="fade-in"
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '16px',
-                        zIndex: 100,
-                        backgroundColor: 'rgba(0,0,0,0.6)',
-                        padding: '32px',
-                        borderRadius: '24px',
-                        color: '#FFF',
-                        backdropFilter: 'blur(8px)',
-                        width: '80%',
-                        maxWidth: '300px',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                        cursor: 'pointer' // Indicate interactivity
-                    }}
-                >
-                    <Volume2 size={48} className="pulse" />
-                    <span style={{ fontWeight: '600', fontSize: '1.1rem', textAlign: 'center', lineHeight: '1.5' }}>
-                        Toque para ligar a música
-                    </span>
-                    <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-                        (Aumente o volume)
-                    </span>
-                </div>
-            )}
 
             {/* Tap Zones */}
             <div
