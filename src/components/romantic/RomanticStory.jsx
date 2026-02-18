@@ -215,38 +215,47 @@ const RomanticStory = ({ onClose }) => {
             {/* Controls */}
             <div style={{
                 position: 'absolute',
-                top: 'env(safe-area-inset-top, 40px)',
+                top: 'env(safe-area-inset-top, 70px)', // Moved down to avoid progress bar
                 right: '20px',
                 zIndex: 30,
                 display: 'flex',
                 gap: '16px'
             }}>
-                <button onClick={toggleAudio} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.6 }}>
-                    {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                <button onClick={toggleAudio} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.8, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                    {isMuted ? <VolumeX size={28} /> : <Volume2 size={28} />}
                 </button>
-                <button onClick={onClose} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.6 }}>
-                    <X size={28} />
+                <button onClick={onClose} style={{ background: 'none', border: 'none', color: currentSlide.type === 'image' ? '#FFF' : '#000', opacity: 0.8, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                    <X size={32} />
                 </button>
             </div>
 
-            {/* Audio Activation Prompt */}
-            {isMuted && (
-                <div style={{
+            {/* Audio Activation Prompt - ONLY on First Slide */}
+            {isMuted && currentIndex === 0 && (
+                <div className="fade-in" style={{
                     position: 'absolute',
-                    bottom: '120px',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '16px',
                     zIndex: 100,
-                    backgroundColor: currentSlide.type === 'image' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    padding: '16px 24px',
-                    borderRadius: '20px',
-                    color: currentSlide.type === 'image' ? '#FFF' : '#000',
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    padding: '32px',
+                    borderRadius: '24px',
+                    color: '#FFF',
+                    backdropFilter: 'blur(8px)',
+                    width: '80%',
+                    maxWidth: '300px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
                 }}>
-                    <Volume2 size={32} />
-                    <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>
-                        Aumente o volume &<br />Toque para ouvir a música
+                    <Volume2 size={48} className="pulse" />
+                    <span style={{ fontWeight: '600', fontSize: '1.1rem', textAlign: 'center', lineHeight: '1.5' }}>
+                        Toque na tela para ligar o som
+                    </span>
+                    <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                        (Aumente o volume)
                     </span>
                 </div>
             )}
