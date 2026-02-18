@@ -131,19 +131,23 @@ export const fetchMentorAdvice = async (userType) => {
     } catch (error) {
         console.error("Mentor Service Client Error:", error);
 
-        // If it's a network error (API not found/blocked), fallback to mock in dev/preview
-        if (window.location.hostname !== 'planejador-casal.vercel.app') { // Replace with actual prod domain if known, or just being safe
-            console.warn("Falling back to Mock due to Network Error in non-prod environment.");
+        // If explicitly localhost, we can fallback to mock safely on error
+        if (isLocalhost) {
+            console.warn("Falling back to Mock due to error in Local env.");
             return getMockResponse();
         }
 
-        // Client-side fallback if network totally fails in Production
+        // In PRODUCTION, do not show "Local Mock". Show a graceful error message.
         return {
             alinhamentoSonho: 0,
-            analiseComportamental: "Erro de conexão com o Mentor (Network Error).",
-            fraseMentor: "Verifique sua internet e tente novamente.",
-            ajusteImediato: "Foco no básico.",
-            acaoMinimaAmanha: "Tentar novamente mais tarde."
+            analiseComportamental: "O Mentor está indisponível no momento (Erro no Servidor).",
+            fraseMentor: "Verifique a configuração da API na Vercel.",
+            ajusteImediato: "Aguarde alguns instantes.",
+            acaoMinimaAmanha: "Tente novamente mais tarde.",
+            // Debora compatibility
+            explicacaoNeurocientifica: "Sistema em manutenção.",
+            visualizacaoGuiada: "Respire fundo.",
+            fraseProsperidade: "Tudo se resolverá."
         };
     }
 };
