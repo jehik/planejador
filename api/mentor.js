@@ -14,7 +14,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Server misconfiguration: Missing API Key' });
     }
 
-    const MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2";
+    // Switching to Zephyr-7b-beta (Mistral fine-tune) which is highly available on free tier
+    const MODEL_ID = "HuggingFaceH4/zephyr-7b-beta";
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
 
     try {
