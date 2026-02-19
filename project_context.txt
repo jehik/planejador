@@ -1,0 +1,386 @@
+
+=== PROJECT STRUCTURE & CONTEXT ===
+This is a PWA/Mobile-first web app using React, Vite, Zustand, and Firebase (Auth + Firestore).
+The goal is to fix a persistent sync issue (infinite loop on mobile) and UI layout issues.
+
+=== FILE: src/store/useAppStore.js ===
+import { create } from 'zustand';
+import { auth, db } from '../firebase.config';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+const initialUserData = {
+  name: '',
+  points: 0,
+  level: 1,
+  streak: 0,
+  focusCycles: 0,
+  tasks: [
+    { id: 1, title: 'Planejar o dia', completed: false, date: new Date().toISOString().split('T')[0] },
+    { id: 2, title: 'Revisar metas', completed: false, date: new Date().toISOString().split('T')[0] }
+  ],
+  dailyTask: { id: 1, title: 'Completar Configuração do Projeto', completed: false },
+  goals: [],
+  workouts: [],
+  nutrition: {
+    water: 0,
+    lastResetDate: null,
+    meals: { breakfast: false, lunch: false, snack: false, dinner: false }
+  },
+  finance: { income: 0, expenses: 0, savingsGoal: 10000, transactions: [] },
+  dreams: [],
+  romanticStoryViewed: false
+};
+
+const useAppStore = create((set, get) => ({
+  darkMode: localStorage.getItem('theme') === 'dark',
+  toggleTheme: () => {
+    const newMode = !get().darkMode;
+    set({ darkMode: newMode });
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
+  },
+
+  currentUser: null,
+  userData: null,
+  isHydrated: false,
+  isSyncing: false,
+  hasUnsyncedChanges: false,
+  activeTab: 'home',
+  setActiveTab: (tab) => set({ activeTab: tab }),
+  focusMode: false,
+  toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
+
+  initializeAuth: () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        console.log('Auth State: User detected', user.uid, user.email);
+        set({ currentUser: user });
+        await get().loadUserData(user.uid);
+      } else {
+        console.log('Auth State: No user');
+        get().logout();
+      }
+    });
+  },
+
+  login: async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (error) {
+      console.error("Login failed:", error.code, error.message);
+      return { success: false, error: error.message };
+    }
+  },
+
+  logout: async () => {
+    try {
+      await signOut(auth);
+      set({
+        currentUser: null,
+        userData: null,
+        isHydrated: false,
+        isSyncing: false,
+        hasUnsyncedChanges: false,
+        activeTab: 'home'
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  },
+
+  loadUserData: async (uid) => {
+    if (!uid) return;
+    set({ isSyncing: true });
+
+    try {
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+      let dataToLoad = null;
+
+      if (docSnap.exists()) {
+        console.log('Data loaded from Firestore');
+        dataToLoad = docSnap.data();
+      } else {
+        console.log('No data in Firestore. Checking for local migration...');
+        const oldStorage = localStorage.getItem('app-storage');
+        if (oldStorage) {
+          try {
+            const parsed = JSON.parse(oldStorage);
+            const oldState = parsed.state;
+            const email = auth.currentUser?.email;
+            let oldUserKey = null;
+            if (email?.includes('cassio')) oldUserKey = 'cassio';
+            if (email?.includes('debora')) oldUserKey = 'debora';
+            if (oldUserKey && oldState.users && oldState.users[oldUserKey]) {
+              console.log('Migrating local data for', oldUserKey);
+              dataToLoad = oldState.users[oldUserKey];
+            }
+          } catch (e) {
+            console.error("Migration parse error", e);
+          }
+        }
+        if (!dataToLoad) {
+          const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
+          dataToLoad = { ...initialUserData, name };
+        }
+        await setDoc(docRef, dataToLoad);
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      if (dataToLoad.nutrition?.lastResetDate !== today) {
+        console.log('Daily Reset Triggered');
+        dataToLoad.nutrition = {
+          ...dataToLoad.nutrition,
+          water: 0,
+          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
+          lastResetDate: today
+        };
+        set({ hasUnsyncedChanges: true });
+      }
+
+      set({ userData: dataToLoad });
+    } catch (error) {
+      console.error("Load failed:", error);
+      const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
+      set({ userData: { ...initialUserData, name } });
+    } finally {
+      set({ isHydrated: true, isSyncing: false });
+    }
+  },
+
+  syncData: async () => {
+    const { userData, currentUser, isHydrated, isSyncing } = get();
+    if (!currentUser || !userData || !isHydrated || isSyncing) return;
+
+    set({ isSyncing: true });
+
+    try {
+      // Sanitize data to remove undefined values
+      const cleanData = JSON.parse(JSON.stringify(userData));
+      await setDoc(doc(db, 'users', currentUser.uid), cleanData, { merge: true });
+      console.log('AutoSync: Success');
+      set({ hasUnsyncedChanges: false, isSyncing: false });
+    } catch (error) {
+      console.error("AutoSync: Failed", error);
+      set({ isSyncing: false });
+    }
+  },
+
+  setUserData: (fn) => set((state) => {
+    if (!state.userData) return state;
+    const newData = fn(state.userData);
+    return {
+      userData: newData,
+      hasUnsyncedChanges: true
+    };
+  }),
+
+  // ... Domain actions (addPoints, addTask, etc.) using setUseData ...
+  checkDailyReset: () => get().setUserData(data => {
+    const today = new Date().toISOString().split('T')[0];
+    if (data.nutrition?.lastResetDate !== today) {
+      console.log('Daily Reset Triggered (Focus)');
+      return {
+        ...data,
+        nutrition: {
+          ...data.nutrition,
+          water: 0,
+          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
+          lastResetDate: today
+        }
+      };
+    }
+    return data;
+  })
+}));
+export default useAppStore;
+
+=== FILE: src/App.jsx ===
+import React from 'react';
+import Layout from './components/layout/Layout';
+import useAppStore from './store/useAppStore';
+import LevelSystem from './components/gamification/LevelSystem';
+import AutoSync from './components/sync/AutoSync';
+import HomeView from './views/HomeView';
+import FinanceView from './views/FinanceView';
+import TasksView from './views/TasksView';
+import UserSelectionView from './views/UserSelectionView';
+import GoalsView from './views/GoalsView';
+import WorkoutsView from './views/WorkoutsView';
+import NutritionView from './views/NutritionView';
+import ProfileView from './views/ProfileView';
+
+const App = () => {
+  const { activeTab, currentUser, isHydrated, initializeAuth } = useAppStore();
+
+  React.useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  React.useEffect(() => {
+    const handleFocus = () => {
+      if (useAppStore.getState().isHydrated) {
+        useAppStore.getState().checkDailyReset();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, []);
+
+  if (!currentUser) return <UserSelectionView />;
+
+  if (!isHydrated) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        zIndex: 9999,
+        color: 'var(--text-primary)'
+      }}>
+        <div className="spinner" style={{ marginBottom: '16px' }}></div>
+        <p>Carregando seus dados...</p>
+        <style>{`.spinner { width: 40px; height: 40px; border: 4px solid var(--primary-soft); border-top: 4px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'home': return <HomeView />;
+      case 'tasks': return <TasksView />;
+      case 'workouts': return <WorkoutsView />;
+      case 'nutrition': return <NutritionView />;
+      case 'goals': return <GoalsView />;
+      case 'finance': return <FinanceView />;
+      case 'profile': return <ProfileView />;
+      default: return <HomeView />;
+    }
+  };
+
+  return (
+    <Layout>
+      <LevelSystem />
+      <AutoSync />
+      {renderContent()}
+    </Layout>
+  );
+};
+export default App;
+
+=== FILE: src/components/sync/AutoSync.jsx ===
+import React, { useEffect } from 'react';
+import useAppStore from '../../store/useAppStore';
+import { Cloud, RefreshCw } from 'lucide-react';
+
+const AutoSync = () => {
+    const { hasUnsyncedChanges, isSyncing, isHydrated, syncData } = useAppStore();
+
+    useEffect(() => {
+        if (hasUnsyncedChanges && isHydrated && !isSyncing) {
+            const timer = setTimeout(() => {
+                syncData();
+            }, 2000); // 2 second debounce
+            return () => clearTimeout(timer);
+        }
+    }, [hasUnsyncedChanges, isHydrated, isSyncing, syncData]);
+
+    if (!hasUnsyncedChanges && !isSyncing) return null;
+
+    return (
+        <div className="fade-in" style={{
+            position: 'fixed',
+            bottom: '80px',
+            right: '20px',
+            backgroundColor: 'var(--surface-color)',
+            padding: '8px 12px',
+            borderRadius: '20px',
+            boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)',
+            zIndex: 1000,
+            border: '1px solid var(--border-color)'
+        }}>
+            {isSyncing ? (
+                <>
+                    <RefreshCw size={14} className="spin" />
+                    <span>Salvando...</span>
+                </>
+            ) : (
+                <>
+                    <Cloud size={14} style={{ opacity: 0.5 }} />
+                    <span>Alterações pendentes...</span>
+                </>
+            )}
+            <style>{`
+                .spin { animation: spin 1s linear infinite; }
+                @keyframes spin { 100% { transform: rotate(360deg); } }
+            `}</style>
+        </div>
+    );
+};
+export default AutoSync;
+
+=== FILE: src/index.css ===
+:root {
+  --bg-color: #F8F9FA;
+  --surface-color: #FFFFFF;
+  --primary-color: #6366F1;
+  /* ... vars ... */
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #E5E5E5; 
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-y: hidden; /* Prevent body scroll */
+}
+
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: visible; /* UPDATED: visible to allow window scrolling */
+}
+
+.content-area {
+  flex: 1;
+  padding: var(--spacing-md);
+  /* UPDATED: Nav is sticky, so no padding-bottom or overflow-y here */
+}
+
+/* ... utils ... */
+
+=== FILE: firestore.rules ===
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow create, read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

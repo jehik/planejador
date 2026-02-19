@@ -197,25 +197,60 @@ const useAppStore = create((set, get) => ({
   },
 
   // --- 5. Sync Action ---
+  // --- 5. Sync Action (Enhanced Debugging) ---
   syncData: async () => {
     const { userData, currentUser, isHydrated, isSyncing } = get();
 
     // Safety Guards
-    if (!currentUser || !userData || !isHydrated || isSyncing) return;
+    if (!currentUser) {
+      console.warn("AutoSync Skipped: No Current User");
+      return;
+    }
+    if (!userData) {
+      console.warn("AutoSync Skipped: No User Data");
+      return;
+    }
+    if (!isHydrated) {
+      console.warn("AutoSync Skipped: Not Hydrated");
+      return;
+    }
+    if (isSyncing) {
+      console.log("AutoSync Skipped: Already Syncing");
+      return;
+    }
 
+    console.log(`[AutoSync] Starting sync for UID: ${currentUser.uid}`);
     set({ isSyncing: true });
 
     try {
-      // Sanitize data to remove undefined values which cause Firestore loops
+      // 1. Sanitize Data (Deep Clean)
+      // Remove undefined values to prevent Firestore rejection
       const cleanData = JSON.parse(JSON.stringify(userData));
-      await setDoc(doc(db, 'users', currentUser.uid), cleanData, { merge: true });
-      console.log('AutoSync: Success');
+
+      // 2. Log Payload for Inspection
+      console.log("[AutoSync] Payload to Write:", cleanData);
+
+      // 3. Perform Write
+      const docRef = doc(db, 'users', currentUser.uid);
+      await setDoc(docRef, cleanData, { merge: true });
+
+      // 4. Confirm Success
+      console.log("[AutoSync] ✅ Write Confirmed by Firestore");
       set({ hasUnsyncedChanges: false, isSyncing: false });
+
     } catch (error) {
-      console.error("AutoSync: Failed", error);
-      // If error is permanent (permission/validation), stop the loop?
-      // For now, increasing debounce in AutoSync might be better, or just logging.
+      console.error("❌ [AutoSync] CRITICAL WRITE ERROR:", error);
+      console.error("❌ [AutoSync] Error Code:", error.code);
+      console.error("❌ [AutoSync] Error Message:", error.message);
+
+      // Keep hasUnsyncedChanges = true so it might retry later (or user can manually retry)
+      // Reset isSyncing so the loop/spinner doesn't freeze the UI forever
       set({ isSyncing: false });
+
+      // Optional: Alert user if it's a permission issue
+      if (error.code === 'permission-denied') {
+        alert("Erro de Permissão: Não foi possível salvar seus dados. Tente sair e entrar novamente.");
+      }
     }
   },
 
