@@ -48,7 +48,6 @@ const App = () => {
   // Show loading screen if authenticated but not yet hydrated (loading data)
   if (!isHydrated) {
     return (
-    return (
       <div style={{
         position: 'fixed',
         top: 0,
