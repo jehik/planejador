@@ -1,26 +1,43 @@
-import { isSameDay, isSameWeek, isSameMonth, isPast, addHours } from 'date-fns';
-
 export const classifyTask = (task) => {
-    // task.scheduledAt is a JS Date object (converted in store)
-    const now = new Date();
-    const date = new Date(task.scheduledAt);
-
     if (task.completed) return 'completed';
 
-    // Atrasada: scheduledAt < agora AND !completed
-    // We add a small buffer (e.g., 1 min) or just strict comparison? Prompt says "scheduledAt < agora"
-    if (isPast(date) && !isSameDay(date, now)) {
+    const now = new Date();
+    const taskDate = new Date(task.scheduledAt); // Ensure it's a Date object
+
+    // Reset hours for date comparison
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const taskDayStart = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
+
+    // Check if Late
+    // "Late" means past today? Or past current time?
+    // Prompt: "Se scheduledAt < agora AND !completed -> Atrasada"
+    // Strict time comparison
+    if (taskDate < now) {
+        // If it's today but time passed, is it late?
+        // Prompt implies yes. But usually user wants "Today" tasks to stay "Today" until tomorrow.
+        // Let's stick to Prompt literal: "Se scheduledAt < agora".
+        // BUT also "Se mesma data -> Hoje".
+        // Prompt priority: "Se mesma data -> Hoje".
+        // So "Late" is strictly scheduledAt < Today 00:00? 
+        // Or scheduledAt < Now?
+        // Let's interpret: If Same Day -> 'today'. Else if < Now -> 'late'.
+        if (taskDayStart.getTime() === todayStart.getTime()) {
+            return 'today';
+        }
         return 'late';
     }
-    // If it's today but time is past, is it late? 
-    // Usually "Late" implies "Yesterday or before" for tasks, unless it has specific time.
-    // Prompt: "Se scheduledAt < agora AND !completed -> Atrasada". 
-    // If I scheduled for 10:00 and it's 10:01, it's late.
-    if (isPast(date)) return 'late';
 
-    if (isSameDay(date, now)) return 'today';
-    if (isSameWeek(date, now)) return 'week';
-    if (isSameMonth(date, now)) return 'month';
+    if (taskDayStart.getTime() === todayStart.getTime()) return 'today';
+
+    // Week Check
+    const oneDay = 24 * 60 * 60 * 1000;
+    const diffDays = Math.round((taskDayStart - todayStart) / oneDay);
+    if (diffDays <= 7 && diffDays > 0) return 'week';
+
+    // Month Check
+    if (taskDate.getMonth() === now.getMonth() && taskDate.getFullYear() === now.getFullYear()) {
+        return 'month';
+    }
 
     return 'future';
 };
