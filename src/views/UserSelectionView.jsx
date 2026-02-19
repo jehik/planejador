@@ -14,7 +14,7 @@ const UserSelectionView = () => {
         setError('');
         setLoading(true);
 
-        const email = selectedUser === 'cassio' ? 'cassio@antigravity.app' : 'debora@antigravity.app';
+        const email = selectedUser === 'cassio' ? 'cassio@app.com' : 'debora@app.com';
 
         const result = await login(email, password);
 

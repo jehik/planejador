@@ -102,7 +102,7 @@ const useAppStore = create((set, get) => ({
       // onAuthStateChanged will handle the rest
       return { success: true };
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed:", error.code, error.message);
       return { success: false, error: error.message };
     }
   },
