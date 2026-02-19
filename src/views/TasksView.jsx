@@ -5,7 +5,6 @@ import { Plus, Calendar, Clock, Filter } from 'lucide-react';
 
 const TasksView = () => {
     const { tasks, addTask } = useAppStore();
-    const [filter, setFilter] = useState('all'); // 'all', 'today', 'week'
 
     // New Task State
     const [title, setTitle] = useState('');
