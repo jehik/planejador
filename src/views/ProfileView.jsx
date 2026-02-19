@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
 import RomanticStory from '../components/romantic/RomanticStory';
 import { User, LogOut, Moon, Sun, Trash2, Heart } from 'lucide-react';
+import cassioImg from '../assets/cassio.jpg';
+import deboraImg from '../assets/debora.jpg';
 
 const ProfileView = () => {
     const [showStory, setShowStory] = useState(false);
@@ -48,12 +50,15 @@ const ProfileView = () => {
                     width: '64px',
                     height: '64px',
                     borderRadius: '50%',
+                    overflow: 'hidden',
                     backgroundColor: 'var(--primary-soft)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    border: '2px solid var(--primary-color)'
                 }}>
-                    <User size={32} color="var(--primary-color)" />
+                    <img
+                        src={currentUser?.name === 'Cássio' ? cassioImg : deboraImg}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
                 </div>
                 <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{currentUser?.name}</h3>
