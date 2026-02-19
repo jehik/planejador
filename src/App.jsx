@@ -17,20 +17,16 @@ import ShoppingView from './views/ShoppingView';
 import StudiesView from './views/StudiesView';
 import TripView from './views/TripView';
 import SessionResumeView from './views/SessionResumeView';
+import RelationshipView from './views/RelationshipView';
+import ProjectsView from './views/ProjectsView';
 
 const App = () => {
   const { activeTab, currentUser, isHydrated, initializeAuth, sessionConfirmed } = useAppStore();
-
-  console.log("App Render - CurrentUser:", currentUser?.email);
-  console.log("App Render - IsHydrated:", isHydrated);
-  console.log("App Render - SessionConfirmed:", sessionConfirmed);
 
   React.useEffect(() => {
     initializeAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // ... focus effect ...
 
   React.useEffect(() => {
     const handleFocus = () => {
@@ -84,17 +80,19 @@ const App = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <HomeView />; // Dashboard (Agregator)
-      case 'tasks': return <TasksView />; // General Tasks
-      case 'house': return <HouseView />; // House Categoy
-      case 'nutrition': return <NutritionView />; // Nutrition Module
-      case 'shopping': return <ShoppingView />; // Shopping List
-      case 'studies': return <StudiesView />; // Study Module
-      case 'trip': return <TripView />; // Trip Financials
-      case 'workouts': return <WorkoutsView />; // Legacy or keep? Prompt didn't explicitly delete, but focus is elsewhere. Keep for now or hide.
-      case 'goals': return <GoalsView />; // Legacy
-      case 'profile': return <ProfileView />; // Settings/Profile
-      case 'finance': return <FinanceView />; // Legacy?
+      case 'home': return <HomeView />;
+      case 'tasks': return <TasksView />;
+      case 'house': return <HouseView />;
+      case 'nutrition': return <NutritionView />;
+      case 'shopping': return <ShoppingView />;
+      case 'studies': return <StudiesView />;
+      case 'trip': return <TripView />;
+      case 'workouts': return <WorkoutsView />;
+      case 'goals': return <GoalsView />;
+      case 'profile': return <ProfileView />;
+      case 'finance': return <FinanceView />;
+      case 'relationship': return <RelationshipView />;
+      case 'projects': return <ProjectsView />;
       default: return <HomeView />;
     }
   };

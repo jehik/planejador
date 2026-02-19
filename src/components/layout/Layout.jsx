@@ -1,19 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Header from './Header';
-import BottomNav from './BottomNav';
+import Sidebar from './Sidebar';
 import useAppStore from '../../store/useAppStore';
 
 const Layout = ({ children }) => {
-    const { darkMode } = useAppStore();
+    // darkMode is now handled at body/root level mainly, but we can keep class if needed.
+    // However, clean design relies on CSS vars.
 
     return (
-        <div className={`app-container ${darkMode ? 'dark' : ''}`}>
+        <div className="app-container">
             <Header />
+            <Sidebar />
             <main className="content-area fade-in">
                 {children}
             </main>
-            <BottomNav />
         </div>
     );
 };
@@ -23,3 +24,4 @@ Layout.propTypes = {
 };
 
 export default Layout;
+

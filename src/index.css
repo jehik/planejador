@@ -1,17 +1,24 @@
 :root {
-  /* Colors - Light Theme (Default) */
-  --bg-color: #F8F9FA;
-  --surface-color: #FFFFFF;
-  --primary-color: #6366F1;
-  /* Soft Indigo */
-  --primary-soft: #E0E7FF;
-  --text-primary: #1F2937;
-  --text-secondary: #6B7280;
-  --border-color: #E5E7EB;
+  /* Colors - Ultra Premium Palette */
+  --bg-color: #0E0E11;
+  /* Preto levemente azulado */
+  --surface-color: #15151A;
+  /* Cards */
+  --surface-hover: #1F1F26;
+  --border-color: #1F1F26;
+  /* Bordas suaves */
+  --primary-color: #7C5CFF;
+  /* Roxo suave */
+  --primary-glow: rgba(124, 92, 255, 0.15);
+  /* Glow leve 15% blur */
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #52525B;
+
   --success-color: #10B981;
+  --warning-color: #F59E0B;
   --danger-color: #EF4444;
-  --highlight-color: #FEF3C7;
-  /* Soft Amber */
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -19,6 +26,7 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+  --spacing-2xl: 48px;
 
   /* Radius */
   --radius-sm: 8px;
@@ -26,40 +34,21 @@
   --radius-lg: 24px;
   --radius-full: 9999px;
 
-  /* Shadows */
+  /* Shadows & Glows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --glow-primary: 0 0 20px var(--primary-glow);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
 
   /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
+  --transition-fast: 0.2s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-in-out;
 }
 
-[data-theme='dark'] {
-  /* Colors - Dark Theme */
-  --bg-color: #111827;
-  --surface-color: #1F2937;
-  --primary-color: #818CF8;
-  --primary-soft: #3730A3;
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --border-color: #374151;
-  --highlight-color: #4B5563;
-}
-
+/* Reset & Base */
 * {
   margin: 0;
   padding: 0;
@@ -68,95 +57,121 @@
 
 body {
   font-family: var(--font-family);
-  background-color: #E5E5E5;
-  /* Background behind the mobile container */
+  background-color: var(--bg-color);
   color: var(--text-primary);
+  /* Mobile-first centering */
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  overflow-y: hidden;
-  /* Prevent body scroll, handle in app wrapper */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
 }
 
-/* Mobile Container */
+/* App Container */
 .app-container {
   width: 100%;
-  max-width: 480px;
-  background-color: var(--bg-color);
+  max-width: 100%;
+  /* Full width for desktop/tablet as requested, or keep constrained? Prompt implies full dashboard */
+  /* For now, let's allow it to be wider but maybe max-width for large screens if it's a web app */
+  /* Reverting to max-width 480px if it's strictly mobile app simulation, but prompt says "Dashboard" which implies desktop usually.
+     However, "Navbar Superior Fixa" and "App" hints might mean mobile web. 
+     Let's use a responsive max-width. */
   min-height: 100vh;
+  background-color: var(--bg-color);
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  overflow: visible;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-/* Scroll Area - Native Window Scroll */
-.content-area {
-  flex: 1;
-  padding: var(--spacing-md);
-  /* padding-bottom: 80px;  Removed: Nav is now sticky/part of flow */
+@media (min-width: 768px) {
+
+  /* If user wants a desktop dashboard */
+  .app-container {
+    max-width: 1200px;
+    /* Or full width */
+  }
 }
 
-.content-area::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
+/* Typography Utilities */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
-/* Utility Classes */
-.text-center {
-  text-align: center;
+.text-sm {
+  font-size: 0.875rem;
 }
 
-.flex {
-  display: flex;
+.text-base {
+  font-size: 1rem;
 }
 
-.flex-col {
-  flex-direction: column;
+.text-lg {
+  font-size: 1.125rem;
 }
 
-.items-center {
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--glow-primary);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
   align-items: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-center {
   justify-content: center;
-}
-
-.gap-sm {
-  gap: var(--spacing-sm);
-}
-
-.gap-md {
-  gap: var(--spacing-md);
-}
-
-.full-width {
-  width: 100%;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-weight: 500;
   transition: all var(--transition-fast);
+  cursor: pointer;
 }
 
-/* Animation utilities */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Animations */
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -171,4 +186,30 @@ button {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-hover);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(14, 14, 17, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }

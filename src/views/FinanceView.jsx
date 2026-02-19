@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, PiggyBank, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, PiggyBank, Plus, Trash2 } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
 
 const FinanceView = () => {
@@ -33,53 +33,48 @@ const FinanceView = () => {
     const progressPercentage = Math.min(100, Math.max(0, (savingsProgress / finance.savingsGoal) * 100));
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '80px' }}>
-            <h2 style={{ marginBottom: '20px', fontSize: '1.5rem', fontWeight: 'bold' }}>Controle Financeiro</h2>
+        <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                <div style={{
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    padding: '10px', borderRadius: '12px',
+                    color: '#10B981'
+                }}>
+                    <DollarSign size={28} />
+                </div>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: 0 }}>Financeiro</h2>
+            </div>
 
             {/* Savings Goal Card */}
-            <div style={{
-                backgroundColor: 'var(--surface-color)',
-                padding: '24px',
-                borderRadius: '24px',
-                marginBottom: '24px',
-                border: '1px solid var(--border-color)',
-                boxShadow: 'var(--shadow-sm)'
-            }}>
+            <div className="card" style={{ marginBottom: '24px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <PiggyBank size={24} color="var(--primary-color)" />
-                        <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Reserva Acumulada</span>
+                        <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Reserva Total</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Meta:</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Meta:</span>
                         <input
                             type="number"
                             value={finance.savingsGoal}
                             onChange={(e) => setSavingsGoal(Number(e.target.value))}
                             style={{
-                                width: '100px',
-                                padding: '4px 8px',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border-color)',
-                                backgroundColor: 'var(--bg-color)',
-                                color: 'var(--text-primary)',
-                                fontSize: '0.9rem'
+                                width: '100px', padding: '4px 8px', borderRadius: '8px',
+                                border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)',
+                                color: 'var(--text-primary)', fontSize: '0.9rem'
                             }}
                         />
                     </div>
                 </div>
 
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '12px' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '16px' }}>
                     {formatCurrency(savingsProgress)}
                 </div>
 
-                {/* Progress Bar */}
-                <div style={{ height: '8px', backgroundColor: 'var(--bg-color)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '10px', backgroundColor: 'var(--bg-color)', borderRadius: '5px', overflow: 'hidden' }}>
                     <div style={{
-                        width: `${progressPercentage}%`,
-                        height: '100%',
-                        backgroundColor: savingsProgress >= 0 ? 'var(--success-color)' : 'var(--error-color)',
-                        transition: 'width 0.5s ease'
+                        width: `${progressPercentage}%`, height: '100%',
+                        backgroundColor: 'var(--success-color)', transition: 'width 0.5s ease'
                     }} />
                 </div>
                 <div style={{ textAlign: 'right', fontSize: '0.8rem', marginTop: '4px', color: 'var(--text-secondary)' }}>
@@ -88,22 +83,19 @@ const FinanceView = () => {
             </div>
 
             {/* Add Transaction Form */}
-            <div style={{ backgroundColor: 'var(--surface-color)', padding: '20px', borderRadius: '16px', marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '16px' }}>Adicionar Movimentação</h3>
-
+            <div className="card" style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '16px' }}>Nova Movimentação</h3>
                 <form onSubmit={handleAddTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button
                             type="button"
                             onClick={() => setType('expense')}
+                            className={`btn ${type === 'expense' ? 'active' : ''}`}
                             style={{
                                 flex: 1,
-                                padding: '10px',
-                                borderRadius: '8px',
-                                border: type === 'expense' ? '2px solid var(--error-color)' : '1px solid var(--border-color)',
-                                backgroundColor: type === 'expense' ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-color)',
-                                color: type === 'expense' ? 'var(--error-color)' : 'var(--text-secondary)',
-                                fontWeight: '600'
+                                border: type === 'expense' ? '1px solid var(--error-color)' : '1px solid var(--border-color)',
+                                backgroundColor: type === 'expense' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                                color: type === 'expense' ? 'var(--error-color)' : 'var(--text-secondary)'
                             }}
                         >
                             Saída
@@ -111,119 +103,76 @@ const FinanceView = () => {
                         <button
                             type="button"
                             onClick={() => setType('income')}
+                            className={`btn ${type === 'income' ? 'active' : ''}`}
                             style={{
                                 flex: 1,
-                                padding: '10px',
-                                borderRadius: '8px',
-                                border: type === 'income' ? '2px solid var(--success-color)' : '1px solid var(--border-color)',
-                                backgroundColor: type === 'income' ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-color)',
-                                color: type === 'income' ? 'var(--success-color)' : 'var(--text-secondary)',
-                                fontWeight: '600'
+                                border: type === 'income' ? '1px solid var(--success-color)' : '1px solid var(--border-color)',
+                                backgroundColor: type === 'income' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                color: type === 'income' ? 'var(--success-color)' : 'var(--text-secondary)'
                             }}
                         >
                             Entrada
                         </button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '12px' }}>
                         <input
                             type="text"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            value={description} onChange={(e) => setDescription(e.target.value)}
                             placeholder="Descrição (ex: Mercado)"
                             style={{
-                                flex: 2,
-                                padding: '12px',
-                                borderRadius: '12px',
-                                border: '1px solid var(--border-color)',
-                                backgroundColor: 'var(--bg-color)',
-                                color: 'var(--text-primary)'
+                                flex: 2, padding: '12px', borderRadius: '12px',
+                                border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
                             }}
                         />
                         <input
                             type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
+                            value={amount} onChange={(e) => setAmount(e.target.value)}
                             placeholder="R$ 0,00"
                             style={{
-                                flex: 1,
-                                padding: '12px',
-                                borderRadius: '12px',
-                                border: '1px solid var(--border-color)',
-                                backgroundColor: 'var(--bg-color)',
-                                color: 'var(--text-primary)'
+                                flex: 1, padding: '12px', borderRadius: '12px',
+                                border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
                             }}
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            borderRadius: '12px',
-                            backgroundColor: 'var(--primary-color)',
-                            color: 'white',
-                            border: 'none',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        <Plus size={20} /> Adicionar
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                        <Plus size={20} style={{ marginRight: '8px' }} /> Adicionar
                     </button>
                 </form>
             </div>
 
-            {/* Recent Transactions List */}
+            {/* List */}
             <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '16px' }}>Histórico Recente</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '16px' }}>Histórico</h3>
                 {finance.transactions.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: '20px' }}>
-                        Nenhuma movimentação registrada.
-                    </p>
+                    <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
+                        <p>Nenhuma movimentação registrada.</p>
+                    </div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {[...finance.transactions].reverse().map(t => (
-                            <div key={t.id} style={{
-                                backgroundColor: 'var(--surface-color)',
-                                padding: '16px',
-                                borderRadius: '16px',
-                                border: '1px solid var(--border-color)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div key={t.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                     <div style={{
-                                        padding: '10px',
-                                        borderRadius: '50%',
+                                        padding: '10px', borderRadius: '50%',
                                         backgroundColor: t.type === 'income' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                         color: t.type === 'income' ? 'var(--success-color)' : 'var(--error-color)'
                                     }}>
                                         {t.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{t.description}</p>
+                                        <p style={{ fontWeight: '600', marginBottom: '4px' }}>{t.description}</p>
                                         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                                             {new Date(t.date).toLocaleDateString('pt-BR')}
                                         </p>
                                     </div>
                                 </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <span style={{
-                                        fontWeight: 'bold',
-                                        color: t.type === 'income' ? 'var(--success-color)' : 'var(--error-color)'
-                                    }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <span style={{ fontWeight: 'bold', color: t.type === 'income' ? 'var(--success-color)' : 'var(--error-color)' }}>
                                         {t.type === 'income' ? '+' : '-'} {formatCurrency(t.amount)}
                                     </span>
-                                    <button
-                                        onClick={() => removeTransaction(t.id)}
-                                        style={{ color: 'var(--text-secondary)', opacity: 0.5 }}
-                                    >
+                                    <button onClick={() => removeTransaction(t.id)} style={{ color: 'var(--text-secondary)', opacity: 0.5, border: 'none', background: 'none', cursor: 'pointer' }}>
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
@@ -237,3 +186,4 @@ const FinanceView = () => {
 };
 
 export default FinanceView;
+
