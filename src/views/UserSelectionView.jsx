@@ -7,8 +7,8 @@ import { User, Lock, ArrowRight, Loader } from 'lucide-react';
 // Assets (User must place these in public folder or src/assets)
 // Using absolute paths if in public, or imports if in src/assets
 // Let's assume they might be in src/assets/
-import cassioImg from '../assets/cassio.jpg';
-import deboraImg from '../assets/debora.jpg';
+import cassioImg from '../assets/cassio.jpeg';
+import deboraImg from '../assets/debora.jpeg';
 
 const UserSelectionView = () => {
     const { login } = useAppStore();

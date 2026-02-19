@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
 import RomanticStory from '../components/romantic/RomanticStory';
 import { User, LogOut, Moon, Sun, Trash2, Heart } from 'lucide-react';
-import cassioImg from '../assets/cassio.jpg';
-import deboraImg from '../assets/debora.jpg';
+import cassioImg from '../assets/cassio.jpeg';
+import deboraImg from '../assets/debora.jpeg';
 
 const ProfileView = () => {
     const [showStory, setShowStory] = useState(false);
