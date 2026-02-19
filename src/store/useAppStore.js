@@ -206,12 +206,15 @@ const useAppStore = create((set, get) => ({
     set({ isSyncing: true });
 
     try {
-      await setDoc(doc(db, 'users', currentUser.uid), userData, { merge: true });
+      // Sanitize data to remove undefined values which cause Firestore loops
+      const cleanData = JSON.parse(JSON.stringify(userData));
+      await setDoc(doc(db, 'users', currentUser.uid), cleanData, { merge: true });
       console.log('AutoSync: Success');
       set({ hasUnsyncedChanges: false, isSyncing: false });
     } catch (error) {
       console.error("AutoSync: Failed", error);
-      // Keep hasUnsyncedChanges = true so it retries
+      // If error is permanent (permission/validation), stop the loop?
+      // For now, increasing debounce in AutoSync might be better, or just logging.
       set({ isSyncing: false });
     }
   },

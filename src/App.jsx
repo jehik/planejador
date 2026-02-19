@@ -48,13 +48,19 @@ const App = () => {
   // Show loading screen if authenticated but not yet hydrated (loading data)
   if (!isHydrated) {
     return (
+    return (
       <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'var(--bg-color)',
+        backgroundColor: '#FFFFFF',
+        zIndex: 9999,
         color: 'var(--text-primary)'
       }}>
         <div className="spinner" style={{ marginBottom: '16px' }}></div>

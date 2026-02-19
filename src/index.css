@@ -2,14 +2,16 @@
   /* Colors - Light Theme (Default) */
   --bg-color: #F8F9FA;
   --surface-color: #FFFFFF;
-  --primary-color: #6366F1; /* Soft Indigo */
+  --primary-color: #6366F1;
+  /* Soft Indigo */
   --primary-soft: #E0E7FF;
   --text-primary: #1F2937;
   --text-secondary: #6B7280;
   --border-color: #E5E7EB;
   --success-color: #10B981;
   --danger-color: #EF4444;
-  --highlight-color: #FEF3C7; /* Soft Amber */
+  --highlight-color: #FEF3C7;
+  /* Soft Amber */
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -66,12 +68,14 @@
 
 body {
   font-family: var(--font-family);
-  background-color: #E5E5E5; /* Background behind the mobile container */
+  background-color: #E5E5E5;
+  /* Background behind the mobile container */
   color: var(--text-primary);
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  overflow-y: hidden; /* Prevent body scroll, handle in app wrapper */
+  overflow-y: hidden;
+  /* Prevent body scroll, handle in app wrapper */
 }
 
 #root {
@@ -90,34 +94,59 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: visible;
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-/* Scroll Area */
+/* Scroll Area - Native Window Scroll */
 .content-area {
   flex: 1;
-  overflow-y: auto;
   padding: var(--spacing-md);
-  padding-bottom: 80px; /* Space for bottom nav */
-  scrollbar-width: none; /* Firefox */
+  /* padding-bottom: 80px;  Removed: Nav is now sticky/part of flow */
 }
 
 .content-area::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* Utility Classes */
-.text-center { text-align: center; }
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.gap-sm { gap: var(--spacing-sm); }
-.gap-md { gap: var(--spacing-md); }
-.full-width { width: 100%; }
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.full-width {
+  width: 100%;
+}
 
 button {
   cursor: pointer;
@@ -133,6 +162,13 @@ button {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

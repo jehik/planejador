@@ -17,13 +17,10 @@ const BottomNav = () => {
 
     return (
         <nav style={{
-            position: 'fixed',
+            position: 'sticky',
             bottom: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
             width: '100%',
-            maxWidth: '480px',
-            height: '70px',
+            height: '80px', // Slightly taller for better touch
             backgroundColor: darkMode ? 'var(--surface-color)' : '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-around',
