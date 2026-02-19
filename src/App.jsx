@@ -7,6 +7,11 @@ import AutoSync from './components/sync/AutoSync';
 import HomeView from './views/HomeView';
 import FinanceView from './views/FinanceView';
 import TasksView from './views/TasksView';
+import UserSelectionView from './views/UserSelectionView';
+import GoalsView from './views/GoalsView';
+import WorkoutsView from './views/WorkoutsView';
+import NutritionView from './views/NutritionView';
+import ProfileView from './views/ProfileView';
 import SessionResumeView from './views/SessionResumeView';
 
 const App = () => {
