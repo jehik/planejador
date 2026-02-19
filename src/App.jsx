@@ -12,6 +12,10 @@ import GoalsView from './views/GoalsView';
 import WorkoutsView from './views/WorkoutsView';
 import NutritionView from './views/NutritionView';
 import ProfileView from './views/ProfileView';
+import HouseView from './views/HouseView';
+import ShoppingView from './views/ShoppingView';
+import StudiesView from './views/StudiesView';
+import TripView from './views/TripView';
 import SessionResumeView from './views/SessionResumeView';
 
 const App = () => {
@@ -79,17 +83,18 @@ const App = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <HomeView />;
-      case 'tasks': return <TasksView />;
-      case 'workouts': return <WorkoutsView />;
-      case 'nutrition': return <NutritionView />;
-      case 'goals': return <GoalsView />;
-      case 'finance':
-        return <FinanceView />;
-      case 'profile':
-        return <ProfileView />;
-      default:
-        return <HomeView />;
+      case 'home': return <HomeView />; // Dashboard (Agregator)
+      case 'tasks': return <TasksView />; // General Tasks
+      case 'house': return <HouseView />; // House Categoy
+      case 'nutrition': return <NutritionView />; // Nutrition Module
+      case 'shopping': return <ShoppingView />; // Shopping List
+      case 'studies': return <StudiesView />; // Study Module
+      case 'trip': return <TripView />; // Trip Financials
+      case 'workouts': return <WorkoutsView />; // Legacy or keep? Prompt didn't explicitly delete, but focus is elsewhere. Keep for now or hide.
+      case 'goals': return <GoalsView />; // Legacy
+      case 'profile': return <ProfileView />; // Settings/Profile
+      case 'finance': return <FinanceView />; // Legacy?
+      default: return <HomeView />;
     }
   };
 
