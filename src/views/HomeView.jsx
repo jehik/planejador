@@ -11,7 +11,7 @@ import RomanticStory from '../components/romantic/RomanticStory';
 
 const HomeView = () => {
     const { focusMode, userData, setRomanticStoryViewed } = useAppStore();
-    const currentUser = userData;
+    const currentUser = userData || {}; // Safety fallback
     const [showStory, setShowStory] = React.useState(false);
 
     const isDebora = currentUser?.name === 'Débora';

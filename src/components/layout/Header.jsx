@@ -4,7 +4,7 @@ import useAppStore from '../../store/useAppStore';
 
 const Header = () => {
     const { darkMode, toggleTheme, userData } = useAppStore();
-    const user = userData;
+    const user = userData || { name: 'Visitante' }; // Safety fallback
 
     const getGreeting = () => {
         const hour = new Date().getHours();

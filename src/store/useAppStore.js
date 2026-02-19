@@ -187,6 +187,9 @@ const useAppStore = create((set, get) => ({
       set({ userData: dataToLoad });
     } catch (error) {
       console.error("Load failed:", error);
+      // Fallback to initial data so app doesn't crash and we don't loop
+      const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
+      set({ userData: { ...initialUserData, name } });
     } finally {
       // CRITICAL: Always release the loading screen
       set({ isHydrated: true, isSyncing: false });
