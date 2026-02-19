@@ -195,7 +195,12 @@ const useAppStore = create((set, get) => ({
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tasks = [];
       snapshot.forEach((doc) => {
-        tasks.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        tasks.push({
+          id: doc.id,
+          ...data,
+          scheduledAt: data.scheduledAt?.toDate ? data.scheduledAt.toDate() : new Date(data.scheduledAt) // Handle Timestamp or String
+        });
       });
       set({ tasks });
       console.log(`[Tasks] Synced ${tasks.length} items from Firestore`);
