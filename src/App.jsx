@@ -27,7 +27,8 @@ const App = () => {
 
   React.useEffect(() => {
     initializeAuth();
-  }, [initializeAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ... focus effect ...
 

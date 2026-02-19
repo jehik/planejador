@@ -235,7 +235,7 @@ const useAppStore = create((set, get) => ({
       // Points for creating?
     } catch (error) {
       console.error("Add Task Failed:", error);
-      alert("Erro ao adicionar tarefa");
+      alert(`Erro ao adicionar tarefa: ${error.message}`);
     }
   },
 
