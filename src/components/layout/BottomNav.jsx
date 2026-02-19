@@ -1,5 +1,5 @@
 import React from 'react';
-import useAppStore from '../store/useAppStore';
+import useAppStore from '../../store/useAppStore';
 // Icons
 import { CheckSquare, Home, LayoutGrid, Utensils, ShoppingCart, Menu as MenuIcon } from 'lucide-react';
 
