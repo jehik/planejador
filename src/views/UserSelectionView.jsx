@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
+import { auth } from '../firebase.config';
+import { signOut } from 'firebase/auth';
 import { User, Lock, ArrowRight, Loader } from 'lucide-react';
 
 const UserSelectionView = () => {
@@ -82,7 +84,15 @@ const UserSelectionView = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
                         <button
-                            onClick={() => setSelectedUser('cassio')}
+                            onClick={async () => {
+                                // Force logout if session exists to prevent race conditions
+                                if (auth.currentUser) {
+                                    console.log('Cleaning up previous session...');
+                                    await signOut(auth);
+                                    useAppStore.getState().logout();
+                                }
+                                setSelectedUser('cassio');
+                            }}
                             style={{
                                 padding: '18px 24px',
                                 borderRadius: '20px',
@@ -111,7 +121,15 @@ const UserSelectionView = () => {
                         </button>
 
                         <button
-                            onClick={() => setSelectedUser('debora')}
+                            onClick={async () => {
+                                // Force logout if session exists
+                                if (auth.currentUser) {
+                                    console.log('Cleaning up previous session...');
+                                    await signOut(auth);
+                                    useAppStore.getState().logout();
+                                }
+                                setSelectedUser('debora');
+                            }}
                             style={{
                                 padding: '18px 24px',
                                 borderRadius: '20px',

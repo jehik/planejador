@@ -16,6 +16,9 @@ import ProfileView from './views/ProfileView';
 const App = () => {
   const { activeTab, currentUser, isHydrated, initializeAuth } = useAppStore();
 
+  console.log("App Render - CurrentUser:", currentUser?.email);
+  console.log("App Render - IsHydrated:", isHydrated);
+
   React.useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);

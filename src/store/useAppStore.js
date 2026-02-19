@@ -86,7 +86,7 @@ const useAppStore = create((set, get) => ({
   initializeAuth: () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log('Auth State: User detected', user.uid);
+        console.log('Auth State: User detected', user.uid, user.email);
         set({ currentUser: user });
         await get().loadUserData(user.uid);
       } else {
@@ -146,11 +146,6 @@ const useAppStore = create((set, get) => ({
           try {
             const parsed = JSON.parse(oldStorage);
             const oldState = parsed.state;
-            // Identify user based on email mapping
-            // emails: cassio@... -> cassio, debora@... -> debora
-            // We need to know which 'key' in the old users object matches this uid
-            // This is tricky because we don't have the explicit mapping here easily
-            // unless we hardcode based on the auth email.
             const email = auth.currentUser?.email;
             let oldUserKey = null;
             if (email?.includes('cassio')) oldUserKey = 'cassio';
@@ -185,22 +180,16 @@ const useAppStore = create((set, get) => ({
           meals: { breakfast: false, lunch: false, snack: false, dinner: false },
           lastResetDate: today
         };
-        // We don't verify 'saved' here, the next sync will catch it or we can force save
-        // But simply setting it as hydrated data is enough, AutoSync will see it as 'synced' 
-        // because we loaded it? No, if we modify it here, we should mark as unsynced OR save immediately.
-        // Let's mark as unsynced to be safe.
+        // Mark as unsynced to ensure it saves eventually
         set({ hasUnsyncedChanges: true });
       }
 
-      set({
-        userData: dataToLoad,
-        isHydrated: true,
-        isSyncing: false
-      });
-
+      set({ userData: dataToLoad });
     } catch (error) {
       console.error("Load failed:", error);
-      set({ isSyncing: false }); // Should we retry? For now just stop spinner.
+    } finally {
+      // CRITICAL: Always release the loading screen
+      set({ isHydrated: true, isSyncing: false });
     }
   },
 
