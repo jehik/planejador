@@ -3,8 +3,8 @@ import { Plus, Trash2, Dumbbell, Flame, CheckCircle, Circle } from 'lucide-react
 import useAppStore from '../store/useAppStore';
 
 const WorkoutsView = () => {
-    const { activeUser, users, addWorkout, removeWorkout, toggleWorkout } = useAppStore();
-    const workouts = users[activeUser]?.workouts || [];
+    const { userData, addWorkout, removeWorkout, toggleWorkout } = useAppStore();
+    const workouts = userData?.workouts || [];
     const [newWorkoutTitle, setNewWorkoutTitle] = useState('');
     const [selectedDays, setSelectedDays] = useState([]);
 

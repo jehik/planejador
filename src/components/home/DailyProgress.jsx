@@ -2,8 +2,8 @@ import React from 'react';
 import useAppStore from '../../store/useAppStore';
 
 const DailyProgress = () => {
-    const { activeUser, users } = useAppStore();
-    const currentUser = users[activeUser];
+    const { userData } = useAppStore();
+    const currentUser = userData;
 
     // 1. Get Today's Date and Day
     const today = new Date().toISOString().split('T')[0];

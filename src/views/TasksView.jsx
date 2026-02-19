@@ -3,8 +3,8 @@ import { Plus, Trash2, Calendar, CheckCircle, Circle } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
 
 const TasksView = () => {
-    const { activeUser, users, addTask, removeTask, toggleTask } = useAppStore();
-    const tasks = users[activeUser]?.tasks || [];
+    const { userData, addTask, removeTask, toggleTask } = useAppStore();
+    const tasks = userData?.tasks || [];
     const [activeTab, setActiveTab] = useState('today'); // 'today', 'tomorrow', 'soon'
     const [newTaskTitle, setNewTaskTitle] = useState('');
 

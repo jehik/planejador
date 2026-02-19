@@ -68,8 +68,8 @@ const GoalCard = ({ goal }) => {
 };
 
 const GoalsPreview = () => {
-    const { activeUser, users } = useAppStore();
-    const goals = users[activeUser]?.goals || [];
+    const { userData } = useAppStore();
+    const goals = userData?.goals || [];
 
     return (
         <div className="fade-in">

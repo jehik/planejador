@@ -3,8 +3,8 @@ import { Image as ImageIcon, Upload, Trash2, Plus } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 
 const DreamBoard = () => {
-    const { activeUser, users, addDream, removeDream } = useAppStore();
-    const dreams = users[activeUser]?.dreams || [];
+    const { userData, addDream, removeDream } = useAppStore();
+    const dreams = userData?.dreams || [];
     const fileInputRef = useRef(null);
 
     const handleImageUpload = (e) => {

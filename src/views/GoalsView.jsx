@@ -144,8 +144,8 @@ const GoalItem = ({ goal, removeGoal, toggleGoalStep, addGoalStep }) => {
 };
 
 const GoalsView = () => {
-    const { activeUser, users, addGoal, removeGoal, toggleGoalStep, addGoalStep } = useAppStore();
-    const goals = users[activeUser]?.goals || [];
+    const { userData, addGoal, removeGoal, toggleGoalStep, addGoalStep } = useAppStore();
+    const goals = userData?.goals || [];
     const [newGoalTitle, setNewGoalTitle] = useState('');
 
     const handleAddGoal = (e) => {

@@ -1,51 +1,32 @@
 import React, { useState } from 'react';
-import { User, LogOut, Moon, Sun, Trash2, ShieldAlert, Heart, Cloud, CloudDownload } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
 import RomanticStory from '../components/romantic/RomanticStory';
+import { User, LogOut, Moon, Sun, Trash2, Heart } from 'lucide-react';
 
 const ProfileView = () => {
     const [showStory, setShowStory] = useState(false);
     const {
-        activeUser,
-        users,
+        userData,
         toggleTheme,
         darkMode,
-        setActiveUser,
+        logout,
         resetData
     } = useAppStore();
 
-    const currentUser = users[activeUser];
+    const currentUser = userData; // Mapped from store
 
     const handleLogout = () => {
-        if (window.confirm('Tem certeza que deseja trocar de usuário?')) {
-            setActiveUser(null);
+        if (window.confirm('Tem certeza que deseja sair?')) {
+            logout();
         }
     };
 
     const handleReset = () => {
-        const confirmText = prompt('Esta ação apagará TODOS os dados de TODOS os usuários. Digite "DELETAR" para confirmar:');
+        const confirmText = prompt('Esta ação apagará TODOS os SEUS dados. Digite "DELETAR" para confirmar:');
         if (confirmText === 'DELETAR') {
             resetData();
-            alert('Dados resetados com sucesso.');
-            window.location.reload();
+            alert('Seus dados foram resetados.');
         }
-    };
-
-    const handleSync = async () => {
-        if (!confirm('Deseja salvar seus dados atuais na nuvem? Isso substituirá o backup anterior.')) return;
-        const success = await useAppStore.getState().syncToCloud();
-        if (success) alert('Dados salvos na nuvem com sucesso! ☁️');
-        else alert('Erro ao salvar. Verifique sua conexão.');
-    };
-
-    const handleLoad = async () => {
-        if (!confirm('Deseja carregar os dados da nuvem? Isso substituirá seus dados locais atuais.')) return;
-        const success = await useAppStore.getState().loadFromCloud();
-        if (success) {
-            alert('Dados carregados com sucesso! 🔄');
-            window.location.reload();
-        }
-        else alert('Erro ao carregar ou nenhum backup encontrado.');
     };
 
     return (
@@ -81,21 +62,6 @@ const ProfileView = () => {
                     </p>
                 </div>
             </div>
-
-            {/* Romantic Replay for Debora */}
-            {currentUser?.name === 'Débora' && currentUser?.romanticStoryViewed && (
-                <div style={{ marginBottom: '24px' }}>
-                    <button
-                        onClick={() => window.location.href = '/?story=true'} // Hacky way to trigger story? No, better use store or local state lifted. 
-                    // Wait, I can't easily lift state to App without props drilling or store.
-                    // Ideally I should put the story renderer in App.jsx or Layout.
-                    // For simplicity, I will duplicate the renderer here or keep it simple.
-                    // Actually, let's make it a local state here too. logic needs to be consistent.
-                    // Okay, I will implement a local state toggle here for re-watching.
-                    // I need to import RomanticStory here too.
-                    />
-                </div>
-            )}
 
             {/* Settings */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -149,80 +115,18 @@ const ProfileView = () => {
                         alignItems: 'center',
                         gap: '12px',
                         padding: '16px',
-                        backgroundColor: 'var(--surface-color)',
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
                         borderRadius: '16px',
-                        border: 'none',
+                        border: '1px solid #dbeafe',
                         fontSize: '1rem',
-                        color: 'var(--text-primary)',
-                        boxShadow: 'var(--shadow-sm)'
+                        boxShadow: 'var(--shadow-sm)',
+                        fontWeight: '600'
                     }}
                 >
                     <LogOut size={20} />
-                    <span>Trocar de Usuário</span>
+                    <span>Sair da Conta</span>
                 </button>
-
-                {/* Cloud Sync */}
-                <div style={{ marginTop: '16px' }}>
-                    <h4 style={{
-                        fontSize: '0.9rem',
-                        textTransform: 'uppercase',
-                        color: 'var(--text-secondary)',
-                        marginBottom: '12px',
-                        fontWeight: '600'
-                    }}>
-                        Backup & Sincronização
-                    </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <button
-                            onClick={handleSync}
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                padding: '16px',
-                                backgroundColor: '#ecfdf5',
-                                color: '#059669',
-                                borderRadius: '16px',
-                                border: '1px solid #a7f3d0',
-                                fontSize: '0.9rem',
-                                fontWeight: '600'
-                            }}
-                        >
-                            <Cloud size={24} />
-                            <span>Salvar</span>
-                        </button>
-                        <button
-                            onClick={handleLoad}
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                padding: '16px',
-                                backgroundColor: '#eff6ff',
-                                color: '#2563eb',
-                                borderRadius: '16px',
-                                border: '1px solid #bfdbfe',
-                                fontSize: '0.9rem',
-                                fontWeight: '600'
-                            }}
-                        >
-                            <CloudDownload size={24} />
-                            <span>Carregar</span>
-                        </button>
-                    </div>
-                    <p style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--text-secondary)',
-                        marginTop: '8px',
-                        textAlign: 'center'
-                    }}>
-                        Use para sincronizar entre PC e Celular.
-                    </p>
-                </div>
 
                 {/* Danger Zone */}
                 <div style={{ marginTop: '32px' }}>
@@ -252,7 +156,7 @@ const ProfileView = () => {
                         }}
                     >
                         <Trash2 size={20} />
-                        <span>Apagar Todos os Dados</span>
+                        <span>Apagar Meus Dados</span>
                     </button>
                     <p style={{
                         fontSize: '0.7rem',
@@ -260,14 +164,14 @@ const ProfileView = () => {
                         marginTop: '8px',
                         textAlign: 'center'
                     }}>
-                        Isso removerá todo o progresso de Cássio e Débora.
+                        Isso removerá todo o progresso da sua conta.
                     </p>
                 </div>
             </div>
 
             {/* Romantic Replay (Only for Debora) */}
             {currentUser?.name === 'Débora' && (
-                <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <div style={{ marginTop: '60px', textAlign: 'center' }}>
                     <button
                         onClick={() => setShowStory(true)}
                         style={{

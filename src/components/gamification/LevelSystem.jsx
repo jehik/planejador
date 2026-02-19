@@ -12,15 +12,10 @@ const LEVEL_THRESHOLDS = {
 };
 
 const LevelSystem = () => {
-    const { activeUser, users, addPoints } = useAppStore();
-    const currentUser = users[activeUser];
+    const { userData, addPoints, updateLevel } = useAppStore();
+    const currentUser = userData;
 
-    // We need to track previous level to show modal only on change
-    // Using a ref or local storage to track "last seen level" might be needed if we want it persistent across reloads, 
-    // but for now let's just show it when it happens in session or calculate it.
-
-    // Actually, store has 'level'. We should compare calculated level with stored level.
-    // If calculated > stored, upgrade and show modal.
+    // ... (logic remains)
 
     const [showModal, setShowModal] = useState(false);
     const [newLevel, setNewLevel] = useState(1);
@@ -39,38 +34,13 @@ const LevelSystem = () => {
         }
 
         if (calculatedLevel > currentLevel) {
-            // Update store (we need an action updateLevel, or just update directly via generic update... wait, I don't have updateLevel action)
-            // I'll add a specific updateLevel action or just use addPoints to trick it? No.
-            // I will implement an internal update in this component effectively? activeUser is in store. 
-            // I need to add 'setLevel' to store or similar.
-            // For now, I will modify the user object directly via a new action 'updateUserLevel' if I can.
-            // Wait, I missed adding `updateLevel` action. I should add it.
-
-            // Temporary workaround: I will calculate it in render, but to persist it I need an action.
-            // I will Assume I added updateLevel in the previous step... wait, I didn't.
-            // I will add it in the next tool call if I forgot.
-
-            // Let's assume I'll add `updateLevel` in the next tool call along with `DreamBoard` updates if I missed it.
-            // But I can't use it here if I haven't added it.
-
-            // Actually, I can use a direct state manipulation if I really had to, but that's bad practice with Zustand.
-            // I will just trigger the modal and assume the store update happens via a 'confirm' action or I add the action now.
-
-            // I will trigger the modal, and when the modal opens, I'll call the action.
             setNewLevel(calculatedLevel);
             setShowModal(true);
         }
-    }, [currentUser?.points]); // Check whenever points change
+    }, [currentUser?.points]);
 
     const handleClaimLevel = () => {
-        // Call store action to update level
-        // I need to add this action!
-        useAppStore.setState((state) => ({
-            users: {
-                ...state.users,
-                [state.activeUser]: { ...state.users[state.activeUser], level: newLevel }
-            }
-        }));
+        updateLevel(newLevel);
         setShowModal(false);
     };
 

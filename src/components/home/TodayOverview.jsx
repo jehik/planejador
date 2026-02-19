@@ -3,8 +3,8 @@ import { CheckCircle2, Circle, Dumbbell, Calendar, Droplet } from 'lucide-react'
 import useAppStore from '../../store/useAppStore';
 
 const TodayOverview = () => {
-    const { activeUser, users, toggleTask, toggleWorkout } = useAppStore();
-    const currentUser = users[activeUser];
+    const { userData, toggleTask, toggleWorkout } = useAppStore();
+    const currentUser = userData;
 
     // Get today's date in YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];

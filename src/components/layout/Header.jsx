@@ -3,8 +3,8 @@ import { Moon, Sun } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 
 const Header = () => {
-    const { darkMode, toggleTheme, activeUser, users } = useAppStore();
-    const user = users[activeUser];
+    const { darkMode, toggleTheme, userData } = useAppStore();
+    const user = userData;
 
     const getGreeting = () => {
         const hour = new Date().getHours();

@@ -7,12 +7,11 @@ const DailyFocusCard = () => {
         toggleTask,
         focusMode,
         toggleFocusMode,
-        activeUser,
-        users,
+        userData,
         addPoints
     } = useAppStore();
 
-    const tasks = users[activeUser]?.tasks || [];
+    const tasks = userData?.tasks || [];
 
     // Get first uncompleted task for today
     const today = new Date().toISOString().split('T')[0];

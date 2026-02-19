@@ -3,8 +3,8 @@ import { DollarSign, TrendingUp, TrendingDown, PiggyBank, Plus, Trash2, ArrowRig
 import useAppStore from '../store/useAppStore';
 
 const FinanceView = () => {
-    const { activeUser, users, setSavingsGoal, addTransaction, removeTransaction } = useAppStore();
-    const finance = users[activeUser]?.finance || { income: 0, expenses: 0, savingsGoal: 0, transactions: [] };
+    const { userData, addTransaction, removeTransaction, setSavingsGoal } = useAppStore();
+    const finance = userData?.finance || { income: 0, expenses: 0, savingsGoal: 10000, transactions: [] };
 
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -50,7 +50,23 @@ const FinanceView = () => {
                         <PiggyBank size={24} color="var(--primary-color)" />
                         <span style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Reserva Acumulada</span>
                     </div>
-                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Meta: {formatCurrency(finance.savingsGoal)}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Meta:</span>
+                        <input
+                            type="number"
+                            value={finance.savingsGoal}
+                            onChange={(e) => setSavingsGoal(Number(e.target.value))}
+                            style={{
+                                width: '100px',
+                                padding: '4px 8px',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border-color)',
+                                backgroundColor: 'var(--bg-color)',
+                                color: 'var(--text-primary)',
+                                fontSize: '0.9rem'
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '12px' }}>

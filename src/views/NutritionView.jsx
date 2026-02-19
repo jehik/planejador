@@ -3,8 +3,8 @@ import { Droplets, Coffee, Utensils, Moon, CheckCircle, Circle, Plus, Info } fro
 import useAppStore from '../store/useAppStore';
 
 const NutritionView = () => {
-    const { activeUser, users, addWater, toggleMeal } = useAppStore();
-    const nutrition = users[activeUser]?.nutrition || { water: 0, meals: {} };
+    const { userData, addWater, toggleMeal } = useAppStore();
+    const nutrition = userData?.nutrition || { water: 0, meals: {} };
 
     // Water Logic
     const waterTarget = 4000;

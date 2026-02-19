@@ -56,8 +56,8 @@ const Bar = ({ label, value, color, max, delay }) => {
 };
 
 const FinanceOverview = () => {
-    const { activeUser, users } = useAppStore();
-    const finance = users[activeUser]?.finance || { income: 0, expenses: 0 };
+    const { userData } = useAppStore();
+    const finance = userData?.finance || { income: 0, expenses: 0 };
 
     // Calculate max value for scaling (add some buffer)
     const maxValue = Math.max(finance.income, finance.expenses, finance.income - finance.expenses) * 1.2;

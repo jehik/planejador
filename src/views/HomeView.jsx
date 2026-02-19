@@ -10,8 +10,8 @@ import RomanticStory from '../components/romantic/RomanticStory';
 // import MentorCard from '../components/mentor/MentorCard'; // Archived
 
 const HomeView = () => {
-    const { focusMode, activeUser, users, setRomanticStoryViewed } = useAppStore();
-    const currentUser = users[activeUser];
+    const { focusMode, userData, setRomanticStoryViewed } = useAppStore();
+    const currentUser = userData;
     const [showStory, setShowStory] = React.useState(false);
 
     const isDebora = currentUser?.name === 'Débora';

@@ -14,10 +14,51 @@ import NutritionView from './views/NutritionView';
 import ProfileView from './views/ProfileView';
 
 const App = () => {
-  const { activeTab, activeUser } = useAppStore();
+  const { activeTab, currentUser, isHydrated, initializeAuth } = useAppStore();
 
-  if (!activeUser) {
+  React.useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  // Daily Reset Check on Window Focus
+  React.useEffect(() => {
+    const handleFocus = () => {
+      if (useAppStore.getState().isHydrated) {
+        useAppStore.getState().checkDailyReset();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, []);
+
+  // Show login screen if not authenticated
+  if (!currentUser) {
     return <UserSelectionView />;
+  }
+
+  // Show loading screen if authenticated but not yet hydrated (loading data)
+  if (!isHydrated) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'var(--bg-color)',
+        color: 'var(--text-primary)'
+      }}>
+        <div className="spinner" style={{ marginBottom: '16px' }}></div>
+        <p>Carregando seus dados...</p>
+        <style>{`.spinner { width: 40px; height: 40px; border: 4px solid var(--primary-soft); border-top: 4px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   const renderContent = () => {

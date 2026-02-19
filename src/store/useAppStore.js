@@ -1,6 +1,18 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
+import { auth, db } from '../firebase.config';
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
+import {
+  doc,
+  getDoc,
+  setDoc
+} from 'firebase/firestore';
+
+// --- Default Data Structures ---
 const initialUserData = {
   name: '',
   points: 0,
@@ -16,24 +28,11 @@ const initialUserData = {
     title: 'Completar Configuração do Projeto',
     completed: false,
   },
-  goals: [
-    {
-      id: 1,
-      title: 'Ler um livro',
-      type: 'growth',
-      deadline: '2026-12-31',
-      steps: [
-        { id: 1, title: 'Comprar livro', completed: false },
-        { id: 2, title: 'Ler cap 1', completed: false },
-        { id: 3, title: 'Ler cap 2', completed: false }
-      ]
-    }
-  ],
-  workouts: [
-    { id: 1, title: 'Caminhada 30min', days: ['Seg', 'Qua', 'Sex'], streak: 2, lastCompleted: '2026-02-16' }
-  ],
+  goals: [],
+  workouts: [],
   nutrition: {
     water: 0,
+    lastResetDate: null, // Tracks daily reset
     meals: {
       breakfast: false,
       lunch: false,
@@ -51,462 +50,422 @@ const initialUserData = {
   romanticStoryViewed: false
 };
 
-const useAppStore = create(
-  persist(
-    (set, get) => ({
-      // Theme State
-      darkMode: false,
-      toggleTheme: () => set((state) => {
-        const newMode = !state.darkMode;
-        document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
-        return { darkMode: newMode };
-      }),
+// --- Store Implementation ---
+const useAppStore = create((set, get) => ({
 
-      // Navigation State
-      activeTab: 'home',
-      setActiveTab: (tab) => set({ activeTab: tab }),
+  // --- 1. Persistent State (Theme Only) ---
+  // We handle this manually or via a separate slice if needed, but for simplicity
+  // we will sync darkMode to localStorage directly in the toggle action or init.
+  // actually, let's keep it simple: initial state read from storage
+  darkMode: localStorage.getItem('theme') === 'dark',
+  toggleTheme: () => {
+    const newMode = !get().darkMode;
+    set({ darkMode: newMode });
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
+  },
 
-      // Focus Mode State
-      focusMode: false,
-      toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
+  // --- 2. Volatile State (Auth & Data) ---
+  currentUser: null,       // Firebase Auth Object
+  userData: null,          // The actual user data (tasks, water, etc)
+  isHydrated: false,       // True only after initial load from Firestore
+  isSyncing: false,        // True during network request
+  hasUnsyncedChanges: false, // Dirty flag for AutoSync
 
-      // User Data System
-      activeUser: null,
-      users: {
-        cassio: { ...initialUserData, name: 'Cássio' },
-        debora: { ...initialUserData, name: 'Débora' }
-      },
+  // Navigation
+  activeTab: 'home',
+  setActiveTab: (tab) => set({ activeTab: tab }),
 
-      setActiveUser: (userId) => set({ activeUser: userId }),
+  // Focus Mode
+  focusMode: false,
+  toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
 
-      // Actions (operate on active user)
-      addPoints: (amount) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: { ...currentUser, points: (currentUser.points || 0) + amount }
-          }
-        };
-      }),
+  // --- 3. Authentication Actions ---
 
-      addTask: (task) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              tasks: [...(currentUser.tasks || []), { ...task, id: Date.now(), completed: false }]
-            }
-          }
-        };
-      }),
-
-      removeTask: (taskId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              tasks: currentUser.tasks.filter(t => t.id !== taskId)
-            }
-          }
-        };
-      }),
-
-      toggleTask: (taskId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-
-        const taskIndex = currentUser.tasks.findIndex(t => t.id === taskId);
-        if (taskIndex === -1) return state;
-
-        const updatedTasks = [...currentUser.tasks];
-        const isCompleting = !updatedTasks[taskIndex].completed;
-        updatedTasks[taskIndex] = { ...updatedTasks[taskIndex], completed: isCompleting };
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              tasks: updatedTasks,
-              points: (currentUser.points || 0) + (isCompleting ? 5 : 0)
-            }
-          }
-        };
-      }),
-
-      // Goals Actions
-      addGoal: (goal) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              goals: [...(currentUser.goals || []), { ...goal, id: Date.now(), steps: [] }]
-            }
-          }
-        };
-      }),
-
-      removeGoal: (goalId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              goals: currentUser.goals.filter(g => g.id !== goalId)
-            }
-          }
-        };
-      }),
-
-      addGoalStep: (goalId, stepTitle) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-
-        const goalIndex = currentUser.goals.findIndex(g => g.id === goalId);
-        if (goalIndex === -1) return state;
-
-        const updatedGoals = [...currentUser.goals];
-        updatedGoals[goalIndex] = {
-          ...updatedGoals[goalIndex],
-          steps: [...updatedGoals[goalIndex].steps, { id: Date.now(), title: stepTitle, completed: false }]
-        };
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: { ...currentUser, goals: updatedGoals }
-          }
-        };
-      }),
-
-      toggleGoalStep: (goalId, stepId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-
-        const goalIndex = currentUser.goals.findIndex(g => g.id === goalId);
-        if (goalIndex === -1) return state;
-
-        const updatedGoals = [...currentUser.goals];
-        const activeGoal = updatedGoals[goalIndex];
-        const stepIndex = activeGoal.steps.findIndex(s => s.id === stepId);
-
-        if (stepIndex === -1) return state;
-
-        const updatedSteps = [...activeGoal.steps];
-        const isCompleting = !updatedSteps[stepIndex].completed;
-        updatedSteps[stepIndex] = { ...updatedSteps[stepIndex], completed: isCompleting };
-
-        activeGoal.steps = updatedSteps;
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              goals: updatedGoals,
-              points: (currentUser.points || 0) + (isCompleting ? 15 : 0) // +15 points per step
-            }
-          }
-        };
-      }),
-
-      // Workout Actions
-      addWorkout: (workout) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              workouts: [...(currentUser.workouts || []), {
-                ...workout,
-                id: Date.now(),
-                streak: 0,
-                lastCompleted: null,
-                history: [] // dates completed
-              }]
-            }
-          }
-        };
-      }),
-
-      removeWorkout: (workoutId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              workouts: currentUser.workouts.filter(w => w.id !== workoutId)
-            }
-          }
-        };
-      }),
-      toggleWorkout: (workoutId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-
-        const workoutIndex = currentUser.workouts.findIndex(w => w.id === workoutId);
-        if (workoutIndex === -1) return state;
-
-        const updatedWorkouts = [...currentUser.workouts];
-        const workout = updatedWorkouts[workoutIndex];
-
-        const today = new Date().toISOString().split('T')[0];
-        const isCompletedToday = workout.lastCompleted === today;
-
-        if (isCompletedToday) {
-          // Undo completion
-          updatedWorkouts[workoutIndex] = {
-            ...workout,
-            lastCompleted: null, // simplistic undo, usually would check history
-            streak: Math.max(0, workout.streak - 1)
-          };
-          return {
-            users: {
-              ...state.users,
-              [userId]: {
-                ...currentUser,
-                workouts: updatedWorkouts,
-                points: Math.max(0, (currentUser.points || 0) - 10) // Remove points
-              }
-            }
-          };
-        } else {
-          // Complete workout
-          updatedWorkouts[workoutIndex] = {
-            ...workout,
-            lastCompleted: today,
-            streak: (workout.streak || 0) + 1,
-            history: [...(workout.history || []), today]
-          };
-          return {
-            users: {
-              ...state.users,
-              [userId]: {
-                ...currentUser,
-                workouts: updatedWorkouts,
-                points: (currentUser.points || 0) + 10 // +10 points per workout
-              }
-            }
-          };
-        }
-      }),
-
-      // Nutrition Actions
-      addWater: (amount) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        const currentWater = currentUser.nutrition?.water || 0;
-        const newWater = Math.min(4000, currentWater + amount); // Cap at 4L visual target? No, allow more but target is 4000.
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              nutrition: { ...currentUser.nutrition, water: newWater }
-            }
-          }
-        };
-      }),
-
-      toggleMeal: (mealId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        const currentMeals = currentUser.nutrition?.meals || {};
-        const isCompleting = !currentMeals[mealId];
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              nutrition: {
-                ...currentUser.nutrition,
-                meals: { ...currentMeals, [mealId]: isCompleting }
-              },
-              points: (currentUser.points || 0) + (isCompleting ? 5 : 0) // +5 points per healthy meal check
-            }
-          }
-        };
-      }),
-
-      // Finance Actions
-      setSavingsGoal: (amount) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              finance: { ...currentUser.finance, savingsGoal: amount }
-            }
-          }
-        };
-      }),
-
-      addTransaction: (transaction) => set((state) => { // transaction: { type: 'expense'|'income', amount, description, date }
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        const currentFinance = currentUser.finance || { income: 0, expenses: 0, transactions: [] };
-
-        const newTransactions = [...(currentFinance.transactions || []), { ...transaction, id: Date.now() }];
-
-        // Recalculate totals
-        const newIncome = newTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
-        const newExpenses = newTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              finance: {
-                ...currentFinance,
-                income: newIncome,
-                expenses: newExpenses,
-                transactions: newTransactions
-              },
-              points: (currentUser.points || 0) + 5 // +5 points for tracking finances
-            }
-          }
-        };
-      }),
-
-      removeTransaction: (transactionId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        const currentFinance = currentUser.finance || { income: 0, expenses: 0, transactions: [] };
-
-        const newTransactions = currentFinance.transactions.filter(t => t.id !== transactionId);
-
-        // Recalculate totals
-        const newIncome = newTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
-        const newExpenses = newTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
-
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              finance: {
-                ...currentFinance,
-                income: newIncome,
-                expenses: newExpenses,
-                transactions: newTransactions
-              }
-            }
-          }
-        };
-      }),
-
-      // Dream Actions
-      addDream: (dream) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              dreams: [...(currentUser.dreams || []), { ...dream, id: Date.now() }]
-            }
-          }
-        };
-      }),
-
-      removeDream: (dreamId) => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: {
-              ...currentUser,
-              dreams: currentUser.dreams.filter(d => d.id !== dreamId)
-            }
-          }
-        };
-      }),
-
-      setRomanticStoryViewed: () => set((state) => {
-        const userId = state.activeUser;
-        if (!userId) return state;
-        const currentUser = state.users[userId];
-        return {
-          users: {
-            ...state.users,
-            [userId]: { ...currentUser, romanticStoryViewed: true }
-          }
-        };
-      }),
-
-      resetData: () => set(() => ({
-        activeUser: null,
-        users: {
-          cassio: { ...initialUserData, name: 'Cássio' },
-          debora: { ...initialUserData, name: 'Débora' }
-        }
-      })),
-
-      // Cloud Sync
-      syncToCloud: async () => {
-        const state = get();
-        const userId = state.activeUser;
-        if (!userId) return false;
-
-        const currentUserData = state.users[userId];
-        try {
-          // Dynamically import to avoid circular dependencies if any, though explicit import is better
-          const { saveUserToCloud } = await import('../services/cloudSyncService');
-          const success = await saveUserToCloud(userId, currentUserData);
-          return success;
-        } catch (error) {
-          console.error("Sync failed:", error);
-          return false;
-        }
+  // Initialize Auth Listener
+  initializeAuth: () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        console.log('Auth State: User detected', user.uid);
+        set({ currentUser: user });
+        await get().loadUserData(user.uid);
+      } else {
+        console.log('Auth State: No user');
+        get().logout(); // Ensure clean state
       }
-    }),
-    {
-      name: 'app-storage',
-      getStorage: () => localStorage,
+    });
+  },
+
+  login: async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will handle the rest
+      return { success: true };
+    } catch (error) {
+      console.error("Login failed:", error);
+      return { success: false, error: error.message };
     }
-  )
-);
+  },
+
+  logout: async () => {
+    try {
+      await signOut(auth);
+      // Reset Store to initial state
+      set({
+        currentUser: null,
+        userData: null,
+        isHydrated: false,
+        isSyncing: false,
+        hasUnsyncedChanges: false,
+        activeTab: 'home'
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  },
+
+  // --- 4. Data Loading & Migration ---
+  loadUserData: async (uid) => {
+    if (!uid) return;
+    set({ isSyncing: true });
+
+    try {
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+
+      let dataToLoad = null;
+
+      if (docSnap.exists()) {
+        console.log('Data loaded from Firestore');
+        dataToLoad = docSnap.data();
+      } else {
+        console.log('No data in Firestore. Checking for local migration...');
+        // Attempt Migration from old localStorage
+        const oldStorage = localStorage.getItem('app-storage');
+        if (oldStorage) {
+          try {
+            const parsed = JSON.parse(oldStorage);
+            const oldState = parsed.state;
+            // Identify user based on email mapping
+            // emails: cassio@... -> cassio, debora@... -> debora
+            // We need to know which 'key' in the old users object matches this uid
+            // This is tricky because we don't have the explicit mapping here easily
+            // unless we hardcode based on the auth email.
+            const email = auth.currentUser?.email;
+            let oldUserKey = null;
+            if (email?.includes('cassio')) oldUserKey = 'cassio';
+            if (email?.includes('debora')) oldUserKey = 'debora';
+
+            if (oldUserKey && oldState.users && oldState.users[oldUserKey]) {
+              console.log('Migrating local data for', oldUserKey);
+              dataToLoad = oldState.users[oldUserKey];
+            }
+          } catch (e) {
+            console.error("Migration parse error", e);
+          }
+        }
+
+        // If still no data, use initial template
+        if (!dataToLoad) {
+          const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
+          dataToLoad = { ...initialUserData, name };
+        }
+
+        // Initial Save (Creation)
+        await setDoc(docRef, dataToLoad);
+      }
+
+      // Check for Daily Water Reset logic before setting state
+      const today = new Date().toISOString().split('T')[0];
+      if (dataToLoad.nutrition?.lastResetDate !== today) {
+        console.log('Daily Reset Triggered');
+        dataToLoad.nutrition = {
+          ...dataToLoad.nutrition,
+          water: 0,
+          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
+          lastResetDate: today
+        };
+        // We don't verify 'saved' here, the next sync will catch it or we can force save
+        // But simply setting it as hydrated data is enough, AutoSync will see it as 'synced' 
+        // because we loaded it? No, if we modify it here, we should mark as unsynced OR save immediately.
+        // Let's mark as unsynced to be safe.
+        set({ hasUnsyncedChanges: true });
+      }
+
+      set({
+        userData: dataToLoad,
+        isHydrated: true,
+        isSyncing: false
+      });
+
+    } catch (error) {
+      console.error("Load failed:", error);
+      set({ isSyncing: false }); // Should we retry? For now just stop spinner.
+    }
+  },
+
+  // --- 5. Sync Action ---
+  syncData: async () => {
+    const { userData, currentUser, isHydrated, isSyncing } = get();
+
+    // Safety Guards
+    if (!currentUser || !userData || !isHydrated || isSyncing) return;
+
+    set({ isSyncing: true });
+
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid), userData, { merge: true });
+      console.log('AutoSync: Success');
+      set({ hasUnsyncedChanges: false, isSyncing: false });
+    } catch (error) {
+      console.error("AutoSync: Failed", error);
+      // Keep hasUnsyncedChanges = true so it retries
+      set({ isSyncing: false });
+    }
+  },
+
+
+  // --- 6. Helper to modify userData and set dirty ---
+  // This reduces boilerplate in every action
+  setUserData: (fn) => set((state) => {
+    if (!state.userData) return state;
+    const newData = fn(state.userData);
+    return {
+      userData: newData,
+      hasUnsyncedChanges: true
+    };
+  }),
+
+
+  // --- 7. Domain Actions (Refactored to use setUserData and operate on userData directly) ---
+
+  addPoints: (amount) => get().setUserData(data => ({
+    ...data,
+    points: (data.points || 0) + amount
+  })),
+
+  updateLevel: (newLevel) => get().setUserData(data => ({
+    ...data,
+    level: newLevel
+  })),
+
+  addTask: (task) => get().setUserData(data => ({
+    ...data,
+    tasks: [...(data.tasks || []), { ...task, id: Date.now(), completed: false }]
+  })),
+
+  removeTask: (taskId) => get().setUserData(data => ({
+    ...data,
+    tasks: data.tasks.filter(t => t.id !== taskId)
+  })),
+
+  toggleTask: (taskId) => get().setUserData(data => {
+    const tasks = [...data.tasks];
+    const index = tasks.findIndex(t => t.id === taskId);
+    if (index === -1) return data;
+
+    const isCompleting = !tasks[index].completed;
+    tasks[index] = { ...tasks[index], completed: isCompleting };
+
+    return {
+      ...data,
+      tasks,
+      points: (data.points || 0) + (isCompleting ? 5 : 0)
+    };
+  }),
+
+  // Goals
+  addGoal: (goal) => get().setUserData(data => ({
+    ...data,
+    goals: [...(data.goals || []), { ...goal, id: Date.now(), steps: [] }]
+  })),
+
+  removeGoal: (goalId) => get().setUserData(data => ({
+    ...data,
+    goals: data.goals.filter(g => g.id !== goalId)
+  })),
+
+  addGoalStep: (goalId, title) => get().setUserData(data => {
+    const goals = [...data.goals];
+    const index = goals.findIndex(g => g.id === goalId);
+    if (index === -1) return data;
+
+    goals[index] = {
+      ...goals[index],
+      steps: [...goals[index].steps, { id: Date.now(), title, completed: false }]
+    };
+    return { ...data, goals };
+  }),
+
+  toggleGoalStep: (goalId, stepId) => get().setUserData(data => {
+    const goals = [...data.goals];
+    const gIndex = goals.findIndex(g => g.id === goalId);
+    if (gIndex === -1) return data;
+
+    const steps = [...goals[gIndex].steps];
+    const sIndex = steps.findIndex(s => s.id === stepId);
+    if (sIndex === -1) return data;
+
+    const isCompleting = !steps[sIndex].completed;
+    steps[sIndex] = { ...steps[sIndex], completed: isCompleting };
+    goals[gIndex] = { ...goals[gIndex], steps };
+
+    return {
+      ...data,
+      goals,
+      points: (data.points || 0) + (isCompleting ? 15 : 0)
+    };
+  }),
+
+  // Workouts
+  addWorkout: (workout) => get().setUserData(data => ({
+    ...data,
+    workouts: [...(data.workouts || []), {
+      ...workout,
+      id: Date.now(),
+      streak: 0,
+      lastCompleted: null,
+      history: []
+    }]
+  })),
+
+  removeWorkout: (id) => get().setUserData(data => ({
+    ...data,
+    workouts: data.workouts.filter(w => w.id !== id)
+  })),
+
+  toggleWorkout: (id) => get().setUserData(data => {
+    const workouts = [...data.workouts];
+    const index = workouts.findIndex(w => w.id === id);
+    if (index === -1) return data;
+
+    const workout = workouts[index];
+    const today = new Date().toISOString().split('T')[0];
+    const isCompletedToday = workout.lastCompleted === today;
+
+    if (isCompletedToday) {
+      // Undo
+      workouts[index] = {
+        ...workout,
+        lastCompleted: null,
+        streak: Math.max(0, workout.streak - 1)
+      };
+      return {
+        ...data,
+        workouts,
+        points: Math.max(0, (data.points || 0) - 10)
+      };
+    } else {
+      // Complete
+      workouts[index] = {
+        ...workout,
+        lastCompleted: today,
+        streak: (workout.streak || 0) + 1,
+        history: [...(workout.history || []), today]
+      };
+      return {
+        ...data,
+        workouts,
+        points: (data.points || 0) + 10
+      };
+    }
+  }),
+
+  // Nutrition
+  addWater: (amount) => get().setUserData(data => {
+    const currentWater = data.nutrition?.water || 0;
+    return {
+      ...data,
+      nutrition: {
+        ...data.nutrition,
+        water: currentWater + amount
+      }
+    };
+  }),
+
+  toggleMeal: (mealId) => get().setUserData(data => {
+    const meals = { ...(data.nutrition?.meals || {}) };
+    const isCompleting = !meals[mealId];
+    meals[mealId] = isCompleting;
+
+    return {
+      ...data,
+      nutrition: { ...data.nutrition, meals },
+      points: (data.points || 0) + (isCompleting ? 5 : 0)
+    };
+  }),
+
+  // Finance
+  setSavingsGoal: (amount) => get().setUserData(data => ({
+    ...data,
+    finance: { ...data.finance, savingsGoal: amount }
+  })),
+
+  addTransaction: (tx) => get().setUserData(data => {
+    const finance = data.finance || { income: 0, expenses: 0, transactions: [] };
+    const transactions = [...(finance.transactions || []), { ...tx, id: Date.now() }];
+
+    const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
+    const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
+
+    return {
+      ...data,
+      finance: { ...finance, transactions, income, expenses },
+      points: (data.points || 0) + 5
+    };
+  }),
+
+  removeTransaction: (id) => get().setUserData(data => {
+    const finance = data.finance || { income: 0, expenses: 0, transactions: [] };
+    const transactions = finance.transactions.filter(t => t.id !== id);
+
+    const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
+    const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
+
+    return {
+      ...data,
+      finance: { ...finance, transactions, income, expenses }
+    };
+  }),
+
+  // Dreams
+  addDream: (dream) => get().setUserData(data => ({
+    ...data,
+    dreams: [...(data.dreams || []), { ...dream, id: Date.now() }]
+  })),
+
+  removeDream: (id) => get().setUserData(data => ({
+    ...data,
+    dreams: data.dreams.filter(d => d.id !== id)
+  })),
+
+  setRomanticStoryViewed: () => get().setUserData(data => ({
+    ...data,
+    romanticStoryViewed: true
+  })),
+
+  // Danger Zone
+  resetData: () => get().setUserData(data => ({
+    ...initialUserData,
+    name: data.name // Keep name
+  })),
+
+  checkDailyReset: () => get().setUserData(data => {
+    const today = new Date().toISOString().split('T')[0];
+    if (data.nutrition?.lastResetDate !== today) {
+      console.log('Daily Reset Triggered (Focus)');
+      return {
+        ...data,
+        nutrition: {
+          ...data.nutrition,
+          water: 0,
+          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
+          lastResetDate: today
+        }
+      };
+    }
+    return data;
+  })
+}));
 
 export default useAppStore;
