@@ -7,23 +7,21 @@ import AutoSync from './components/sync/AutoSync';
 import HomeView from './views/HomeView';
 import FinanceView from './views/FinanceView';
 import TasksView from './views/TasksView';
-import UserSelectionView from './views/UserSelectionView';
-import GoalsView from './views/GoalsView';
-import WorkoutsView from './views/WorkoutsView';
-import NutritionView from './views/NutritionView';
-import ProfileView from './views/ProfileView';
+import SessionResumeView from './views/SessionResumeView';
 
 const App = () => {
-  const { activeTab, currentUser, isHydrated, initializeAuth } = useAppStore();
+  const { activeTab, currentUser, isHydrated, initializeAuth, sessionConfirmed } = useAppStore();
 
   console.log("App Render - CurrentUser:", currentUser?.email);
   console.log("App Render - IsHydrated:", isHydrated);
+  console.log("App Render - SessionConfirmed:", sessionConfirmed);
 
   React.useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
-  // Daily Reset Check on Window Focus
+  // ... focus effect ...
+
   React.useEffect(() => {
     const handleFocus = () => {
       if (useAppStore.getState().isHydrated) {
@@ -43,6 +41,11 @@ const App = () => {
   // Show login screen if not authenticated
   if (!currentUser) {
     return <UserSelectionView />;
+  }
+
+  // Show Session Resume if authenticated but not confirmed (Page Refresh)
+  if (currentUser && !sessionConfirmed) {
+    return <SessionResumeView />;
   }
 
   // Show loading screen if authenticated but not yet hydrated (loading data)

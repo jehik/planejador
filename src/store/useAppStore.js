@@ -71,10 +71,14 @@ const useAppStore = create((set, get) => ({
   isHydrated: false,       // True only after initial load from Firestore
   isSyncing: false,        // True during network request
   hasUnsyncedChanges: false, // Dirty flag for AutoSync
+  sessionConfirmed: false, // NEW: Prevents auto-entry on refresh
 
   // Navigation
   activeTab: 'home',
   setActiveTab: (tab) => set({ activeTab: tab }),
+
+  // Auth Helper for Session Resume
+  confirmSession: () => set({ sessionConfirmed: true }),
 
   // Focus Mode
   focusMode: false,
@@ -88,6 +92,9 @@ const useAppStore = create((set, get) => ({
       if (user) {
         console.log('Auth State: User detected', user.uid, user.email);
         set({ currentUser: user });
+        // NOTE: We do NOT set sessionConfirmed here. 
+        // If it was already true (from explicit login), it stays true.
+        // If it was false (refresh), it stays false -> showing SessionResumeView.
         await get().loadUserData(user.uid);
       } else {
         console.log('Auth State: No user');
@@ -99,7 +106,8 @@ const useAppStore = create((set, get) => ({
   login: async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will handle the rest
+      // Explicit Login -> Auto Confirm Session
+      set({ sessionConfirmed: true });
       return { success: true };
     } catch (error) {
       console.error("Login failed:", error.code, error.message);
@@ -117,6 +125,7 @@ const useAppStore = create((set, get) => ({
         isHydrated: false,
         isSyncing: false,
         hasUnsyncedChanges: false,
+        sessionConfirmed: false,
         activeTab: 'home'
       });
     } catch (error) {
