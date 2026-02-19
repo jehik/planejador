@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-
 import { auth, db } from '../firebase.config';
 import {
   signInWithEmailAndPassword,
@@ -9,36 +8,31 @@ import {
 import {
   doc,
   getDoc,
-  setDoc
+  setDoc,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp
 } from 'firebase/firestore';
 
 // --- Default Data Structures ---
+// Only for "Profile" data. Tasks are now in subcollection.
 const initialUserData = {
   name: '',
   points: 0,
   level: 1,
   streak: 0,
   focusCycles: 0,
-  tasks: [
-    { id: 1, title: 'Planejar o dia', completed: false, date: new Date().toISOString().split('T')[0] },
-    { id: 2, title: 'Revisar metas', completed: false, date: new Date().toISOString().split('T')[0] }
-  ],
-  dailyTask: {
-    id: 1,
-    title: 'Completar Configuração do Projeto',
-    completed: false,
-  },
-  goals: [],
+  // tasks: [], // REMOVED: Now in subcollection
+  goals: [], // Keep for now
   workouts: [],
   nutrition: {
     water: 0,
-    lastResetDate: null, // Tracks daily reset
-    meals: {
-      breakfast: false,
-      lunch: false,
-      snack: false,
-      dinner: false
-    }
+    lastResetDate: null,
   },
   finance: {
     income: 0,
@@ -50,13 +44,9 @@ const initialUserData = {
   romanticStoryViewed: false
 };
 
-// --- Store Implementation ---
 const useAppStore = create((set, get) => ({
 
-  // --- 1. Persistent State (Theme Only) ---
-  // We handle this manually or via a separate slice if needed, but for simplicity
-  // we will sync darkMode to localStorage directly in the toggle action or init.
-  // actually, let's keep it simple: initial state read from storage
+  // --- 1. Persistent State (Local) ---
   darkMode: localStorage.getItem('theme') === 'dark',
   toggleTheme: () => {
     const newMode = !get().darkMode;
@@ -65,40 +55,45 @@ const useAppStore = create((set, get) => ({
     document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
   },
 
-  // --- 2. Volatile State (Auth & Data) ---
-  currentUser: null,       // Firebase Auth Object
-  userData: null,          // The actual user data (tasks, water, etc)
-  isHydrated: false,       // True only after initial load from Firestore
-  isSyncing: false,        // True during network request
-  hasUnsyncedChanges: false, // Dirty flag for AutoSync
-  sessionConfirmed: false, // NEW: Prevents auto-entry on refresh
+  // --- 2. Volatile State ---
+  currentUser: null,
+  userData: null,
+  tasks: [], // NEW: Subcollection Data
+  tasksUnsubscribe: null, // Listener cleanup function
+
+  isHydrated: false,
+  isSyncing: false,
+  hasUnsyncedChanges: false,
+  sessionConfirmed: false,
+
+  // Menu State
+  isMenuOpen: false,
+  toggleMenu: () => set(state => ({ isMenuOpen: !state.isMenuOpen })),
+  closeMenu: () => set({ isMenuOpen: false }),
 
   // Navigation
+  // Tabs: 'home' (Dashboard), 'tasks', 'house', 'nutrition', 'shopping', 'studies', 'trip', 'profile', 'finance'
   activeTab: 'home',
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (tab) => {
+    set({ activeTab: tab, isMenuOpen: false }); // Auto-close menu on nav
+  },
 
-  // Auth Helper for Session Resume
+  // Auth Helper
   confirmSession: () => set({ sessionConfirmed: true }),
-
-  // Focus Mode
   focusMode: false,
   toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
 
-  // --- 3. Authentication Actions ---
-
-  // Initialize Auth Listener
+  // --- 3. Authentication & Init ---
   initializeAuth: () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log('Auth State: User detected', user.uid, user.email);
+        console.log('Auth: User detected', user.email);
         set({ currentUser: user });
-        // NOTE: We do NOT set sessionConfirmed here. 
-        // If it was already true (from explicit login), it stays true.
-        // If it was false (refresh), it stays false -> showing SessionResumeView.
         await get().loadUserData(user.uid);
+        get().subscribeToTasks(user.uid); // Start Real-time Listener
       } else {
-        console.log('Auth State: No user');
-        get().logout(); // Ensure clean state
+        console.log('Auth: No user');
+        get().logout();
       }
     });
   },
@@ -106,34 +101,39 @@ const useAppStore = create((set, get) => ({
   login: async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Explicit Login -> Auto Confirm Session
       set({ sessionConfirmed: true });
       return { success: true };
     } catch (error) {
-      console.error("Login failed:", error.code, error.message);
+      console.error("Login failed:", error);
       return { success: false, error: error.message };
     }
   },
 
   logout: async () => {
     try {
+      // Unsubscribe from Firestore
+      const unsub = get().tasksUnsubscribe;
+      if (unsub) unsub();
+
       await signOut(auth);
-      // Reset Store to initial state
       set({
         currentUser: null,
         userData: null,
+        tasks: [],
+        tasksUnsubscribe: null,
         isHydrated: false,
         isSyncing: false,
         hasUnsyncedChanges: false,
         sessionConfirmed: false,
-        activeTab: 'home'
+        activeTab: 'home',
+        isMenuOpen: false
       });
     } catch (error) {
       console.error("Logout failed:", error);
     }
   },
 
-  // --- 4. Data Loading & Migration ---
+  // --- 4. User Data Management (Profile/Hydration) ---
   loadUserData: async (uid) => {
     if (!uid) return;
     set({ isSyncing: true });
@@ -145,127 +145,222 @@ const useAppStore = create((set, get) => ({
       let dataToLoad = null;
 
       if (docSnap.exists()) {
-        console.log('Data loaded from Firestore');
         dataToLoad = docSnap.data();
       } else {
-        console.log('No data in Firestore. Checking for local migration...');
-        // Attempt Migration from old localStorage
-        const oldStorage = localStorage.getItem('app-storage');
-        if (oldStorage) {
-          try {
-            const parsed = JSON.parse(oldStorage);
-            const oldState = parsed.state;
-            const email = auth.currentUser?.email;
-            let oldUserKey = null;
-            if (email?.includes('cassio')) oldUserKey = 'cassio';
-            if (email?.includes('debora')) oldUserKey = 'debora';
-
-            if (oldUserKey && oldState.users && oldState.users[oldUserKey]) {
-              console.log('Migrating local data for', oldUserKey);
-              dataToLoad = oldState.users[oldUserKey];
-            }
-          } catch (e) {
-            console.error("Migration parse error", e);
-          }
-        }
-
-        // If still no data, use initial template
-        if (!dataToLoad) {
-          const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
-          dataToLoad = { ...initialUserData, name };
-        }
-
-        // Initial Save (Creation)
+        // Init new user
+        const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
+        dataToLoad = { ...initialUserData, name };
         await setDoc(docRef, dataToLoad);
       }
 
-      // Check for Daily Water Reset logic before setting state
+      // Check for Daily Reset (Water)
       const today = new Date().toISOString().split('T')[0];
       if (dataToLoad.nutrition?.lastResetDate !== today) {
-        console.log('Daily Reset Triggered');
         dataToLoad.nutrition = {
           ...dataToLoad.nutrition,
           water: 0,
-          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
           lastResetDate: today
         };
-        // Mark as unsynced to ensure it saves eventually
-        set({ hasUnsyncedChanges: true });
+        console.log('Daily Reset Applied');
+        // We will save this change in the next sync or action
       }
 
       set({ userData: dataToLoad });
+
+      // MIGRATION CHECK: OLD TASKS ARRAY
+      if (dataToLoad.tasks && Array.isArray(dataToLoad.tasks) && dataToLoad.tasks.length > 0) {
+        console.log('⚠️ Migration Found: Moving legacy tasks to subcollection...');
+        await get().migrateLegacyTasks(uid, dataToLoad.tasks);
+      }
+
     } catch (error) {
-      console.error("Load failed:", error);
-      // Fallback to initial data so app doesn't crash and we don't loop
-      const name = auth.currentUser?.email?.includes('debora') ? 'Débora' : 'Cássio';
-      set({ userData: { ...initialUserData, name } });
+      console.error("Load UserData failed:", error);
+      // Fallback
+      set({ userData: { ...initialUserData, name: 'Usuário' } });
     } finally {
-      // CRITICAL: Always release the loading screen
       set({ isHydrated: true, isSyncing: false });
     }
   },
 
-  // --- 5. Sync Action ---
-  // --- 5. Sync Action (Enhanced Debugging) ---
-  syncData: async () => {
-    const { userData, currentUser, isHydrated, isSyncing } = get();
+  // --- 5. TASKS SUBCOLLECTION LOGIC (Real-time) ---
+  subscribeToTasks: (uid) => {
+    // Avoid double subscription
+    if (get().tasksUnsubscribe) return;
 
-    // Safety Guards
-    if (!currentUser) {
-      console.warn("AutoSync Skipped: No Current User");
-      return;
-    }
-    if (!userData) {
-      console.warn("AutoSync Skipped: No User Data");
-      return;
-    }
-    if (!isHydrated) {
-      console.warn("AutoSync Skipped: Not Hydrated");
-      return;
-    }
-    if (isSyncing) {
-      console.log("AutoSync Skipped: Already Syncing");
+    const q = query(
+      collection(db, 'users', uid, 'tasks'),
+      orderBy('scheduledAt', 'asc') // Prompt requirement: "Ordenar por scheduledAt crescente"
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasks = [];
+      snapshot.forEach((doc) => {
+        tasks.push({ id: doc.id, ...doc.data() });
+      });
+      set({ tasks });
+      console.log(`[Tasks] Synced ${tasks.length} items from Firestore`);
+    }, (error) => {
+      console.error("Task Subscription Error:", error);
+    });
+
+    set({ tasksUnsubscribe: unsubscribe });
+  },
+
+  addTask: async (task) => {
+    // task: { title, category, scheduledAt, periodType, description, etc }
+    const { currentUser } = get();
+    if (!currentUser) return;
+
+    // Validation: Prompt "Obrigatório: Title, ScheduledAt"
+    if (!task.title || !task.scheduledAt) {
+      console.error("Validation Error: Missing title or date");
       return;
     }
 
-    console.log(`[AutoSync] Starting sync for UID: ${currentUser.uid}`);
-    set({ isSyncing: true });
+    const newTask = {
+      ...task,
+      completed: false,
+      createdAt: serverTimestamp(),
+      // Ensure scheduledAt is Date or Timestamp
+      scheduledAt: new Date(task.scheduledAt)
+    };
 
     try {
-      // 1. Sanitize Data (Deep Clean)
-      // Remove undefined values to prevent Firestore rejection
-      const cleanData = JSON.parse(JSON.stringify(userData));
-
-      // 2. Log Payload for Inspection
-      console.log("[AutoSync] Payload to Write:", cleanData);
-
-      // 3. Perform Write
-      const docRef = doc(db, 'users', currentUser.uid);
-      await setDoc(docRef, cleanData, { merge: true });
-
-      // 4. Confirm Success
-      console.log("[AutoSync] ✅ Write Confirmed by Firestore");
-      set({ hasUnsyncedChanges: false, isSyncing: false });
-
+      await addDoc(collection(db, 'users', currentUser.uid, 'tasks'), newTask);
+      // Points for creating?
     } catch (error) {
-      console.error("❌ [AutoSync] CRITICAL WRITE ERROR:", error);
-      console.error("❌ [AutoSync] Error Code:", error.code);
-      console.error("❌ [AutoSync] Error Message:", error.message);
-
-      // Keep hasUnsyncedChanges = true so it might retry later (or user can manually retry)
-      // Reset isSyncing so the loop/spinner doesn't freeze the UI forever
-      set({ isSyncing: false });
-
-      // Optional: Alert user if it's a permission issue
-      if (error.code === 'permission-denied') {
-        alert("Erro de Permissão: Não foi possível salvar seus dados. Tente sair e entrar novamente.");
-      }
+      console.error("Add Task Failed:", error);
+      alert("Erro ao adicionar tarefa");
     }
   },
 
+  updateTask: async (taskId, updates) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
 
-  // --- 6. Helper to modify userData and set dirty ---
-  // This reduces boilerplate in every action
+    try {
+      const taskRef = doc(db, 'users', currentUser.uid, 'tasks', taskId);
+      await updateDoc(taskRef, updates);
+    } catch (error) {
+      console.error("Update Task Failed:", error);
+    }
+  },
+
+  deleteTask: async (taskId) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
+
+    try {
+      await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId));
+    } catch (error) {
+      console.error("Delete Task Failed:", error);
+    }
+  },
+
+  toggleTask: async (taskId, currentStatus) => {
+    const { currentUser, setUserData } = get();
+    if (!currentUser) return;
+
+    try {
+      const taskRef = doc(db, 'users', currentUser.uid, 'tasks', taskId);
+      await updateDoc(taskRef, { completed: !currentStatus });
+
+      // Award Points on user profile (Optimistic update via sync logic or direct)
+      if (!currentStatus) { // If completing
+        setUserData(data => ({
+          ...data,
+          points: (data.points || 0) + 5
+        }));
+      }
+    } catch (error) {
+      console.error("Toggle Task Failed:", error);
+    }
+  },
+
+  // --- Checklist Items (Subcollection: tasks/{id}/checklist) ---
+  addChecklistItem: async (taskId, title) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
+    try {
+      await addDoc(collection(db, 'users', currentUser.uid, 'tasks', taskId, 'checklist'), {
+        name: title,
+        checked: false,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Add Checklist Item Failed:", error);
+    }
+  },
+
+  toggleChecklistItem: async (taskId, itemId, currentChecked) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId, 'checklist', itemId), {
+        checked: !currentChecked
+      });
+    } catch (error) {
+      console.error("Toggle Item Failed", error);
+    }
+  },
+
+  // --- 6. MIGRATION LOGIC ---
+  migrateLegacyTasks: async (uid, legacyTasks) => {
+    try {
+      const batchPromises = legacyTasks.map(t => {
+        // Map old format to new format
+        const newTask = {
+          title: t.title || 'Tarefa sem título',
+          category: t.category || 'personal', // Default mapping
+          description: '',
+          scheduledAt: t.date ? new Date(t.date) : new Date(),
+          periodType: 'day',
+          completed: t.completed || false,
+          createdAt: serverTimestamp()
+        };
+        return addDoc(collection(db, 'users', uid, 'tasks'), newTask);
+      });
+
+      await Promise.all(batchPromises);
+      console.log(`Migrated ${legacyTasks.length} tasks.`);
+
+      // Clean up old array
+      const userRef = doc(db, 'users', uid);
+      await updateDoc(userRef, { tasks: [] });
+      console.log('Legacy tasks cleared from UserData.');
+
+      // Update local state to reflect removal
+      set(state => ({
+        userData: { ...state.userData, tasks: [] }
+      }));
+    } catch (error) {
+      console.error("Migration Failed:", error);
+    }
+  },
+
+  // --- 7. AUTO SYNC (For UserData Only) ---
+  syncData: async () => {
+    const { userData, currentUser, isHydrated, isSyncing } = get();
+
+    if (!currentUser || !userData || !isHydrated || isSyncing) return;
+
+    set({ isSyncing: true });
+
+    try {
+      const cleanData = JSON.parse(JSON.stringify(userData));
+      delete cleanData.tasks; // Ensure we never accidentally save tasks array
+
+      const docRef = doc(db, 'users', currentUser.uid);
+      await setDoc(docRef, cleanData, { merge: true });
+
+      set({ hasUnsyncedChanges: false, isSyncing: false });
+    } catch (error) {
+      console.error("[AutoSync] Error", error);
+      set({ isSyncing: false });
+    }
+  },
+
+  // --- Helper Helpers ---
   setUserData: (fn) => set((state) => {
     if (!state.userData) return state;
     const newData = fn(state.userData);
@@ -275,218 +370,14 @@ const useAppStore = create((set, get) => ({
     };
   }),
 
-
-  // --- 7. Domain Actions (Refactored to use setUserData and operate on userData directly) ---
-
-  addPoints: (amount) => get().setUserData(data => ({
+  // --- Nutrition (Water Logic) ---
+  // Meals are now Tasks with category='nutrition'
+  addWater: (amount) => get().setUserData(data => ({
     ...data,
-    points: (data.points || 0) + amount
-  })),
-
-  updateLevel: (newLevel) => get().setUserData(data => ({
-    ...data,
-    level: newLevel
-  })),
-
-  addTask: (task) => get().setUserData(data => ({
-    ...data,
-    tasks: [...(data.tasks || []), { ...task, id: Date.now(), completed: false }]
-  })),
-
-  removeTask: (taskId) => get().setUserData(data => ({
-    ...data,
-    tasks: data.tasks.filter(t => t.id !== taskId)
-  })),
-
-  toggleTask: (taskId) => get().setUserData(data => {
-    const tasks = [...data.tasks];
-    const index = tasks.findIndex(t => t.id === taskId);
-    if (index === -1) return data;
-
-    const isCompleting = !tasks[index].completed;
-    tasks[index] = { ...tasks[index], completed: isCompleting };
-
-    return {
-      ...data,
-      tasks,
-      points: (data.points || 0) + (isCompleting ? 5 : 0)
-    };
-  }),
-
-  // Goals
-  addGoal: (goal) => get().setUserData(data => ({
-    ...data,
-    goals: [...(data.goals || []), { ...goal, id: Date.now(), steps: [] }]
-  })),
-
-  removeGoal: (goalId) => get().setUserData(data => ({
-    ...data,
-    goals: data.goals.filter(g => g.id !== goalId)
-  })),
-
-  addGoalStep: (goalId, title) => get().setUserData(data => {
-    const goals = [...data.goals];
-    const index = goals.findIndex(g => g.id === goalId);
-    if (index === -1) return data;
-
-    goals[index] = {
-      ...goals[index],
-      steps: [...goals[index].steps, { id: Date.now(), title, completed: false }]
-    };
-    return { ...data, goals };
-  }),
-
-  toggleGoalStep: (goalId, stepId) => get().setUserData(data => {
-    const goals = [...data.goals];
-    const gIndex = goals.findIndex(g => g.id === goalId);
-    if (gIndex === -1) return data;
-
-    const steps = [...goals[gIndex].steps];
-    const sIndex = steps.findIndex(s => s.id === stepId);
-    if (sIndex === -1) return data;
-
-    const isCompleting = !steps[sIndex].completed;
-    steps[sIndex] = { ...steps[sIndex], completed: isCompleting };
-    goals[gIndex] = { ...goals[gIndex], steps };
-
-    return {
-      ...data,
-      goals,
-      points: (data.points || 0) + (isCompleting ? 15 : 0)
-    };
-  }),
-
-  // Workouts
-  addWorkout: (workout) => get().setUserData(data => ({
-    ...data,
-    workouts: [...(data.workouts || []), {
-      ...workout,
-      id: Date.now(),
-      streak: 0,
-      lastCompleted: null,
-      history: []
-    }]
-  })),
-
-  removeWorkout: (id) => get().setUserData(data => ({
-    ...data,
-    workouts: data.workouts.filter(w => w.id !== id)
-  })),
-
-  toggleWorkout: (id) => get().setUserData(data => {
-    const workouts = [...data.workouts];
-    const index = workouts.findIndex(w => w.id === id);
-    if (index === -1) return data;
-
-    const workout = workouts[index];
-    const today = new Date().toISOString().split('T')[0];
-    const isCompletedToday = workout.lastCompleted === today;
-
-    if (isCompletedToday) {
-      // Undo
-      workouts[index] = {
-        ...workout,
-        lastCompleted: null,
-        streak: Math.max(0, workout.streak - 1)
-      };
-      return {
-        ...data,
-        workouts,
-        points: Math.max(0, (data.points || 0) - 10)
-      };
-    } else {
-      // Complete
-      workouts[index] = {
-        ...workout,
-        lastCompleted: today,
-        streak: (workout.streak || 0) + 1,
-        history: [...(workout.history || []), today]
-      };
-      return {
-        ...data,
-        workouts,
-        points: (data.points || 0) + 10
-      };
+    nutrition: {
+      ...data.nutrition,
+      water: (data.nutrition?.water || 0) + amount
     }
-  }),
-
-  // Nutrition
-  addWater: (amount) => get().setUserData(data => {
-    const currentWater = data.nutrition?.water || 0;
-    return {
-      ...data,
-      nutrition: {
-        ...data.nutrition,
-        water: currentWater + amount
-      }
-    };
-  }),
-
-  toggleMeal: (mealId) => get().setUserData(data => {
-    const meals = { ...(data.nutrition?.meals || {}) };
-    const isCompleting = !meals[mealId];
-    meals[mealId] = isCompleting;
-
-    return {
-      ...data,
-      nutrition: { ...data.nutrition, meals },
-      points: (data.points || 0) + (isCompleting ? 5 : 0)
-    };
-  }),
-
-  // Finance
-  setSavingsGoal: (amount) => get().setUserData(data => ({
-    ...data,
-    finance: { ...data.finance, savingsGoal: amount }
-  })),
-
-  addTransaction: (tx) => get().setUserData(data => {
-    const finance = data.finance || { income: 0, expenses: 0, transactions: [] };
-    const transactions = [...(finance.transactions || []), { ...tx, id: Date.now() }];
-
-    const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
-    const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
-
-    return {
-      ...data,
-      finance: { ...finance, transactions, income, expenses },
-      points: (data.points || 0) + 5
-    };
-  }),
-
-  removeTransaction: (id) => get().setUserData(data => {
-    const finance = data.finance || { income: 0, expenses: 0, transactions: [] };
-    const transactions = finance.transactions.filter(t => t.id !== id);
-
-    const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
-    const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
-
-    return {
-      ...data,
-      finance: { ...finance, transactions, income, expenses }
-    };
-  }),
-
-  // Dreams
-  addDream: (dream) => get().setUserData(data => ({
-    ...data,
-    dreams: [...(data.dreams || []), { ...dream, id: Date.now() }]
-  })),
-
-  removeDream: (id) => get().setUserData(data => ({
-    ...data,
-    dreams: data.dreams.filter(d => d.id !== id)
-  })),
-
-  setRomanticStoryViewed: () => get().setUserData(data => ({
-    ...data,
-    romanticStoryViewed: true
-  })),
-
-  // Danger Zone
-  resetData: () => get().setUserData(data => ({
-    ...initialUserData,
-    name: data.name // Keep name
   })),
 
   checkDailyReset: () => get().setUserData(data => {
@@ -498,13 +389,32 @@ const useAppStore = create((set, get) => ({
         nutrition: {
           ...data.nutrition,
           water: 0,
-          meals: { breakfast: false, lunch: false, snack: false, dinner: false },
           lastResetDate: today
         }
       };
     }
     return data;
-  })
+  }),
+
+  // --- Other Actions ---
+  // Goals/Finance (Keep for now)
+  addGoal: (goal) => get().setUserData(data => ({ ...data, goals: [...(data.goals || []), goal] })),
+  removeGoal: (id) => get().setUserData(data => ({ ...data, goals: data.goals.filter(g => g.id !== id) })),
+  addTransaction: (tx) => get().setUserData(data => ({
+    ...data,
+    finance: {
+      ...data.finance,
+      transactions: [...(data.finance.transactions || []), tx]
+    }
+  })),
+  removeTransaction: (id) => get().setUserData(data => ({
+    ...data,
+    finance: {
+      ...data.finance,
+      transactions: data.finance.transactions.filter(t => t.id !== id)
+    }
+  })),
+
 }));
 
 export default useAppStore;
