@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'lucide-react': path.resolve(__dirname, 'src/components/Icons.jsx')
+      // 'lucide-react': path.resolve(__dirname, 'src/components/Icons.jsx') 
     }
   },
   server: {

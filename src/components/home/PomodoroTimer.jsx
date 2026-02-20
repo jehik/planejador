@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCCW } from 'lucide-react';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 
 const PomodoroTimer = () => {
     const [selectedTime, setSelectedTime] = useState(25); // Minutes
@@ -66,7 +66,7 @@ const PomodoroTimer = () => {
 
             <div className="controls">
                 <button onClick={resetTimer} className="control-btn secondary" title="Recomeçar">
-                    <RotateCCW size={20} />
+                    <RotateCcw size={20} />
                 </button>
                 <button onClick={toggleTimer} className="control-btn main">
                     {isActive ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" />}
