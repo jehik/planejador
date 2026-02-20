@@ -145,15 +145,11 @@ const WorkoutsView = () => {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {sortedAllWorkouts.map(workout => (
-                        <div key={workout.id} style={{
-                            backgroundColor: 'var(--surface-color)',
+                        <div key={workout.id} className="card" style={{
                             padding: '16px',
-                            borderRadius: '16px',
-                            border: '1px solid var(--border-color)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '16px',
-                            opacity: 0.9
                         }}>
                             <div style={{ flex: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -173,7 +169,7 @@ const WorkoutsView = () => {
                                 </div>
                             </div>
 
-                            <button onClick={() => removeWorkout(workout.id)} style={{ color: 'var(--text-secondary)', opacity: 0.5, border: 'none', background: 'none' }}>
+                            <button onClick={() => removeWorkout(workout.id)} style={{ color: 'var(--text-secondary)', opacity: 0.5, border: 'none', background: 'none', cursor: 'pointer' }}>
                                 <Trash2 size={18} />
                             </button>
                         </div>

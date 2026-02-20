@@ -243,17 +243,31 @@ const StudiesView = () => {
                         </div>
                     ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px' }}>
-                            {studies.map(study => (
-                                <div key={study.id} className="card" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px' }}>
-                                    <div style={{ marginBottom: '12px', color: '#8B5CF6' }}>
-                                        <BookOpen size={32} />
+                            {studies.map(study => {
+                                const studyTasks = tasks.filter(t => t.studyId === study.id);
+                                const total = studyTasks.length;
+                                const completed = studyTasks.filter(t => t.completed).length;
+                                const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+                                return (
+                                    <div key={study.id} className="card" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+                                        <div style={{ marginBottom: '12px', color: '#8B5CF6' }}>
+                                            <BookOpen size={32} />
+                                        </div>
+                                        <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
+
+                                        {/* Progress Bar */}
+                                        <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--surface-hover)', borderRadius: '3px', marginTop: '16px', overflow: 'hidden' }}>
+                                            <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#8B5CF6', transition: 'width 0.5s ease' }} />
+                                        </div>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{progress}% concluído</span>
+
+                                        <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ position: 'absolute', top: '10px', right: '10px', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
-                                    <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
-                                    <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ marginTop: '12px', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </>

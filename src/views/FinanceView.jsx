@@ -37,7 +37,16 @@ const FinanceView = () => {
         setDescription('');
     };
 
-    const savingsProgress = finance.income - finance.expenses;
+    // Calculate Dynamic Balance from Transactions
+    const calculateBalance = () => {
+        return finance.transactions.reduce((acc, curr) => {
+            return curr.type === 'income'
+                ? acc + curr.amount
+                : acc - curr.amount;
+        }, 0);
+    };
+
+    const savingsProgress = calculateBalance();
     const progressPercentage = Math.min(100, Math.max(0, (savingsProgress / finance.savingsGoal) * 100));
 
     return (

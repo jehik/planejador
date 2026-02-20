@@ -30,18 +30,24 @@ const NutritionView = () => {
     ).sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
 
     const handleAddMeal = () => {
-        if (!food.trim()) return;
+        if (!food.trim()) {
+            alert('Por favor, digite o que você comeu.');
+            return;
+        }
 
-        // Ensure time is set, fallback to now if empty (though default state handles this)
-        const mealTime = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Ensure time is set, fallback to now
+        const now = new Date();
+        const defaultTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const mealTime = time || defaultTime;
 
         const scheduledAt = new Date(`${todayStr}T${mealTime}:00`);
+
         addTask({
             title: food,
             description: obs,
             category: 'nutrition',
             mealType: mealType,
-            scheduledAt: scheduledAt,
+            scheduledAt: scheduledAt.toISOString(), // Ensure ISO string
             periodType: 'day'
         });
         setFood('');
