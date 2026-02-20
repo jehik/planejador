@@ -5,8 +5,8 @@ import Sidebar from './Sidebar';
 import useAppStore from '../../store/useAppStore';
 
 const Layout = ({ children }) => {
-    // darkMode is now handled at body/root level mainly, but we can keep class if needed.
-    // However, clean design relies on CSS vars.
+    // Forced Light Mode (Theme handling removed)
+
 
     return (
         <div className="app-container">

@@ -41,6 +41,9 @@ const initialUserData = {
     transactions: []
   },
   dreams: [],
+  projects: [], // [{ id, title, description, progress, tasks: [] }]
+  travel: [], // [{ id, destination, date, flight, hotel, notes, packingList: [] }]
+  checklists: {}, // Generic checklists if needed
   romanticStoryViewed: false
 };
 
@@ -413,6 +416,34 @@ const useAppStore = create((set, get) => ({
       ...data.finance,
       transactions: data.finance.transactions.filter(t => t.id !== id)
     }
+  })),
+
+  // --- Projects Actions ---
+  addProject: (project) => get().setUserData(data => ({
+    ...data,
+    projects: [...(data.projects || []), { ...project, id: Date.now().toString(), createdAt: new Date().toISOString() }]
+  })),
+  deleteProject: (id) => get().setUserData(data => ({
+    ...data,
+    projects: (data.projects || []).filter(p => p.id !== id)
+  })),
+  updateProject: (id, updates) => get().setUserData(data => ({
+    ...data,
+    projects: (data.projects || []).map(p => p.id === id ? { ...p, ...updates } : p)
+  })),
+
+  // --- Travel Actions ---
+  addTravel: (trip) => get().setUserData(data => ({
+    ...data,
+    travel: [...(data.travel || []), { ...trip, id: Date.now().toString() }]
+  })),
+  deleteTravel: (id) => get().setUserData(data => ({
+    ...data,
+    travel: (data.travel || []).filter(t => t.id !== id)
+  })),
+  updateTravel: (id, updates) => get().setUserData(data => ({
+    ...data,
+    travel: (data.travel || []).map(t => t.id === id ? { ...t, ...updates } : t)
   })),
 
 }));

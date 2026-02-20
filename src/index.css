@@ -1,20 +1,20 @@
 :root {
-  /* Colors - Ultra Premium Palette */
-  --bg-color: #0E0E11;
-  /* Preto levemente azulado */
-  --surface-color: #15151A;
-  /* Cards */
-  --surface-hover: #1F1F26;
-  --border-color: #1F1F26;
-  /* Bordas suaves */
+  /* Colors - Ultra Premium Light Palette */
+  --bg-color: #FFFFFF;
+  /* Branco Puro */
+  --surface-color: #F4F4F5;
+  /* Cinza muito claro para cards */
+  --surface-hover: #E4E4E7;
+  --border-color: #E4E4E7;
+  /* Bordas sutis */
   --primary-color: #7C5CFF;
-  /* Roxo suave */
+  /* Roxo suave mantido */
   --primary-glow: rgba(124, 92, 255, 0.15);
-  /* Glow leve 15% blur */
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #A1A1AA;
-  --text-tertiary: #52525B;
+  --text-primary: #09090B;
+  /* Quase preto */
+  --text-secondary: #71717A;
+  --text-tertiary: #A1A1AA;
 
   --success-color: #10B981;
   --warning-color: #F59E0B;
@@ -28,16 +28,21 @@
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
 
+  /* Safe Area Variables */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+  /* Default logic for iPhone 8+ usually 0 but we want padding, iPhone 12 has notch */
+
   /* Radius */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
 
-  /* Shadows & Glows */
+  /* Shadows - Adjusted for Light Mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --glow-primary: 0 0 20px var(--primary-glow);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --glow-primary: 0 4px 14px rgba(124, 92, 255, 0.25);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -207,9 +212,10 @@ h6 {
 }
 
 /* Glassmorphism */
+/* Glassmorphism - Light Mode */
 .glass {
-  background: rgba(14, 14, 17, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }

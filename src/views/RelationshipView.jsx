@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Heart, Music, Calendar, Image as ImageIcon, Plus } from 'lucide-react';
+import { Heart, Music, Calendar, Image as ImageIcon, Plus, Upload } from 'lucide-react';
 
 const RelationshipView = () => {
-    // Mock Data
-    const startDate = new Date('2023-01-01'); // Example date
+    // Fixed Date: 15 July 2024
+    const startDate = new Date('2024-07-15');
     const today = new Date();
     const daysTogether = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+    // Photo Logic
+    const { userData, setUserData } = useAppStore();
+    const [localPhoto, setLocalPhoto] = useState(localStorage.getItem('relationship_photo'));
+    const fileInputRef = useRef(null);
+
+    const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result;
+                setLocalPhoto(base64String);
+                localStorage.setItem('relationship_photo', base64String);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const [dateIdeas, setDateIdeas] = useState([
         { id: 1, text: 'Jantar à luz de velas', checked: false },
@@ -32,16 +50,36 @@ const RelationshipView = () => {
         <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
             {/* Header / Hero */}
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                <div style={{
-                    width: '120px', height: '120px', borderRadius: '50%',
-                    backgroundColor: 'var(--surface-color)', margin: '0 auto 16px auto',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    border: '4px solid var(--primary-color)', overflow: 'hidden',
-                    boxShadow: '0 0 20px rgba(124, 92, 255, 0.3)'
-                }}>
-                    <ImageIcon size={40} color="var(--text-secondary)" />
-                    {/* <img src="..." alt="Casal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> */}
+                <div
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                        width: '120px', height: '120px', borderRadius: '50%',
+                        backgroundColor: 'var(--surface-color)', margin: '0 auto 16px auto',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '4px solid var(--primary-color)', overflow: 'hidden',
+                        boxShadow: '0 0 20px rgba(124, 92, 255, 0.3)', cursor: 'pointer',
+                        position: 'relative'
+                    }}
+                >
+                    {localPhoto ? (
+                        <img src={localPhoto} alt="Nós" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                        <ImageIcon size={40} color="var(--text-secondary)" />
+                    )}
+
+                    {/* Upload Overlay hint */}
+                    <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.5)', padding: '4px' }}>
+                        <Upload size={12} color="white" />
+                    </div>
                 </div>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                />
+
                 <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Nós dois</h2>
                 <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -51,6 +89,7 @@ const RelationshipView = () => {
                     <Heart size={16} fill="currentColor" />
                     <span style={{ fontWeight: '600' }}>{daysTogether} dias juntos</span>
                 </div>
+                <p style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>Desde 15 de julho de 2024</p>
             </div>
 
             {/* Date Night Planner */}
@@ -113,21 +152,6 @@ const RelationshipView = () => {
                         <Plus size={20} />
                     </button>
                 </form>
-            </div>
-
-            {/* Shared Songs (Placeholder) */}
-            <div className="card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <Music size={20} color="#10B981" />
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Nossa Trilha Sonora</h3>
-                </div>
-                <div style={{
-                    padding: '20px', borderRadius: '16px',
-                    backgroundColor: 'var(--bg-color)', border: '1px dashed var(--border-color)',
-                    textAlign: 'center', color: 'var(--text-secondary)'
-                }}>
-                    <p>Conecte o Spotify para ver suas músicas favoritas.</p>
-                </div>
             </div>
         </div>
     );

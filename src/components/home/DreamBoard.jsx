@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
-import { Plus, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Plus, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 const DreamBoard = () => {
-    // Placeholder logic for images
-    // In a real app, we'd use Firestore Storage or local object URLs.
-    // Here we'll simulate a grid.
-    const [dreams, setDreams] = useState([
-        { id: 1, url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3', title: 'Viajar' },
-        { id: 2, url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3', title: 'Casa Própria' },
-        // Add more placeholders or empty slots
-    ]);
+    // Persist to localStorage for demo (since we don't have Storage rules confirmed)
+    const [dreams, setDreams] = useState(() => {
+        const saved = localStorage.getItem('dream_board_items');
+        return saved ? JSON.parse(saved) : [];
+    });
 
-    const handleAddDream = () => {
-        // Trigger file input or modal
-        alert("Funcionalidade de upload será implementada em breve.");
+    const fileInputRef = useRef(null);
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const newItem = {
+                    id: Date.now(),
+                    url: reader.result,
+                    title: 'Novo Sonho'
+                };
+                const newDreams = [...dreams, newItem];
+                setDreams(newDreams);
+                localStorage.setItem('dream_board_items', JSON.stringify(newDreams));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeDream = (id) => {
+        if (confirm('Remover este sonho?')) {
+            const newDreams = dreams.filter(d => d.id !== id);
+            setDreams(newDreams);
+            localStorage.setItem('dream_board_items', JSON.stringify(newDreams));
+        }
     };
 
     return (
@@ -22,19 +42,33 @@ const DreamBoard = () => {
 
             <div className="dream-grid">
                 {dreams.map(dream => (
-                    <div key={dream.id} className="dream-item card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div key={dream.id} className="dream-item card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
                         <img src={dream.url} alt={dream.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <div className="dream-overlay">
-                            <span>{dream.title}</span>
-                        </div>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); removeDream(dream.id); }}
+                            style={{
+                                position: 'absolute', top: '4px', right: '4px',
+                                background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%',
+                                padding: '4px', cursor: 'pointer', color: 'white'
+                            }}
+                        >
+                            <Trash2 size={12} />
+                        </button>
                     </div>
                 ))}
 
                 {/* Add Button */}
-                <button className="add-dream-btn" onClick={handleAddDream}>
+                <button className="add-dream-btn" onClick={() => fileInputRef.current?.click()}>
                     <Plus size={32} />
                     <span style={{ marginTop: '8px', fontSize: '0.9rem' }}>Adicionar</span>
                 </button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                />
             </div>
 
             <style>{`
@@ -46,26 +80,12 @@ const DreamBoard = () => {
                 .dream-item {
                     aspect-ratio: 1; /* Square */
                     position: relative;
-                    border: 0; /* Override card border if desired, or keep it */
+                    border: 0;
                     transition: transform 0.3s ease;
                 }
                 .dream-item:hover {
                     transform: translateY(-5px);
                     box-shadow: var(--glow-primary);
-                }
-                .dream-overlay {
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    width: 100%;
-                    padding: var(--spacing-sm);
-                    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-                    color: white;
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                }
-                .dream-item:hover .dream-overlay {
-                    opacity: 1;
                 }
                 .add-dream-btn {
                     aspect-ratio: 1;
@@ -76,6 +96,8 @@ const DreamBoard = () => {
                     align-items: center;
                     justify-content: center;
                     color: var(--text-secondary);
+                    cursor: pointer;
+                    background: transparent;
                     transition: all 0.2s;
                 }
                 .add-dream-btn:hover {

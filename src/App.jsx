@@ -15,7 +15,7 @@ import ProfileView from './views/ProfileView';
 import HouseView from './views/HouseView';
 import ShoppingView from './views/ShoppingView';
 import StudiesView from './views/StudiesView';
-import TripView from './views/TripView';
+import TravelView from './views/TravelView';
 import SessionResumeView from './views/SessionResumeView';
 import RelationshipView from './views/RelationshipView';
 import ProjectsView from './views/ProjectsView';
@@ -86,7 +86,7 @@ const App = () => {
       case 'nutrition': return <NutritionView />;
       case 'shopping': return <ShoppingView />;
       case 'studies': return <StudiesView />;
-      case 'trip': return <TripView />;
+      case 'travel': return <TravelView />;
       case 'workouts': return <WorkoutsView />;
       case 'goals': return <GoalsView />;
       case 'profile': return <ProfileView />;
