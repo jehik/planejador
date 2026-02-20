@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, Sun, CloudSun, Moon, AlignLeft } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, Sun, Sunset, Moon, AlignLeft } from 'lucide-react';
 
 const StudiesView = () => {
     const { userData, addStudy, deleteStudy, addTask, tasks, toggleTask, deleteTask } = useAppStore();
@@ -28,7 +28,7 @@ const StudiesView = () => {
 
     const periods = [
         { id: 'morning', label: 'Manhã', icon: Sun, color: '#F59E0B' },
-        { id: 'afternoon', label: 'Tarde', icon: CloudSun, color: '#F97316' },
+        { id: 'afternoon', label: 'Tarde', icon: Sunset, color: '#F97316' },
         { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
     ];
 

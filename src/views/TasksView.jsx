@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import TaskItem from '../components/tasks/TaskItem';
-import { Plus, Calendar, Clock, Filter, Sun, CloudSun, Moon, AlignLeft, CheckCircle, Trash2 } from 'lucide-react';
+
+import { Plus, Calendar, Clock, Filter, Sun, Sunset, Moon, AlignLeft, CheckCircle, Trash2 } from 'lucide-react';
 
 const TasksView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
@@ -48,7 +48,7 @@ const TasksView = () => {
 
     const periods = [
         { id: 'morning', label: 'Manhã', icon: Sun, color: '#F59E0B' },
-        { id: 'afternoon', label: 'Tarde', icon: CloudSun, color: '#F97316' },
+        { id: 'afternoon', label: 'Tarde', icon: Sunset, color: '#F97316' },
         { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
     ];
 

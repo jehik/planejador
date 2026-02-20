@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Home, Plus, CheckCircle, Trash2, Filter, Sun, CloudSun, Moon, AlignLeft } from 'lucide-react';
+import { Home, Plus, CheckCircle, Trash2, Filter, Sun, Sunset, Moon, AlignLeft } from 'lucide-react';
 
 const HouseView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
@@ -28,7 +28,7 @@ const HouseView = () => {
 
     const periods = [
         { id: 'morning', label: 'Manhã', icon: Sun, color: '#F59E0B' },
-        { id: 'afternoon', label: 'Tarde', icon: CloudSun, color: '#F97316' },
+        { id: 'afternoon', label: 'Tarde', icon: Sunset, color: '#F97316' },
         { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
     ];
 
