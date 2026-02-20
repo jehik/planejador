@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Folder, Plus, Layout, Trash2, CheckCircle, ArrowRight, Trophy } from 'lucide-react';
+import { Folder, Plus, Layout, Trash2, CheckCircle, ArrowRight, Trophy, AlignLeft } from 'lucide-react';
 
 const ProjectsView = () => {
-    const { userData, addProject, deleteProject, addTask, tasks, toggleTask } = useAppStore();
+    const { userData, addProject, deleteProject, addTask, tasks, toggleTask, deleteTask } = useAppStore();
     const projects = userData?.projects || [];
 
     const [activeProject, setActiveProject] = useState(null);
@@ -13,6 +13,7 @@ const ProjectsView = () => {
 
     // --- Sub-task State ---
     const [newTask, setNewTask] = useState('');
+    const [notes, setNotes] = useState('');
 
     const handleAddProject = (e) => {
         e.preventDefault();
@@ -34,10 +35,17 @@ const ProjectsView = () => {
             title: newTask,
             projectId: activeProject.id,
             category: 'projects',
-            scheduledAt: new Date().toISOString(), // Default to today so it shows on Dashboard
-            completed: false
+            scheduledAt: new Date().toISOString(),
+            completed: false,
+            description: notes // Added Notes
         });
         setNewTask('');
+        setNotes('');
+    };
+
+    const handleDeleteProject = (e, projectId) => {
+        e.stopPropagation(); // Critical: Prevent entering the project
+        deleteProject(projectId);
     };
 
     // Calculate progress based on tasks
@@ -94,31 +102,57 @@ const ProjectsView = () => {
                             <Trophy size={20} color="#EC4899" /> Metas & Tarefas
                         </h3>
 
-                        <form onSubmit={handleAddTask} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                        <form onSubmit={handleAddTask} style={{ marginBottom: '20px' }}>
                             <input
                                 value={newTask} onChange={e => setNewTask(e.target.value)}
                                 placeholder="Adicionar nova meta ou tarefa..."
-                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', marginBottom: '8px' }}
                             />
-                            <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px' }}><Plus /></button>
+
+                            {/* Notes Field */}
+                            <div style={{ position: 'relative', marginBottom: '8px' }}>
+                                <div style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-secondary)' }}><AlignLeft size={16} /></div>
+                                <textarea
+                                    placeholder="Anotações (opcional)..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    style={{
+                                        width: '100%', padding: '10px 10px 10px 32px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                                        backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem',
+                                        minHeight: '60px', resize: 'vertical', fontFamily: 'inherit'
+                                    }}
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px', width: '100%' }}><Plus /> Adicionar</button>
                         </form>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {projectTasks.map(task => (
-                                <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                                <div key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                                     <button
                                         onClick={() => toggleTask(task.id, task.completed)}
-                                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)' }}
+                                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)', marginTop: '2px' }}
                                     >
                                         <CheckCircle size={20} fill={task.completed ? "currentColor" : "none"} />
                                     </button>
-                                    <span style={{
-                                        textDecoration: task.completed ? 'line-through' : 'none',
-                                        color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                                        flex: 1
-                                    }}>
-                                        {task.title}
-                                    </span>
+                                    <div style={{ flex: 1 }}>
+                                        <span style={{
+                                            textDecoration: task.completed ? 'line-through' : 'none',
+                                            color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                            fontWeight: '500'
+                                        }}>
+                                            {task.title}
+                                        </span>
+                                        {task.description && (
+                                            <div style={{ marginTop: '4px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                {task.description}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             ))}
                             {projectTasks.length === 0 && (
@@ -155,7 +189,7 @@ const ProjectsView = () => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <button onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }} style={{ color: 'var(--text-tertiary)', background: 'none', border: 'none' }}>
+                                        <button onClick={(e) => handleDeleteProject(e, project.id)} style={{ color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                                             <Trash2 size={18} />
                                         </button>
                                     </div>

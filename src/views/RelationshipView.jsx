@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Heart, Music, Calendar, Image as ImageIcon, Plus, Upload } from 'lucide-react';
+import { Heart, Calendar, Image as ImageIcon, Plus, Upload, Trash2 } from 'lucide-react';
 
 const RelationshipView = () => {
     // Fixed Date: 15 July 2024
@@ -44,6 +44,11 @@ const RelationshipView = () => {
         if (!newIdea.trim()) return;
         setDateIdeas([...dateIdeas, { id: Date.now(), text: newIdea, checked: false }]);
         setNewIdea('');
+    };
+
+    const deleteIdea = (e, id) => {
+        e.stopPropagation(); // Prevent toggling
+        setDateIdeas(dateIdeas.filter(idea => idea.id !== id));
     };
 
     return (
@@ -116,16 +121,28 @@ const RelationshipView = () => {
                                 width: '20px', height: '20px', borderRadius: '50%',
                                 border: `2px solid ${idea.checked ? '#EC4899' : 'var(--text-secondary)'}`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                backgroundColor: idea.checked ? '#EC4899' : 'transparent'
+                                backgroundColor: idea.checked ? '#EC4899' : 'transparent',
+                                flexShrink: 0
                             }}>
                                 {idea.checked && <Heart size={10} color="white" fill="white" />}
                             </div>
                             <span style={{
                                 textDecoration: idea.checked ? 'line-through' : 'none',
-                                color: idea.checked ? 'var(--text-secondary)' : 'var(--text-primary)'
+                                color: idea.checked ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                flex: 1
                             }}>
                                 {idea.text}
                             </span>
+                            <button
+                                onClick={(e) => deleteIdea(e, idea.id)}
+                                style={{
+                                    border: 'none', background: 'none',
+                                    color: 'var(--text-tertiary)', cursor: 'pointer',
+                                    padding: '4px'
+                                }}
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </div>
                     ))}
                 </div>

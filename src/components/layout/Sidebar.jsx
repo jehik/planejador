@@ -1,76 +1,76 @@
 import React from 'react';
 import {
-    X, Home, CheckSquare, Home as HomeIcon, BookOpen,
-    Plane, DollarSign, Briefcase, Coffee, Dumbbell, Heart, User, LogOut
+  X, Home, CheckSquare, Home as HomeIcon, BookOpen,
+  Plane, DollarSign, Briefcase, Coffee, Dumbbell, Heart, User, LogOut
 } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 
 const Sidebar = () => {
-    const { isMenuOpen, closeMenu, activeTab, setActiveTab, logout } = useAppStore();
+  const { isMenuOpen, closeMenu, activeTab, setActiveTab, logout } = useAppStore();
 
-    const menuItems = [
-        { id: 'home', label: 'Início', icon: Home },
-        { id: 'tasks', label: 'Tarefas do Dia', icon: CheckSquare },
-        { id: 'house', label: 'Casa', icon: HomeIcon },
-        { id: 'studies', label: 'Estudos', icon: BookOpen },
-        { id: 'trip', label: 'Viagem', icon: Plane },
-        { id: 'finance', label: 'Financeiro', icon: DollarSign },
-        { id: 'projects', label: 'Projetos', icon: Briefcase }, // New
-        { id: 'nutrition', label: 'Nutrição', icon: Coffee },
-        { id: 'workouts', label: 'Treino', icon: Dumbbell },
-        { id: 'relationship', label: 'Relacionamento', icon: Heart }, // New
-        { id: 'profile', label: 'Perfil', icon: User },
-    ];
+  const menuItems = [
+    { id: 'home', label: 'Início', icon: Home },
+    { id: 'tasks', label: 'Tarefas do Dia', icon: CheckSquare },
+    { id: 'house', label: 'Casa', icon: HomeIcon },
+    { id: 'studies', label: 'Estudos', icon: BookOpen },
+    { id: 'travel', label: 'Viagem', icon: Plane },
+    { id: 'finance', label: 'Financeiro', icon: DollarSign },
+    { id: 'projects', label: 'Projetos', icon: Briefcase }, // New
+    { id: 'nutrition', label: 'Nutrição', icon: Coffee },
+    { id: 'workouts', label: 'Treino', icon: Dumbbell },
+    { id: 'relationship', label: 'Relacionamento', icon: Heart }, // New
+    { id: 'profile', label: 'Perfil', icon: User },
+  ];
 
-    const handleNavigation = (tabId) => {
-        setActiveTab(tabId);
-        closeMenu();
-    };
+  const handleNavigation = (tabId) => {
+    setActiveTab(tabId);
+    closeMenu();
+  };
 
-    return (
-        <>
-            {/* Overlay */}
-            <div
-                className={`sidebar-overlay ${isMenuOpen ? 'open' : ''}`}
-                onClick={closeMenu}
-            />
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        className={`sidebar-overlay ${isMenuOpen ? 'open' : ''}`}
+        onClick={closeMenu}
+      />
 
-            {/* Sidebar Panel */}
-            <aside className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
-                <div className="sidebar-header">
-                    <h2>Menu</h2>
-                    <button onClick={closeMenu} className="btn btn-ghost icon-btn">
-                        <X size={24} />
-                    </button>
-                </div>
+      {/* Sidebar Panel */}
+      <aside className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h2>Menu</h2>
+          <button onClick={closeMenu} className="btn btn-ghost icon-btn">
+            <X size={24} />
+          </button>
+        </div>
 
-                <nav className="sidebar-nav">
-                    {menuItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = activeTab === item.id;
-                        return (
-                            <button
-                                key={item.id}
-                                className={`sidebar-item ${isActive ? 'active' : ''}`}
-                                onClick={() => handleNavigation(item.id)}
-                            >
-                                <Icon size={20} />
-                                <span>{item.label}</span>
-                                {isActive && <div className="active-indicator" />}
-                            </button>
-                        );
-                    })}
-                </nav>
+        <nav className="sidebar-nav">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                className={`sidebar-item ${isActive ? 'active' : ''}`}
+                onClick={() => handleNavigation(item.id)}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+                {isActive && <div className="active-indicator" />}
+              </button>
+            );
+          })}
+        </nav>
 
-                <div className="sidebar-footer">
-                    <button className="sidebar-item logout" onClick={() => { closeMenu(); logout(); }}>
-                        <LogOut size={20} />
-                        <span>Sair</span>
-                    </button>
-                </div>
-            </aside>
+        <div className="sidebar-footer">
+          <button className="sidebar-item logout" onClick={() => { closeMenu(); logout(); }}>
+            <LogOut size={20} />
+            <span>Sair</span>
+          </button>
+        </div>
+      </aside>
 
-            <style>{`
+      <style>{`
         .sidebar {
           position: fixed;
           top: 0;
@@ -172,8 +172,8 @@ const Sidebar = () => {
             background-color: rgba(239, 68, 68, 0.1);
         }
       `}</style>
-        </>
-    );
+    </>
+  );
 };
 
 export default Sidebar;

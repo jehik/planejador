@@ -13,7 +13,8 @@ const NutritionView = () => {
     const [mealType, setMealType] = useState('breakfast');
     const [food, setFood] = useState('');
     const [obs, setObs] = useState('');
-    const [time, setTime] = useState('');
+    // Default time is now
+    const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     const [message, setMessage] = useState('');
 
     useEffect(() => {
@@ -29,8 +30,12 @@ const NutritionView = () => {
     ).sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
 
     const handleAddMeal = () => {
-        if (!food.trim() || !time) return;
-        const scheduledAt = new Date(`${todayStr}T${time}:00`);
+        if (!food.trim()) return;
+
+        // Ensure time is set, fallback to now if empty (though default state handles this)
+        const mealTime = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const scheduledAt = new Date(`${todayStr}T${mealTime}:00`);
         addTask({
             title: food,
             description: obs,
@@ -307,6 +312,9 @@ const NutritionView = () => {
                     color: var(--text-secondary);
                     opacity: 0.5;
                     transition: opacity 0.2s;
+                    border: none;
+                    background: none;
+                    cursor: pointer;
                 }
                 .delete-btn:hover {
                     opacity: 1;
@@ -325,4 +333,3 @@ const NutritionView = () => {
 };
 
 export default NutritionView;
-

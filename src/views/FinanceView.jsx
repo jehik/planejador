@@ -14,6 +14,14 @@ const FinanceView = () => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     };
 
+    const handleAmountChange = (e) => {
+        const value = e.target.value;
+        // Regex to allow only numbers and one decimal point
+        if (/^\d*\.?\d*$/.test(value)) {
+            setAmount(value);
+        }
+    };
+
     const handleAddTransaction = (e) => {
         e.preventDefault();
         if (!amount || !description) return;
@@ -55,9 +63,9 @@ const FinanceView = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Meta:</span>
                         <input
-                            type="number"
+                            type="tel" // Changed to tel to trigger numeric keypad on mobile
                             value={finance.savingsGoal}
-                            onChange={(e) => setSavingsGoal(Number(e.target.value))}
+                            onChange={(e) => setSavingsGoal(Number(e.target.value.replace(/\D/g, '')))}
                             style={{
                                 width: '100px', padding: '4px 8px', borderRadius: '8px',
                                 border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)',
@@ -126,9 +134,10 @@ const FinanceView = () => {
                             }}
                         />
                         <input
-                            type="number"
-                            value={amount} onChange={(e) => setAmount(e.target.value)}
-                            placeholder="R$ 0,00"
+                            type="tel" // Use tel for numeric keypad
+                            value={amount}
+                            onChange={handleAmountChange}
+                            placeholder="R$ 0.00"
                             style={{
                                 flex: 1, padding: '12px', borderRadius: '12px',
                                 border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
@@ -186,4 +195,3 @@ const FinanceView = () => {
 };
 
 export default FinanceView;
-

@@ -1,33 +1,41 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, Sun, CloudSun, Moon, AlignLeft } from 'lucide-react';
 
 const StudiesView = () => {
-    // We'll reuse the 'Projects' structure logic but filter by 'category' = 'studies' if we wanted to unify, 
-    // OR we can create a 'studies' array in store.
-    // For simplicity, let's assume we use 'projects' array in store BUT filtered by 'type': 'study' OR just use 'studies' slice if we added it?
-    // Checking `useAppStore`: we don't have a `studies` slice.
-    // We can add it OR map it to `projects` but that's messy.
-    // Let's add `studies` slice to `useAppStore` in the next step. For now, I'll write the View code assuming `userData.studies` exists.
-
-    // Actually, I should update the store first if I want to be clean.
-    // But since I'm in the middle of tool calls, I'll assume `userData.studies` for now and will patch store immediately after.
-
-    const { userData, addStudy, deleteStudy, addTask, tasks, toggleTask } = useAppStore();
-    // Note: addStudy/deleteStudy need to be added to store
-
+    const { userData, addStudy, deleteStudy, addTask, tasks, toggleTask, deleteTask } = useAppStore();
     const studies = userData?.studies || [];
 
     const [activeStudy, setActiveStudy] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
     const [title, setTitle] = useState('');
 
+    // Activity State
     const [newActivity, setNewActivity] = useState('');
+    const [period, setPeriod] = useState(null);
+    const [notes, setNotes] = useState('');
+    const [selectedDays, setSelectedDays] = useState([]);
+
+    const daysOfWeek = [
+        { id: 'sun', label: 'D' },
+        { id: 'mon', label: 'S' },
+        { id: 'tue', label: 'T' },
+        { id: 'wed', label: 'Q' },
+        { id: 'thu', label: 'Q' },
+        { id: 'fri', label: 'S' },
+        { id: 'sat', label: 'S' }
+    ];
+
+    const periods = [
+        { id: 'morning', label: 'Manhã', icon: Sun, color: '#F59E0B' },
+        { id: 'afternoon', label: 'Tarde', icon: CloudSun, color: '#F97316' },
+        { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
+    ];
 
     const handleAddStudy = (e) => {
         e.preventDefault();
         if (!title) return;
-        addStudy({ title, color: '#8B5CF6' }); // Purple for studies
+        addStudy({ title, color: '#8B5CF6' });
         setIsAdding(false);
         setTitle('');
     };
@@ -37,12 +45,26 @@ const StudiesView = () => {
         if (!newActivity.trim()) return;
         addTask({
             title: newActivity,
-            studyId: activeStudy.id, // Linking to this study
+            studyId: activeStudy.id,
             category: 'studies',
             scheduledAt: new Date().toISOString(),
-            periodType: 'day'
+            periodType: 'day',
+            period: period,
+            description: notes,
+            days: selectedDays
         });
         setNewActivity('');
+        setNotes('');
+        setPeriod(null);
+        setSelectedDays([]);
+    };
+
+    const toggleDaySelection = (dayId) => {
+        if (selectedDays.includes(dayId)) {
+            setSelectedDays(selectedDays.filter(d => d !== dayId));
+        } else {
+            setSelectedDays([...selectedDays, dayId]);
+        }
     };
 
     const studyTasks = activeStudy
@@ -60,7 +82,6 @@ const StudiesView = () => {
                 </div>
             )}
 
-            {/* List or Detail */}
             {activeStudy ? (
                 // DETAIL
                 <div className="fade-in">
@@ -78,33 +99,133 @@ const StudiesView = () => {
                     <div className="card">
                         <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '16px' }}>Atividades & Revisões</h3>
 
-                        <form onSubmit={handleAddActivity} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                        <form onSubmit={handleAddActivity} style={{ marginBottom: '20px' }}>
                             <input
                                 value={newActivity} onChange={e => setNewActivity(e.target.value)}
                                 placeholder="Adicionar tópico, exercício ou revisão..."
-                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                                style={{
+                                    width: '100%', padding: '12px', borderRadius: '8px',
+                                    border: '1px solid var(--border-color)', background: 'var(--bg-color)',
+                                    color: 'var(--text-primary)', marginBottom: '12px'
+                                }}
                             />
-                            <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px' }}><Plus /></button>
+
+                            {/* Options Row */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                                {/* Period */}
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {periods.map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => setPeriod(period === p.id ? null : p.id)}
+                                            className={`btn`}
+                                            style={{
+                                                flex: 1, padding: '8px', borderRadius: '8px',
+                                                border: `1px solid ${period === p.id ? p.color : 'var(--border-color)'}`,
+                                                backgroundColor: period === p.id ? `${p.color}20` : 'transparent',
+                                                color: period === p.id ? p.color : 'var(--text-secondary)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
+                                                fontSize: '0.8rem'
+                                            }}
+                                        >
+                                            <p.icon size={14} /> {p.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Days */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    {daysOfWeek.map(day => (
+                                        <button
+                                            key={day.id}
+                                            type="button"
+                                            onClick={() => toggleDaySelection(day.id)}
+                                            style={{
+                                                width: '32px', height: '32px', borderRadius: '50%',
+                                                fontSize: '0.75rem', fontWeight: '600',
+                                                border: '1px solid var(--border-color)',
+                                                backgroundColor: selectedDays.includes(day.id) ? 'var(--primary-color)' : 'transparent',
+                                                color: selectedDays.includes(day.id) ? 'white' : 'var(--text-secondary)',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {day.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Notes */}
+                            <div style={{ position: 'relative', marginBottom: '12px' }}>
+                                <div style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-secondary)' }}><AlignLeft size={16} /></div>
+                                <textarea
+                                    placeholder="Anotações (opcional)..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    style={{
+                                        width: '100%', padding: '10px 10px 10px 32px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                                        backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem',
+                                        minHeight: '60px', resize: 'vertical', fontFamily: 'inherit'
+                                    }}
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '8px' }}>
+                                <Plus style={{ marginRight: '8px' }} /> Adicionar Atividade
+                            </button>
                         </form>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {studyTasks.map(task => (
-                                <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                                    <button
-                                        onClick={() => toggleTask(task.id, task.completed)}
-                                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)' }}
-                                    >
-                                        <CheckCircle size={20} fill={task.completed ? "currentColor" : "none"} />
-                                    </button>
-                                    <span style={{
-                                        textDecoration: task.completed ? 'line-through' : 'none',
-                                        color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                                        flex: 1
-                                    }}>
-                                        {task.title}
-                                    </span>
-                                </div>
-                            ))}
+                            {studyTasks.map(task => {
+                                const taskPeriod = periods.find(p => p.id === task.period);
+                                return (
+                                    <div key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
+                                        <button
+                                            onClick={() => toggleTask(task.id, task.completed)}
+                                            style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)', marginTop: '2px' }}
+                                        >
+                                            <CheckCircle size={20} fill={task.completed ? "currentColor" : "none"} />
+                                        </button>
+                                        <div style={{ flex: 1 }}>
+                                            <span style={{
+                                                textDecoration: task.completed ? 'line-through' : 'none',
+                                                color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                                fontWeight: '500'
+                                            }}>
+                                                {task.title}
+                                            </span>
+
+                                            <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                                {taskPeriod && (
+                                                    <span style={{
+                                                        fontSize: '0.7rem', color: taskPeriod.color,
+                                                        backgroundColor: `${taskPeriod.color}15`,
+                                                        padding: '2px 8px', borderRadius: '4px',
+                                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                                    }}>
+                                                        <taskPeriod.icon size={10} /> {taskPeriod.label}
+                                                    </span>
+                                                )}
+                                                {task.days && task.days.length > 0 && (
+                                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                                                        {task.days.map(d => daysOfWeek.find(dw => dw.id === d)?.label).join(', ')}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {task.description && (
+                                                <div style={{ marginTop: '4px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                    {task.description}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -128,8 +249,7 @@ const StudiesView = () => {
                                         <BookOpen size={32} />
                                     </div>
                                     <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
-                                    {/* Simple delete for list item */}
-                                    <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ marginTop: '12px', color: 'var(--text-tertiary)', background: 'none', border: 'none' }}>
+                                    <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ marginTop: '12px', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
@@ -138,7 +258,7 @@ const StudiesView = () => {
                     )}
                 </>
             )}
-            {/* Modal for Adding Study */}
+
             {isAdding && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div className="card fade-in" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>

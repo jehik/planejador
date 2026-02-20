@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Home, Plus, CheckCircle, Trash2, Filter } from 'lucide-react';
+import { Home, Plus, CheckCircle, Trash2, Filter, Sun, CloudSun, Moon, AlignLeft } from 'lucide-react';
 
 const HouseView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
     const [title, setTitle] = useState('');
-    const [selectedDays, setSelectedDays] = useState([]); // For recurring logic (future), current filter
-    const [categoryType, setCategoryType] = useState('cleaning'); // cleaning, shopping, organization
+    const [selectedDays, setSelectedDays] = useState([]);
+    const [categoryType, setCategoryType] = useState('cleaning');
+    const [period, setPeriod] = useState(null);
+    const [notes, setNotes] = useState('');
 
     const daysOfWeek = [
         { id: 'sun', label: 'D' },
@@ -24,9 +26,13 @@ const HouseView = () => {
         { id: 'organization', label: 'Organização', color: '#8B5CF6' }
     ];
 
-    // Filter Logic
-    // In a real recurrence system, we'd check if today matches the recurrence.
-    // Here we'll just filter regular tasks + custom "house" fields if we add them.
+    const periods = [
+        { id: 'morning', label: 'Manhã', icon: Sun, color: '#F59E0B' },
+        { id: 'afternoon', label: 'Tarde', icon: CloudSun, color: '#F97316' },
+        { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
+    ];
+
+    // Filter regular tasks + custom "house" fields
     const houseTasks = tasks.filter(t => t.category === 'house').sort((a, b) => a.completed - b.completed);
 
     const handleAdd = () => {
@@ -35,16 +41,19 @@ const HouseView = () => {
         addTask({
             title: title,
             category: 'house',
-            houseCategory: categoryType, // sub-category
-            scheduledAt: new Date().toISOString(), // Default to today/now
+            houseCategory: categoryType,
+            scheduledAt: new Date().toISOString(),
             periodType: 'day',
-            recurrence: selectedDays // Store selected days for reference
+            recurrence: selectedDays,
+            period: period,
+            description: notes
         });
         setTitle('');
+        setNotes('');
+        setPeriod(null);
     };
 
     const toggleDaySelection = (dayId) => {
-        // UI Interaction for "Select days"
         if (selectedDays.includes(dayId)) {
             setSelectedDays(selectedDays.filter(d => d !== dayId));
         } else {
@@ -90,7 +99,7 @@ const HouseView = () => {
                     ))}
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                     <input
                         value={title} onChange={e => setTitle(e.target.value)}
                         placeholder="O que precisa ser feito?"
@@ -100,17 +109,49 @@ const HouseView = () => {
                             backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
                         }}
                     />
-                    <button
-                        onClick={handleAdd}
-                        className="btn btn-primary"
-                        style={{ borderRadius: '12px', width: '48px', padding: 0 }}
-                    >
-                        <Plus size={24} />
-                    </button>
                 </div>
 
-                {/* Days Selection (Optional Recurrence UI) */}
-                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between' }}>
+                {/* Period Selection */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                    {periods.map(p => (
+                        <button
+                            key={p.id}
+                            onClick={() => setPeriod(period === p.id ? null : p.id)}
+                            className={`btn`}
+                            style={{
+                                flex: 1,
+                                padding: '8px',
+                                borderRadius: '8px',
+                                border: `1px solid ${period === p.id ? p.color : 'var(--border-color)'}`,
+                                backgroundColor: period === p.id ? `${p.color}20` : 'transparent',
+                                color: period === p.id ? p.color : 'var(--text-secondary)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                                fontSize: '0.8rem'
+                            }}
+                        >
+                            <p.icon size={14} />
+                            <span>{p.label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Notes Field */}
+                <div style={{ position: 'relative', marginBottom: '12px' }}>
+                    <div style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-secondary)' }}><AlignLeft size={16} /></div>
+                    <textarea
+                        placeholder="Anotações (opcional)..."
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        style={{
+                            width: '100%', padding: '10px 10px 10px 32px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                            backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem',
+                            minHeight: '60px', resize: 'vertical', fontFamily: 'inherit'
+                        }}
+                    />
+                </div>
+
+                {/* Days Selection */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                     {daysOfWeek.map(day => (
                         <button
                             key={day.id}
@@ -128,6 +169,14 @@ const HouseView = () => {
                         </button>
                     ))}
                 </div>
+
+                <button
+                    onClick={handleAdd}
+                    className="btn btn-primary"
+                    style={{ borderRadius: '12px', width: '100%', justifyContent: 'center' }}
+                >
+                    <Plus size={20} style={{ marginRight: '8px' }} /> Adicionar Tarefa
+                </button>
             </div>
 
             {/* Task List */}
@@ -147,6 +196,7 @@ const HouseView = () => {
                     ) : (
                         houseTasks.map(task => {
                             const cat = categories.find(c => c.id === task.houseCategory) || categories[0];
+                            const taskPeriod = periods.find(p => p.id === task.period);
                             return (
                                 <div key={task.id} className="house-task-item card">
                                     <label className="checkbox-container">
@@ -167,7 +217,7 @@ const HouseView = () => {
                                         <span className={`task-title ${task.completed ? 'completed' : ''}`}>
                                             {task.title}
                                         </span>
-                                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
                                             <span style={{
                                                 fontSize: '0.7rem',
                                                 color: cat.color,
@@ -176,12 +226,23 @@ const HouseView = () => {
                                             }}>
                                                 {cat.label}
                                             </span>
-                                            {task.scheduledAt && (
-                                                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                                    {new Date(task.scheduledAt).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' })}
+
+                                            {taskPeriod && (
+                                                <span style={{
+                                                    fontSize: '0.7rem', color: taskPeriod.color,
+                                                    backgroundColor: `${taskPeriod.color}15`,
+                                                    padding: '2px 8px', borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                                }}>
+                                                    <taskPeriod.icon size={10} /> {taskPeriod.label}
                                                 </span>
                                             )}
                                         </div>
+                                        {task.description && (
+                                            <div style={{ marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                {task.description}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <button onClick={() => deleteTask(task.id)} className="delete-icon">
@@ -202,16 +263,16 @@ const HouseView = () => {
                 }
                 .house-task-item {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     gap: 16px;
                     padding: 16px;
                 }
-                /* Checkbox styles reused from HomeView or defined globally if moved */
                 .checkbox-container {
                     position: relative;
                     cursor: pointer;
                     width: 24px;
                     height: 24px;
+                    margin-top: 2px;
                 }
                 .checkbox-container input { opacity: 0; width: 0; height: 0; }
                 .checkmark {
@@ -233,6 +294,9 @@ const HouseView = () => {
                     color: var(--text-secondary);
                     opacity: 0.5;
                     transition: all 0.2s;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
                 }
                 .delete-icon:hover {
                     opacity: 1;
