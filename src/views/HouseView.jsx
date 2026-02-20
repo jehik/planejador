@@ -167,7 +167,7 @@ const HouseView = () => {
                                         <span className={`task-title ${task.completed ? 'completed' : ''}`}>
                                             {task.title}
                                         </span>
-                                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
                                             <span style={{
                                                 fontSize: '0.7rem',
                                                 color: cat.color,
@@ -176,6 +176,11 @@ const HouseView = () => {
                                             }}>
                                                 {cat.label}
                                             </span>
+                                            {task.scheduledAt && (
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                                    {new Date(task.scheduledAt).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' })}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 

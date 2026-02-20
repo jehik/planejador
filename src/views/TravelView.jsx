@@ -1,137 +1,153 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Plane, Plus, MapPin, Calendar, Trash2, ArrowRight } from 'lucide-react';
+import { Plane, Plus, Calendar, Trash2, DollarSign, CheckSquare, ShoppingBag } from 'lucide-react';
 
 const TravelView = () => {
-    const { userData, addTravel, deleteTravel } = useAppStore();
+    const { userData, addTravel, deleteTravel, updateTravel } = useAppStore();
     const trips = userData?.travel || [];
     const [isAdding, setIsAdding] = useState(false);
 
-    // New Trip Form State
+    // Form State
     const [destination, setDestination] = useState('');
     const [date, setDate] = useState('');
+    const [budget, setBudget] = useState('');
+    const [shoppingList, setShoppingList] = useState(''); // Simple text for now, or comma separated
 
     const handleAdd = (e) => {
         e.preventDefault();
         if (!destination) return;
-        addTravel({ destination, date, status: 'planned' });
+        addTravel({
+            destination,
+            date,
+            budget,
+            shoppingList: shoppingList.split(',').map(item => ({ text: item.trim(), checked: false })).filter(i => i.text),
+            status: 'planned'
+        });
         setIsAdding(false);
-        setDestination('');
-        setDate('');
+        resetForm();
+    };
+
+    const resetForm = () => {
+        setDestination(''); setDate(''); setBudget(''); setShoppingList('');
+    };
+
+    const toggleItem = (tripId, itemIndex) => {
+        const trip = trips.find(t => t.id === tripId);
+        if (!trip) return;
+        const newItems = [...trip.shoppingList];
+        newItems[itemIndex].checked = !newItems[itemIndex].checked;
+        updateTravel(tripId, { shoppingList: newItems });
     };
 
     return (
         <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: 0 }}>Viagens</h2>
-                <button
-                    onClick={() => setIsAdding(true)}
-                    className="btn btn-primary"
-                    style={{ borderRadius: '12px', padding: '8px 16px' }}
-                >
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: 0 }}>Minhas Viagens</h2>
+                <button onClick={() => setIsAdding(true)} className="btn btn-primary" style={{ borderRadius: '12px', padding: '8px 16px' }}>
                     <Plus size={20} /> <span style={{ marginLeft: '8px' }}>Nova</span>
                 </button>
             </div>
 
-            {/* Content */}
+            {/* List */}
             {trips.length === 0 ? (
-                /* Empty State / Tutorial */
-                <div style={{
-                    textAlign: 'center', padding: '40px 20px',
-                    backgroundColor: 'var(--surface-color)', borderRadius: '24px',
-                    border: '1px dashed var(--border-color)'
-                }}>
-                    <div style={{
-                        width: '64px', height: '64px', borderRadius: '50%',
-                        backgroundColor: 'rgba(124, 92, 255, 0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        margin: '0 auto 16px auto', color: 'var(--primary-color)'
-                    }}>
+                <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: 'var(--surface-color)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', color: '#3B82F6' }}>
                         <Plane size={32} />
                     </div>
-                    <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: '600' }}>Planeje sua próxima aventura</h3>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.5' }}>
-                        Adicione destinos, datas e checklists para organizar suas viagens dos sonhos.
-                    </p>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                        Clique em <strong>+ Nova</strong> para começar.
-                    </div>
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: 'bold' }}>Planeje sua Aventura</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Defina datas, orçamento e o que precisa comprar.</p>
                 </div>
             ) : (
-                /* List of Trips */
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {trips.map(trip => (
-                        <div key={trip.id} className="card" style={{ padding: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div key={trip.id} className="card" style={{ padding: '24px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                                 <div>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '4px' }}>{trip.destination}</h3>
+                                    <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{trip.destination}</h3>
                                     {trip.date && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                            <Calendar size={14} /> <span>{new Date(trip.date).toLocaleDateString('pt-BR')}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                            <Calendar size={16} />
+                                            <span>{new Date(trip.date).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                                         </div>
                                     )}
                                 </div>
-                                <button
-                                    onClick={() => { if (confirm('Apagar viagem?')) deleteTravel(trip.id) }}
-                                    style={{ color: 'var(--text-tertiary)', background: 'none', border: 'none' }}
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                <button onClick={() => deleteTravel(trip.id)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)' }}><Trash2 size={20} /></button>
                             </div>
+
+                            <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr 1fr' }}>
+                                <div style={{ background: 'var(--bg-color)', padding: '12px', borderRadius: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                                        <DollarSign size={14} /> Orçamento
+                                    </div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '4px' }}>
+                                        R$ {Number(trip.budget).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </div>
+                                </div>
+                                <div style={{ background: 'var(--bg-color)', padding: '12px', borderRadius: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                                        <ShoppingBag size={14} /> Compras
+                                    </div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '4px' }}>
+                                        {trip.shoppingList?.filter(i => !i.checked).length} itens
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Shopping List Preview */}
+                            {trip.shoppingList && trip.shoppingList.length > 0 && (
+                                <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                                    <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>Lista de Compras:</h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {trip.shoppingList.map((item, idx) => (
+                                            <div key={idx} onClick={() => toggleItem(trip.id, idx)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                                <div style={{
+                                                    width: '18px', height: '18px', borderRadius: '4px',
+                                                    border: `2px solid ${item.checked ? '#10B981' : 'var(--text-tertiary)'}`,
+                                                    background: item.checked ? '#10B981' : 'transparent',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    {item.checked && <CheckSquare size={12} color="white" />}
+                                                </div>
+                                                <span style={{
+                                                    textDecoration: item.checked ? 'line-through' : 'none',
+                                                    color: item.checked ? 'var(--text-secondary)' : 'var(--text-primary)'
+                                                }}>{item.text}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Add Modal (Simple overlay for demo) */}
+            {/* Modal */}
             {isAdding && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(5px)',
-                    zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '20px'
-                }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '320px', boxShadow: 'var(--shadow-card)' }}>
-                        <h3 style={{ marginBottom: '16px' }}>Nova Viagem</h3>
-                        <form onSubmit={handleAdd}>
-                            <input
-                                autoFocus
-                                placeholder="Destino (ex: Paris)"
-                                value={destination}
-                                onChange={e => setDestination(e.target.value)}
-                                style={{
-                                    width: '100%', padding: '12px', marginBottom: '12px',
-                                    borderRadius: '12px', border: '1px solid var(--border-color)',
-                                    backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
-                                }}
-                            />
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={e => setDate(e.target.value)}
-                                style={{
-                                    width: '100%', padding: '12px', marginBottom: '24px',
-                                    borderRadius: '12px', border: '1px solid var(--border-color)',
-                                    backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
-                                }}
-                            />
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAdding(false)}
-                                    className="btn btn-ghost"
-                                    style={{ flex: 1 }}
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary"
-                                    style={{ flex: 1 }}
-                                >
-                                    Salvar
-                                </button>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '350px' }}>
+                        <h3>Nova Viagem</h3>
+                        <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                            <label>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Destino</span>
+                                <input required className="input" placeholder="Ex: Paris, França" value={destination} onChange={e => setDestination(e.target.value)} style={inputStyle} />
+                            </label>
+                            <label>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Data</span>
+                                <input type="date" className="input" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
+                            </label>
+                            <label>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Orçamento (R$)</span>
+                                <input type="number" className="input" placeholder="0,00" value={budget} onChange={e => setBudget(e.target.value)} style={inputStyle} />
+                            </label>
+                            <label>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>O que comprar? (Separe por vírgula)</span>
+                                <textarea className="input" placeholder="Mala, Casaco, Passagem..." value={shoppingList} onChange={e => setShoppingList(e.target.value)} style={{ ...inputStyle, minHeight: '80px' }} />
+                            </label>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                                <button type="button" onClick={() => setIsAdding(false)} className="btn btn-ghost" style={{ flex: 1 }}>Cancelar</button>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Salvar</button>
                             </div>
                         </form>
                     </div>
@@ -139,6 +155,12 @@ const TravelView = () => {
             )}
         </div>
     );
+};
+
+const inputStyle = {
+    width: '100%', padding: '10px', borderRadius: '8px',
+    border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)',
+    marginTop: '4px'
 };
 
 export default TravelView;

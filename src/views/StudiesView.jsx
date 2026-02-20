@@ -1,176 +1,158 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { BookOpen, ChevronDown, ChevronUp, Plus, CheckCircle, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, GraduationCap } from 'lucide-react';
 
 const StudiesView = () => {
-    const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
+    // We'll reuse the 'Projects' structure logic but filter by 'category' = 'studies' if we wanted to unify, 
+    // OR we can create a 'studies' array in store.
+    // For simplicity, let's assume we use 'projects' array in store BUT filtered by 'type': 'study' OR just use 'studies' slice if we added it?
+    // Checking `useAppStore`: we don't have a `studies` slice.
+    // We can add it OR map it to `projects` but that's messy.
+    // Let's add `studies` slice to `useAppStore` in the next step. For now, I'll write the View code assuming `userData.studies` exists.
 
-    // Sample subjects (could be dynamic later)
-    const [subjects] = useState([
-        { id: 'math', name: 'Matemática', color: '#3B82F6' },
-        { id: 'dev', name: 'Programação', color: '#10B981' },
-        { id: 'english', name: 'Inglês', color: '#F59E0B' },
-        { id: 'design', name: 'Design UX/UI', color: '#8B5CF6' }
-    ]);
+    // Actually, I should update the store first if I want to be clean.
+    // But since I'm in the middle of tool calls, I'll assume `userData.studies` for now and will patch store immediately after.
 
-    const [expandedSubject, setExpandedSubject] = useState(null);
-    const [newTask, setNewTask] = useState('');
+    const { userData, addStudy, deleteStudy, addTask, tasks, toggleTask } = useAppStore();
+    // Note: addStudy/deleteStudy need to be added to store
 
-    const toggleAccordion = (id) => {
-        setExpandedSubject(expandedSubject === id ? null : id);
+    const studies = userData?.studies || [];
+
+    const [activeStudy, setActiveStudy] = useState(null);
+    const [isAdding, setIsAdding] = useState(false);
+    const [title, setTitle] = useState('');
+
+    const [newActivity, setNewActivity] = useState('');
+
+    const handleAddStudy = (e) => {
+        e.preventDefault();
+        if (!title) return;
+        addStudy({ title, color: '#8B5CF6' }); // Purple for studies
+        setIsAdding(false);
+        setTitle('');
     };
 
-    const handleAddTask = (subjectId) => {
-        if (!newTask.trim()) return;
+    const handleAddActivity = (e) => {
+        e.preventDefault();
+        if (!newActivity.trim()) return;
         addTask({
-            title: newTask,
+            title: newActivity,
+            studyId: activeStudy.id, // Linking to this study
             category: 'studies',
-            subjectId: subjectId, // Custom field
             scheduledAt: new Date().toISOString(),
             periodType: 'day'
         });
-        setNewTask('');
+        setNewActivity('');
     };
+
+    const studyTasks = activeStudy
+        ? tasks.filter(t => t.studyId === activeStudy.id)
+        : [];
 
     return (
         <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '24px' }}>Meus Estudos</h2>
+            {!activeStudy && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Meus Estudos</h2>
+                    <button onClick={() => setIsAdding(true)} className="btn btn-primary" style={{ borderRadius: '12px', padding: '8px 16px' }}>
+                        <Plus size={20} /> <span style={{ marginLeft: '8px' }}>Matéria</span>
+                    </button>
+                </div>
+            )}
 
-            <div className="subjects-list">
-                {subjects.map(subject => {
-                    const isExpanded = expandedSubject === subject.id;
-                    const subjectTasks = tasks.filter(t => t.category === 'studies' && t.subjectId === subject.id);
+            {/* List or Detail */}
+            {activeStudy ? (
+                // DETAIL
+                <div className="fade-in">
+                    <button onClick={() => setActiveStudy(null)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', cursor: 'pointer' }}>
+                        <ArrowRight size={16} transform="rotate(180)" /> Voltar
+                    </button>
 
-                    return (
-                        <div key={subject.id} className="subject-card card" style={{ padding: 0, overflow: 'hidden', marginBottom: '16px' }}>
-                            {/* Accordion Header */}
-                            <div
-                                onClick={() => toggleAccordion(subject.id)}
-                                style={{
-                                    padding: '20px',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    cursor: 'pointer',
-                                    background: isExpanded ? 'var(--surface-hover)' : 'transparent',
-                                    transition: 'background 0.2s'
-                                }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                    <div style={{
-                                        width: '40px', height: '40px', borderRadius: '12px',
-                                        backgroundColor: `${subject.color}20`, color: subject.color,
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <BookOpen size={20} />
-                                    </div>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>{subject.name}</h3>
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                            {subjectTasks.length} tarefas
-                                        </p>
-                                    </div>
-                                </div>
-                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                            </div>
-
-                            {/* Expanded Content */}
-                            {isExpanded && (
-                                <div className="subject-content fade-in">
-                                    {/* Task List */}
-                                    <div className="study-tasks">
-                                        {subjectTasks.map(task => (
-                                            <div key={task.id} className="study-task-item">
-                                                <label className="checkbox-container mini">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={task.completed}
-                                                        onChange={() => toggleTask(task.id, task.completed)}
-                                                    />
-                                                    <span className="checkmark mini">
-                                                        <CheckCircle size={14} className="check-icon" />
-                                                    </span>
-                                                </label>
-                                                <span className={`task-title ${task.completed ? 'completed' : ''}`}>
-                                                    {task.title}
-                                                </span>
-                                                <button onClick={() => deleteTask(task.id)} className="delete-icon">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Add Task Input */}
-                                    <div className="add-study-task">
-                                        <input
-                                            placeholder="Nova tarefa..."
-                                            value={newTask}
-                                            onChange={e => setNewTask(e.target.value)}
-                                            onKeyDown={e => e.key === 'Enter' && handleAddTask(subject.id)}
-                                        />
-                                        <button onClick={() => handleAddTask(subject.id)}>
-                                            <Plus size={20} />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                    <div className="card" style={{ padding: '24px', marginBottom: '24px', borderLeft: '6px solid #8B5CF6' }}>
+                        <h2 style={{ fontSize: '2rem', fontWeight: 'bold' }}>{activeStudy.title}</h2>
+                        <div style={{ marginTop: '12px', color: 'var(--text-secondary)' }}>
+                            {studyTasks.length} atividades registradas
                         </div>
-                    );
-                })}
-            </div>
+                    </div>
 
-            <style>{`
-                .subject-content {
-                    padding: 0 20px 20px 20px;
-                    border-top: 1px solid var(--border-color);
-                }
-                .study-tasks {
-                    margin-top: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-                .study-task-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 8px;
-                    border-radius: 8px;
-                    background-color: var(--bg-color);
-                }
-                .add-study-task {
-                    margin-top: 16px;
-                    display: flex;
-                    gap: 8px;
-                }
-                .add-study-task input {
-                    flex: 1;
-                    background: var(--bg-color);
-                    border: 1px solid var(--border-color);
-                    padding: 8px 12px;
-                    border-radius: 8px;
-                    color: var(--text-primary);
-                }
-                .add-study-task button {
-                    background: var(--surface-hover);
-                    color: var(--primary-color);
-                    width: 40px;
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .delete-icon {
-                    margin-left: auto;
-                    color: var(--text-secondary);
-                    opacity: 0.5;
-                }
-                .delete-icon:hover {
-                    opacity: 1;
-                    color: var(--danger-color);
-                }
-            `}</style>
+                    <div className="card">
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '16px' }}>Atividades & Revisões</h3>
+
+                        <form onSubmit={handleAddActivity} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                            <input
+                                value={newActivity} onChange={e => setNewActivity(e.target.value)}
+                                placeholder="Adicionar tópico, exercício ou revisão..."
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                            />
+                            <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px' }}><Plus /></button>
+                        </form>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {studyTasks.map(task => (
+                                <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                                    <button
+                                        onClick={() => toggleTask(task.id, task.completed)}
+                                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)' }}
+                                    >
+                                        <CheckCircle size={20} fill={task.completed ? "currentColor" : "none"} />
+                                    </button>
+                                    <span style={{
+                                        textDecoration: task.completed ? 'line-through' : 'none',
+                                        color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                        flex: 1
+                                    }}>
+                                        {task.title}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                // LIST
+                <>
+                    {studies.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: 'var(--surface-color)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
+                            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', color: '#8B5CF6' }}>
+                                <BookOpen size={32} />
+                            </div>
+                            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: 'bold' }}>Organize seus Estudos</h3>
+                            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Crie matérias e adicione atividades para acompanhar seu aprendizado.</p>
+                            <button onClick={() => setIsAdding(true)} className="btn btn-ghost">Criar primeira matéria</button>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px' }}>
+                            {studies.map(study => (
+                                <div key={study.id} className="card" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px' }}>
+                                    <div style={{ marginBottom: '12px', color: '#8B5CF6' }}>
+                                        <GraduationCap size={32} />
+                                    </div>
+                                    <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
+                                    {/* Simple delete for list item */}
+                                    <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ marginTop: '12px', color: 'var(--text-tertiary)', background: 'none', border: 'none' }}>
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </>
+            )}
+
+            {isAdding && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '350px' }}>
+                        <h3>Nova Matéria</h3>
+                        <form onSubmit={handleAddStudy} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                            <input autoFocus placeholder="Nome da Matéria (ex: Matemática)" value={title} onChange={e => setTitle(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button type="button" onClick={() => setIsAdding(false)} className="btn btn-ghost" style={{ flex: 1 }}>Cancelar</button>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

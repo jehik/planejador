@@ -43,6 +43,7 @@ const initialUserData = {
   dreams: [],
   projects: [], // [{ id, title, description, progress, tasks: [] }]
   travel: [], // [{ id, destination, date, flight, hotel, notes, packingList: [] }]
+  studies: [], // [{ id, title, color }]
   checklists: {}, // Generic checklists if needed
   romanticStoryViewed: false
 };
@@ -445,6 +446,17 @@ const useAppStore = create((set, get) => ({
     ...data,
     travel: (data.travel || []).map(t => t.id === id ? { ...t, ...updates } : t)
   })),
+
+  // --- Studies Actions ---
+  addStudy: (study) => get().setUserData(data => ({
+    ...data,
+    studies: [...(data.studies || []), { ...study, id: Date.now().toString() }]
+  })),
+  deleteStudy: (id) => get().setUserData(data => ({
+    ...data,
+    studies: (data.studies || []).filter(s => s.id !== id)
+  })),
+
 
 }));
 

@@ -2,37 +2,34 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCCW, Volume2, VolumeX } from 'lucide-react';
 
 const PomodoroTimer = () => {
-    const DEFAULT_TIME = 10 * 60; // 10 minutes in seconds
+    const [selectedTime, setSelectedTime] = useState(25); // Minutes
+    const DEFAULT_TIME = selectedTime * 60;
     const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
-    const [isActive, setIsActive] = useState(false);
-    const [isMuted, setIsMuted] = useState(true); // Default muted as per prompt
 
-    // Audio ref (using a simple white noise placeholder or just beep)
-    // Prompt asks for "Ícone de White Noise (som ambiente opcional)"
-    // For now, let's just simulate the control.
+    // Update timeLeft when selectedTime changes (if not active)
+    useEffect(() => {
+        if (!isActive) {
+            setTimeLeft(selectedTime * 60);
+        }
+    }, [selectedTime, isActive]);
 
     useEffect(() => {
         let interval = null;
-
         if (isActive && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft(time => time - 1);
             }, 1000);
         } else if (timeLeft === 0) {
             setIsActive(false);
-            if (!isMuted && navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]); // Vibrate
-            }
-            // Optional: Play sound here
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
-
         return () => clearInterval(interval);
-    }, [isActive, timeLeft, isMuted]);
+    }, [isActive, timeLeft]);
 
     const toggleTimer = () => setIsActive(!isActive);
     const resetTimer = () => {
         setIsActive(false);
-        setTimeLeft(DEFAULT_TIME);
+        setTimeLeft(selectedTime * 60);
     };
 
     const formatTime = (seconds) => {
@@ -41,52 +38,77 @@ const PomodoroTimer = () => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Circular Progress Calculation
+    // Circular Progress
     const radius = 80;
     const circumference = 2 * Math.PI * radius;
-    const progress = timeLeft / DEFAULT_TIME;
+    const progress = timeLeft / (selectedTime * 60);
     const dashoffset = circumference * (1 - progress);
 
     return (
         <div className="pomodoro-card card">
+            <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px', letterSpacing: '1px' }}>
+                FOCO TOTAL
+            </h3>
+
             <div className="timer-circle">
                 <svg width="200" height="200" viewBox="0 0 200 200">
-                    {/* Background Circle */}
+                    <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--surface-hover)" strokeWidth="8" />
                     <circle
-                        cx="100" cy="100" r={radius}
-                        fill="none"
-                        stroke="var(--surface-hover)"
-                        strokeWidth="8"
-                    />
-                    {/* Progress Circle */}
-                    <circle
-                        cx="100" cy="100" r={radius}
-                        fill="none"
-                        stroke="var(--primary-color)"
-                        strokeWidth="8"
-                        strokeDasharray={circumference}
-                        strokeDashoffset={dashoffset}
-                        strokeLinecap="round"
+                        cx="100" cy="100" r={radius} fill="none" stroke="var(--primary-color)" strokeWidth="8"
+                        strokeDasharray={circumference} strokeDashoffset={dashoffset} strokeLinecap="round"
                         transform="rotate(-90 100 100)"
                         style={{ transition: 'stroke-dashoffset 1s linear' }}
                     />
                 </svg>
-                <div className="time-display">
-                    {formatTime(timeLeft)}
-                </div>
+                <div className="time-display">{formatTime(timeLeft)}</div>
             </div>
 
             <div className="controls">
-                <button onClick={toggleTimer} className="control-btn main">
-                    {isActive ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
-                </button>
-                <button onClick={resetTimer} className="control-btn secondary">
+                <button onClick={resetTimer} className="control-btn secondary" title="Recomeçar">
                     <RotateCCW size={20} />
                 </button>
-                <button onClick={() => setIsMuted(!isMuted)} className="control-btn secondary">
-                    {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                <button onClick={toggleTimer} className="control-btn main">
+                    {isActive ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" />}
                 </button>
+
+                {/* Time Selector Dropdown/Buttons substitute */}
+                <div className="time-selector">
+                    {[25, 45, 60].map(min => (
+                        <button
+                            key={min}
+                            onClick={() => !isActive && setSelectedTime(min)}
+                            className={`time-btn ${selectedTime === min ? 'active' : ''}`}
+                            disabled={isActive}
+                        >
+                            {min}
+                        </button>
+                    ))}
+                </div>
             </div>
+
+            <style>{`
+                .time-selector {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .time-btn {
+                    border: none;
+                    background: none;
+                    font-size: 0.8rem;
+                    color: var(--text-tertiary);
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    transition: all 0.2s;
+                }
+                .time-btn.active {
+                    color: var(--primary-color);
+                    background: var(--surface-hover);
+                    font-weight: 700;
+                }
+            `}</style>
 
             <style>{`
                 .pomodoro-card {

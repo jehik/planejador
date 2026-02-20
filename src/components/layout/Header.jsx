@@ -42,24 +42,9 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* CENTER: Home Button */}
-            <div className="nav-center">
-                <button
-                    className="home-btn"
-                    onClick={() => setActiveTab('home')}
-                >
-                    <Home size={24} fill="currentColor" />
-                </button>
-            </div>
-
-            {/* RIGHT: Hamburger Menu */}
-            <div className="nav-right">
-                <button
-                    className="menu-btn"
-                    onClick={toggleMenu}
-                >
-                    <Menu size={28} />
-                </button>
+            {/* Right side cleaned up - Nav is at bottom now */}
+            <div className="nav-right" style={{ width: '40px' }}>
+                {/* Placeholder or empty to balance flex if needed, or just remove */}
             </div>
 
             <style>{`

@@ -77,7 +77,7 @@ const NutritionView = () => {
             </div>
 
             {/* Visual Cup / Water Tracker */}
-            <div className="water-card card">
+            <div className="water-card card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px', backgroundColor: 'transparent', boxShadow: 'none' }}>
                 <div className="water-visual">
                     <div className="water-level" style={{ height: `${waterPercentage}%` }}>
                         <div className="wave"></div>
@@ -194,19 +194,27 @@ const NutritionView = () => {
                     position: relative;
                 }
                 .water-visual {
-                    height: 200px;
+                    height: 220px;
+                    width: 160px; /* Fixed width for glass look */
+                    margin: 0 auto; /* Center it */
                     position: relative;
-                    background: var(--bg-color);
-                    border-bottom: 1px solid var(--border-color);
+                    background: rgba(255, 255, 255, 0.5);
+                    border: 4px solid rgba(255, 255, 255, 0.8);
+                    border-top: none;
+                    border-bottom-left-radius: 30px;
+                    border-bottom-right-radius: 30px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+                    backdrop-filter: blur(4px);
                 }
                 .water-level {
                     position: absolute;
                     bottom: 0;
                     left: 0;
                     width: 100%;
-                    background: linear-gradient(to top, #3B82F6, #60A5FA);
+                    background: linear-gradient(to top, #60A5FA, #3B82F6);
                     transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
-                    opacity: 0.8;
+                    opacity: 0.9;
                 }
                 .wave {
                     position: absolute;
