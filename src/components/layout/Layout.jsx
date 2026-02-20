@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import BottomNav from './BottomNav';
 import useAppStore from '../../store/useAppStore';
 
 const Layout = ({ children }) => {
@@ -15,6 +16,7 @@ const Layout = ({ children }) => {
             <main className="content-area fade-in">
                 {children}
             </main>
+            <BottomNav />
         </div>
     );
 };

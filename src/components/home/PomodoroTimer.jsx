@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCCW, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, RotateCCW } from 'lucide-react';
 
 const PomodoroTimer = () => {
     const [selectedTime, setSelectedTime] = useState(25); // Minutes
@@ -72,9 +72,8 @@ const PomodoroTimer = () => {
                     {isActive ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" />}
                 </button>
 
-                {/* Time Selector Dropdown/Buttons substitute */}
                 <div className="time-selector">
-                    {[25, 45, 60].map(min => (
+                    {[10, 25, 45, 60].map(min => (
                         <button
                             key={min}
                             onClick={() => !isActive && setSelectedTime(min)}
@@ -88,36 +87,14 @@ const PomodoroTimer = () => {
             </div>
 
             <style>{`
-                .time-selector {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                }
-                .time-btn {
-                    border: none;
-                    background: none;
-                    font-size: 0.8rem;
-                    color: var(--text-tertiary);
-                    cursor: pointer;
-                    padding: 4px;
-                    border-radius: 4px;
-                    font-weight: 500;
-                    transition: all 0.2s;
-                }
-                .time-btn.active {
-                    color: var(--primary-color);
-                    background: var(--surface-hover);
-                    font-weight: 700;
-                }
-            `}</style>
-
-            <style>{`
                 .pomodoro-card {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
                     position: relative;
+                    padding: 24px;
+                    overflow: visible;
                 }
                 .timer-circle {
                     position: relative;
@@ -126,6 +103,7 @@ const PomodoroTimer = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    margin-bottom: 24px;
                 }
                 .time-display {
                     position: absolute;
@@ -135,10 +113,11 @@ const PomodoroTimer = () => {
                     font-variant-numeric: tabular-nums;
                 }
                 .controls {
-                    margin-top: var(--spacing-lg);
                     display: flex;
                     align-items: center;
-                    gap: var(--spacing-md);
+                    justify-content: center;
+                    gap: 24px;
+                    width: 100%;
                 }
                 .control-btn {
                     border-radius: 50%;
@@ -148,6 +127,8 @@ const PomodoroTimer = () => {
                     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
                     color: var(--text-primary);
                     background: var(--surface-hover);
+                    border: none;
+                    cursor: pointer;
                 }
                 .control-btn:hover {
                     transform: scale(1.1);
@@ -162,12 +143,35 @@ const PomodoroTimer = () => {
                     box-shadow: 0 4px 15px var(--primary-glow);
                 }
                 .control-btn.main:hover {
-                    background: var(--primary-color); /* Keep primary */
+                    background: var(--primary-color);
                     box-shadow: 0 0 25px var(--primary-glow);
                 }
                 .control-btn.secondary {
                     width: 48px;
                     height: 48px;
+                }
+                
+                .time-selector {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    margin-left: 12px;
+                }
+                .time-btn {
+                    border: none;
+                    background: none;
+                    font-size: 0.8rem;
+                    color: var(--text-tertiary);
+                    cursor: pointer;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    transition: all 0.2s;
+                }
+                .time-btn.active {
+                    color: var(--primary-color);
+                    background: var(--surface-hover);
+                    font-weight: 700;
                 }
             `}</style>
         </div>

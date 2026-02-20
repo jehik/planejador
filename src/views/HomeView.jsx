@@ -149,6 +149,7 @@ const SimpleTaskList = () => {
                     display: flex;
                     flex-direction: column;
                     gap: 12px;
+                    padding: 0 8px; /* Added padding */
                 }
                 .task-item {
                     display: flex;
