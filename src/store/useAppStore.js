@@ -161,15 +161,13 @@ const useAppStore = create((set, get) => ({
           water: 0,
           lastResetDate: today
         };
-        console.log('Daily Reset Applied');
-        // We will save this change in the next sync or action
+        // Daily reset applied
       }
 
       set({ userData: dataToLoad });
 
       // MIGRATION CHECK: OLD TASKS ARRAY
       if (dataToLoad.tasks && Array.isArray(dataToLoad.tasks) && dataToLoad.tasks.length > 0) {
-        console.log('⚠️ Migration Found: Moving legacy tasks to subcollection...');
         await get().migrateLegacyTasks(uid, dataToLoad.tasks);
       }
 
@@ -203,7 +201,6 @@ const useAppStore = create((set, get) => ({
         });
       });
       set({ tasks });
-      console.log(`[Tasks] Synced ${tasks.length} items from Firestore`);
     }, (error) => {
       console.error("Task Subscription Error:", error);
     });
@@ -327,12 +324,10 @@ const useAppStore = create((set, get) => ({
       });
 
       await Promise.all(batchPromises);
-      console.log(`Migrated ${legacyTasks.length} tasks.`);
 
       // Clean up old array
       const userRef = doc(db, 'users', uid);
       await updateDoc(userRef, { tasks: [] });
-      console.log('Legacy tasks cleared from UserData.');
 
       // Update local state to reflect removal
       set(state => ({

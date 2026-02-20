@@ -87,8 +87,6 @@ export const fetchMentorAdvice = async (userType) => {
         `;
     }
 
-    console.log("Mentor Service: Calling secure backend /api/mentor");
-
     // Localhost Check: Vercel Functions don't run on standard `npm run dev`
     // Includes standard private IPs for mobile testing: 192.168.x.x, 10.x.x.x, 172.16.x.x
     const isLocalhost = window.location.hostname === 'localhost' ||

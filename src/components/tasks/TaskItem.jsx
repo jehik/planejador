@@ -4,7 +4,7 @@ import { classifyTask, getPeriodColor } from '../../utils/timeUtils';
 import useAppStore from '../../store/useAppStore';
 
 const TaskItem = ({ task, showCategory = false }) => {
-    const { toggleTask, removeTask } = useAppStore();
+    const { toggleTask, deleteTask } = useAppStore();
     const status = classifyTask(task);
     const periodColor = getPeriodColor(status);
 
@@ -85,7 +85,7 @@ const TaskItem = ({ task, showCategory = false }) => {
             {/* Actions */}
             <button
                 onClick={() => {
-                    if (window.confirm('Excluir esta tarefa?')) removeTask(task.id);
+                    if (window.confirm('Excluir esta tarefa?')) deleteTask(task.id);
                 }}
                 style={{
                     color: 'var(--text-secondary)',
