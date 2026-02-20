@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, GraduationCap } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle } from 'lucide-react';
 
 const StudiesView = () => {
     // We'll reuse the 'Projects' structure logic but filter by 'category' = 'studies' if we wanted to unify, 
@@ -125,7 +125,7 @@ const StudiesView = () => {
                             {studies.map(study => (
                                 <div key={study.id} className="card" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px' }}>
                                     <div style={{ marginBottom: '12px', color: '#8B5CF6' }}>
-                                        <GraduationCap size={32} />
+                                        <BookOpen size={32} />
                                     </div>
                                     <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
                                     {/* Simple delete for list item */}
@@ -138,16 +138,25 @@ const StudiesView = () => {
                     )}
                 </>
             )}
-
+            {/* Modal for Adding Study */}
             {isAdding && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '350px' }}>
-                        <h3>Nova Matéria</h3>
-                        <form onSubmit={handleAddStudy} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-                            <input autoFocus placeholder="Nome da Matéria (ex: Matemática)" value={title} onChange={e => setTitle(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div className="card fade-in" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
+                        <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px' }}>Nova Matéria</h3>
+                        <form onSubmit={handleAddStudy}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Nome da Matéria</label>
+                                <input
+                                    value={title} onChange={e => setTitle(e.target.value)}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                                    required
+                                    autoFocus
+                                    placeholder="Ex: Matemática, Inglês..."
+                                />
+                            </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button type="button" onClick={() => setIsAdding(false)} className="btn btn-ghost" style={{ flex: 1 }}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Salvar</button>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Criar</button>
                             </div>
                         </form>
                     </div>

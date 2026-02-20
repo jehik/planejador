@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Folder, Plus, Layout, Trash2, CheckCircle, ArrowRight, Target } from 'lucide-react';
+import { Folder, Plus, Layout, Trash2, CheckCircle, ArrowRight, Trophy } from 'lucide-react';
 
 const ProjectsView = () => {
     const { userData, addProject, deleteProject, addTask, tasks, toggleTask } = useAppStore();
@@ -91,22 +91,19 @@ const ProjectsView = () => {
 
                     <div className="card">
                         <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Target size={20} color="#EC4899" /> Metas & Tarefas
+                            <Trophy size={20} color="#EC4899" /> Metas & Tarefas
                         </h3>
 
-                        {/* Add Task Input */}
                         <form onSubmit={handleAddTask} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
                             <input
                                 value={newTask} onChange={e => setNewTask(e.target.value)}
-                                placeholder="Adicionar nova meta/tarefa..."
+                                placeholder="Adicionar nova meta ou tarefa..."
                                 style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
                             />
                             <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px' }}><Plus /></button>
                         </form>
 
-                        {/* Task List */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {projectTasks.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>Nenhuma tarefa criada.</p>}
                             {projectTasks.map(task => (
                                 <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                                     <button
@@ -124,48 +121,79 @@ const ProjectsView = () => {
                                     </span>
                                 </div>
                             ))}
+                            {projectTasks.length === 0 && (
+                                <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '20px' }}>Nenhuma tarefa criada.</p>
+                            )}
                         </div>
                     </div>
                 </div>
             ) : (
-                // --- PROJECTS LIST VIEW ---
-                <div className="projects-grid">
-                    {projects.map(project => (
-                        <div key={project.id} className="project-card card" onClick={() => setActiveProject(project)} style={{ cursor: 'pointer' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Folder size={20} />
-                                </div>
-                                <button onClick={(e) => { e.stopPropagation(); if (confirm('Excluir?')) deleteProject(project.id); }} style={{ border: 'none', background: 'none', color: 'var(--text-tertiary)' }}>
-                                    <Trash2 size={16} />
-                                </button>
+                // --- PROJECT LIST ---
+                <>
+                    {projects.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: 'var(--surface-color)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
+                            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', color: '#3B82F6' }}>
+                                <Layout size={32} />
                             </div>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '8px' }}>{project.title}</h3>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: 'auto' }}>
-                                <div style={{ height: '4px', flex: 1, background: 'var(--bg-color)', borderRadius: '2px' }}>
-                                    <div style={{ height: '100%', width: `${getProgress(project.id)}%`, background: '#3B82F6' }}></div>
-                                </div>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{getProgress(project.id)}%</span>
-                            </div>
+                            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: 'bold' }}>Gerencie seus Projetos</h3>
+                            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Crie projetos, defina metas e acompanhe seu progresso.</p>
+                            <button onClick={() => setIsAdding(true)} className="btn btn-ghost">Criar primeiro projeto</button>
                         </div>
-                    ))}
-                    {/* Empty State if needed */}
-                    {projects.length === 0 && (
-                        <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-                            <p>Toque em <strong>+ Novo</strong> para criar um projeto.</p>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                            {projects.map(project => (
+                                <div key={project.id} className="card" onClick={() => setActiveProject(project)} style={{ cursor: 'pointer', padding: '20px', transition: 'transform 0.2s' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div style={{ display: 'flex', gap: '16px' }}>
+                                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                <Folder size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '4px' }}>{project.title}</h3>
+                                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                    {project.description || "Sem descrição"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }} style={{ color: 'var(--text-tertiary)', background: 'none', border: 'none' }}>
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ flex: 1, height: '6px', background: 'var(--bg-color)', borderRadius: '3px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${getProgress(project.id)}%`, background: '#3B82F6' }}></div>
+                                        </div>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>{getProgress(project.id)}%</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
-                </div>
+                </>
             )}
 
-            {/* Modal */}
+            {/* Modal for Adding Project */}
             {isAdding && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '350px' }}>
-                        <h3>Novo Projeto</h3>
-                        <form onSubmit={handleAddProject} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-                            <input autoFocus placeholder="Título do Projeto" value={title} onChange={e => setTitle(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
-                            <textarea placeholder="Descrição (opcional)" value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '80px' }} />
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div className="card fade-in" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
+                        <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px' }}>Novo Projeto</h3>
+                        <form onSubmit={handleAddProject}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Nome do Projeto</label>
+                                <input
+                                    value={title} onChange={e => setTitle(e.target.value)}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <div style={{ marginBottom: '24px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Descrição (opcional)</label>
+                                <textarea
+                                    value={description} onChange={e => setDescription(e.target.value)}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '80px', resize: 'none' }}
+                                />
+                            </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button type="button" onClick={() => setIsAdding(false)} className="btn btn-ghost" style={{ flex: 1 }}>Cancelar</button>
                                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Criar</button>
@@ -174,18 +202,6 @@ const ProjectsView = () => {
                     </div>
                 </div>
             )}
-
-            <style>{`
-                .projects-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                    gap: 16px;
-                }
-                .project-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: var(--shadow-card);
-                }
-            `}</style>
         </div>
     );
 };
