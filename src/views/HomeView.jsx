@@ -46,25 +46,35 @@ const SimpleTaskList = () => {
     // Capitalize first letter
     const formattedDate = dateString.charAt(0).toUpperCase() + dateString.slice(1);
 
-    // Filter today's tasks (Aggregation from ALL sources if they use the standard 'scheduledAt')
+    // Filter today's tasks (Aggregation from ALL sources)
     const todayTasks = React.useMemo(() => {
-        const now = new Date();
-        const start = new Date(now.setHours(0, 0, 0, 0));
-        const end = new Date(now.setHours(23, 59, 59, 999));
+        const todayStr = new Date().toLocaleDateString('pt-BR'); // e.g., "19/02/2026"
 
         return tasks.filter(t => {
             if (!t.scheduledAt) return false;
-            const d = new Date(t.scheduledAt);
-            return d >= start && d <= end;
+            // Handle both Timestamp objects and Date objects/strings
+            const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+            return d.toLocaleDateString('pt-BR') === todayStr;
         });
     }, [tasks]);
+
+    const getCategoryBadge = (category) => {
+        switch (category) {
+            case 'nutrition': return { label: 'Nutrição', color: '#EC4899', bg: 'rgba(236, 72, 153, 0.1)' };
+            case 'studies': return { label: 'Estudos', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.1)' };
+            case 'work': return { label: 'Trabalho', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.1)' };
+            case 'projects': return { label: 'Projeto', color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' };
+            case 'house': return { label: 'Casa', color: '#F97316', bg: 'rgba(249, 115, 22, 0.1)' };
+            case 'personal': default: return { label: 'Tarefa', color: '#6B7280', bg: 'rgba(107, 114, 128, 0.1)' };
+        }
+    };
 
     const handleAdd = () => {
         if (newTaskTitle.trim()) {
             addTask({
                 title: newTaskTitle,
                 scheduledAt: new Date().toISOString(),
-                category: 'personal', // Default to personal, user can move later
+                category: 'personal',
                 periodType: 'day'
             });
             setNewTaskTitle('');
@@ -91,34 +101,41 @@ const SimpleTaskList = () => {
                     </div>
                 )}
 
-                {todayTasks.map(task => (
-                    <div key={task.id} className="task-item">
-                        <label className="checkbox-container">
-                            <input
-                                type="checkbox"
-                                checked={task.completed}
-                                onChange={() => toggleTask(task.id, task.completed)}
-                            />
-                            <span className="checkmark">
-                                <CheckCircle size={16} className="check-icon" />
-                            </span>
-                        </label>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span className={`task-title ${task.completed ? 'completed' : ''}`}>
-                                {task.title}
-                            </span>
-                            {/* Optional: Show category badge if needed */}
-                            {task.category && task.category !== 'personal' && (
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
-                                    {task.category === 'nutrition' ? 'Nutrição' :
-                                        task.category === 'studies' ? 'Estudos' :
-                                            task.category === 'work' ? 'Trabalho' :
-                                                task.category === 'projects' ? 'Projeto' : ''}
+                {todayTasks.map(task => {
+                    const badge = getCategoryBadge(task.category);
+                    return (
+                        <div key={task.id} className="task-item">
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={task.completed}
+                                    onChange={() => toggleTask(task.id, task.completed)}
+                                />
+                                <span className="checkmark">
+                                    <CheckCircle size={16} className="check-icon" />
                                 </span>
-                            )}
+                            </label>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span className={`task-title ${task.completed ? 'completed' : ''}`}>
+                                    {task.title}
+                                </span>
+                                <span style={{
+                                    fontSize: '0.65rem',
+                                    color: badge.color,
+                                    backgroundColor: badge.bg,
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    alignSelf: 'flex-start',
+                                    marginTop: '2px',
+                                    textTransform: 'uppercase',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {badge.label}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 {/* Quick Add with Button */}
                 <div className="quick-add-container" style={{ display: 'flex', alignItems: 'center', marginTop: '12px', gap: '8px' }}>

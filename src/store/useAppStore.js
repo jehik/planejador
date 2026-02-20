@@ -457,6 +457,31 @@ const useAppStore = create((set, get) => ({
     studies: (data.studies || []).filter(s => s.id !== id)
   })),
 
+  // --- Workout Actions (Fix for missing functions) ---
+  addWorkout: (workout) => get().setUserData(data => ({
+    ...data,
+    workouts: [...(data.workouts || []), { ...workout, id: Date.now().toString(), lastCompleted: null, streak: 0 }]
+  })),
+  removeWorkout: (id) => get().setUserData(data => ({
+    ...data,
+    workouts: (data.workouts || []).filter(w => w.id !== id)
+  })),
+  toggleWorkout: (id) => get().setUserData(data => {
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      ...data,
+      workouts: (data.workouts || []).map(w => {
+        if (w.id !== id) return w;
+        const isCompletedToday = w.lastCompleted === today;
+        return {
+          ...w,
+          lastCompleted: isCompletedToday ? null : today,
+          streak: isCompletedToday ? Math.max(0, w.streak - 1) : w.streak + 1
+        };
+      })
+    };
+  }),
+
 
 }));
 
