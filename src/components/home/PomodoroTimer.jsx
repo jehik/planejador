@@ -5,6 +5,7 @@ const PomodoroTimer = () => {
     const [selectedTime, setSelectedTime] = useState(25); // Minutes
     const DEFAULT_TIME = selectedTime * 60;
     const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
+    const [isActive, setIsActive] = useState(false);
 
     // Update timeLeft when selectedTime changes (if not active)
     useEffect(() => {
