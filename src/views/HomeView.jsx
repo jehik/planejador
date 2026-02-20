@@ -48,13 +48,26 @@ const SimpleTaskList = () => {
 
     // Filter today's tasks (Aggregation from ALL sources)
     const todayTasks = React.useMemo(() => {
-        const todayStr = new Date().toLocaleDateString('pt-BR'); // e.g., "19/02/2026"
+        // Create local date string YYYY-MM-DD
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayYMD = `${year}-${month}-${day}`;
 
         return tasks.filter(t => {
             if (!t.scheduledAt) return false;
-            // Handle both Timestamp objects and Date objects/strings
+
+            // Convert task date/timestamp to Date object
             const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
-            return d.toLocaleDateString('pt-BR') === todayStr;
+
+            // Create local string for task date
+            const tYear = d.getFullYear();
+            const tMonth = String(d.getMonth() + 1).padStart(2, '0');
+            const tDay = String(d.getDate()).padStart(2, '0');
+            const taskYMD = `${tYear}-${tMonth}-${tDay}`;
+
+            return taskYMD === todayYMD;
         });
     }, [tasks]);
 

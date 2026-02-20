@@ -17,12 +17,15 @@ const TasksView = () => {
         e.preventDefault();
         if (!title.trim()) return;
 
-        const scheduledAt = new Date(`${date}T${time}:00`);
+        // Construct Date ensuring local time (avoid UTC conversion shifts)
+        const [year, month, day] = date.split('-');
+        const [hours, minutes] = time.split(':');
+        const scheduledAt = new Date(year, month - 1, day, hours, minutes);
 
         addTask({
             title: title,
             category: 'personal',
-            scheduledAt: scheduledAt,
+            scheduledAt: scheduledAt.toString(), // Use toString to preserve local timezone offset info if needed, or stick to Date object
             periodType: 'day',
             period: period, // New field
             description: notes // Using description field for notes
