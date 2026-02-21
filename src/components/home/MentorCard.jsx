@@ -3,6 +3,82 @@ import useAppStore from '../../store/useAppStore';
 import { fetchMentorAdvice } from '../../services/mentorService';
 import { Sparkles, ArrowRight, Loader2, Quote } from 'lucide-react';
 
+const neuroMessages = [
+    "Seu cérebro não distingue realidade de imaginação vívida. Visualize agora com detalhes.",
+    "A neuroplasticidade permite que você mude sua mente a qualquer instante através do foco.",
+    "O foco libera dopamina, o combustível natural da sua motivação e clareza mental.",
+    "Visualizar o sucesso treina seus neurônios para identificar oportunidades ocultas.",
+    "Repetição de pensamentos de abundância cria trilhas neurais que se tornam automáticas.",
+    "O córtex pré-frontal precisa de silêncio e presença para gerar soluções criativas.",
+    "Ensaiar mentalmente uma ação ativa as mesmas áreas motoras do cérebro que a prática real.",
+    "A gratidão regula o cortisol e ativa o sistema de recompensa cerebral em segundos.",
+    "Sua mente foca naquilo que você dá atenção. Escolha focar na sua evolução hoje.",
+    "A visualização matinal prepara seu Sistema de Ativação Reticular para o sucesso.",
+    "Neurônios que disparam juntos, permanecem juntos. Conecte esforço a prazer.",
+    "A meditação aumenta a espessura da matéria cinzenta ligada ao controle emocional.",
+    "O cérebro gasta 20% da sua energia. Use-a para visualizar sua melhor versão.",
+    "Respirar conscientemente envia um sinal de segurança para as amígdalas cerebrais.",
+    "Seu subconsciente é programado por imagens. Alimente-o com visões de prosperidade.",
+    "O estado de 'Flow' é onde seu cérebro atinge a máxima harmonia neurofisiológica.",
+    "Pequenos sucessos liberam micro-doses de dopamina, criando um ciclo de vitória.",
+    "A visualização com emoção é a linguagem que seu cérebro entende mais rápido.",
+    "O silêncio permite que a rede de modo padrão (DMN) processe aprendizados profundos.",
+    "Você tem o poder de remodelar seu cérebro através de escolhas conscientes diárias.",
+    "Aprender algo novo cria novas sinapses, mantendo o cérebro jovem e plástico.",
+    "O sono é essencial para a consolidação da memória e limpeza de toxinas neurais.",
+    "Sorrir libera endorfinas e reduz o estresse, mesmo que feito conscientemente.",
+    "O contato com a natureza reduz significativamente a atividade na amígdala cerebral.",
+    "Beber água melhora a condução elétrica entre os neurônios e a clareza mental.",
+    "Fazer uma coisa de cada vez aumenta a eficiência do seu processamento neural.",
+    "Escrever à mão ativa áreas cerebrais ligadas ao aprendizado profundo e foco.",
+    "A curiosidade ativa o sistema de recompensa, facilitando a memorização de novos dados.",
+    "O otimismo treina o cérebro para buscar soluções em vez de focar apenas em problemas.",
+    "Ouvir música harmônica reduz a ansiedade e sincroniza os hemisférios cerebrais.",
+    "Exercício físico aumenta o BDNF, a proteína que estimula o crescimento de novos neurônios.",
+    "A autocompaixão desativa a resposta de luta ou fuga, permitindo raciocínio claro.",
+    "O jejum intermitente pode estimular a regeneração e proteção das células neurais.",
+    "Ler livros complexos expande a conectividade do seu córtex temporal e imaginação.",
+    "O convívio social saudável libera ocitocina, reduzindo o medo e aumentando a confiança.",
+    "Desafiar crenças limitantes enfraquece conexões neurais obsoletas e abre espaço para o novo.",
+    "A organização externa reflete e auxilia na sua clareza sináptica e redução de ruído.",
+    "O foco sustentado por apenas 20 minutos muda seu estado de consciência e produtividade.",
+    "Visualize os obstáculos e sua superação; isso fortalece seu córtex cingulado anterior.",
+    "A vitamina D age como um neuroesteroide essencial para a regulação do seu humor.",
+    "Gorduras saudáveis são o combustível da bainha de mielina, acelerando seus pensamentos.",
+    "Rir reduz a carga cognitiva e melhora sua flexibilidade diante de imprevistos.",
+    "O seu cérebro aprende e retém muito melhor através de metáforas e histórias visuais.",
+    "A luz solar matinal regula seu ritmo circadiano, otimizando o foco durante todo o dia.",
+    "A paciência dá tempo para que os lobos frontais dominem seus instintos impulsivos.",
+    "Falar consigo mesma de forma positiva e gentil reprograma seu diálogo interno central.",
+    "O erro é o sinal químico que o cérebro usa para iniciar as mudanças na fiação neural.",
+    "A técnica de respiração 4-7-8 hackeia seu sistema nervoso para a calma instantânea.",
+    "Sua percepção subjetiva de tempo é moldada diretamente pelo seu nível de dopamina.",
+    "O cérebro é um órgão de antecipação. Comece agora a antecipar o seu grande sucesso!"
+];
+
+const prosperityPhrases = [
+    "Sintonize sua mente com a abundância.",
+    "A prosperidade flui para onde há ordem, paz e foco total.",
+    "Você merece toda a abundância que o universo reserva para você.",
+    "Sua mente é um ímã poderoso para oportunidades prósperas.",
+    "Cada ação consciente hoje planta uma semente de riqueza futura.",
+    "A verdadeira abundância começa com uma mentalidade profunda de gratidão.",
+    "O seu sucesso é o resultado natural e inevitável da sua consistência.",
+    "Viva em um estado constante de fluxo, merecimento e prosperidade.",
+    "Sua visão clara de futuro atrai magneticamente os recursos necessários.",
+    "Sinta paz, segurança e confiança no seu caminho de abundância.",
+    "A riqueza mental absoluta precede qualquer conquista material sólida.",
+    "Seja grata por todas as bençãos e vitórias que você já conquistou.",
+    "O universo é ilimitado e você é parte integrante desta fonte infinita.",
+    "Escolha apenas pensamentos que elevam sua vibração e prosperidade.",
+    "Sua realidade atual é apenas o ponto de partida para algo grandioso.",
+    "A prosperidade é o estado natural e original do seu ser.",
+    "Aceite com amor a abundância em todas as áreas da sua vida.",
+    "O seu potencial para o sucesso e felicidade é verdadeiramente infinito.",
+    "Siga sua intuição divina rumo a uma vida extraordinária e plena.",
+    "A abundância te permite servir melhor e transbordar na vida dos outros."
+];
+
 const MentorCard = () => {
     const { currentUser, userData, tasks } = useAppStore();
     const [advice, setAdvice] = useState(null);
@@ -10,8 +86,22 @@ const MentorCard = () => {
     const [chatQuestion, setChatQuestion] = useState('');
     const [chatLoading, setChatLoading] = useState(false);
 
+    // States para mensagens randômicas com timer
+    const [neuroIdx, setNeuroIdx] = useState(Math.floor(Math.random() * neuroMessages.length));
+    const [prosIdx, setProsIdx] = useState(Math.floor(Math.random() * prosperityPhrases.length));
+
     const userName = currentUser?.email?.includes('debora') ? 'debora' : 'cassio';
     const accentColor = userName === 'cassio' ? '#4F46E5' : '#EC4899';
+
+    // Timer para trocar as mensagens a cada 1 minuto
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNeuroIdx(Math.floor(Math.random() * neuroMessages.length));
+            setProsIdx(Math.floor(Math.random() * prosperityPhrases.length));
+        }, 60000); // 60 segundos
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const getAdvice = async () => {
@@ -62,11 +152,12 @@ const MentorCard = () => {
 
     return (
         <div className="card mentor-card-container fade-in" style={{
-            padding: '24px', // Reduzido de 32px para ganhar espaço lateral
+            padding: '24px',
             background: `linear-gradient(135deg, var(--surface-color) 0%, ${accentColor}08 100%)`,
             border: `1px solid ${accentColor}20`,
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            isolation: 'isolate' // Garante que filtros e bleeds não vazem
         }}>
             {/* Apple Intelligence Glow Effect */}
             <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '200px', height: '200px', borderRadius: '50%', background: `radial-gradient(circle, ${accentColor}10 0%, transparent 70%)`, filter: 'blur(40px)', zIndex: 0 }}></div>
@@ -138,34 +229,12 @@ const MentorCard = () => {
                                 <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Neurociência & Visualização</span>
                             </div>
                             <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.3' }}>
-                                {advice.explicacaoNeurocientifica || (() => {
-                                    const messages = [
-                                        "Seu cérebro não distingue realidade de imaginação vívida. Visualize agora com detalhes.",
-                                        "A neuroplasticidade permite que você mude sua mente a qualquer instante através do foco.",
-                                        "O foco libera dopamina, o combustível natural da sua motivação e clareza mental.",
-                                        "Visualizar o sucesso treina seus neurônios para identificar oportunidades ocultas.",
-                                        "Repetição de pensamentos de abundância cria trilhas neurais que se tornam automáticas.",
-                                        "O córtex pré-frontal precisa de silêncio e presença para gerar soluções criativas.",
-                                        "Ensaiar mentalmente uma ação ativa as mesmas áreas motoras do cérebro que a prática real.",
-                                        "A gratidão regula o cortisol e ativa o sistema de recompensa cerebral em segundos.",
-                                        "Sua mente foca naquilo que você dá atenção. Escolha focar na sua evolução hoje.",
-                                        "A visualização matinal prepara seu Sistema de Ativação Reticular para o sucesso.",
-                                        "Neurônios que disparam juntos, permanecem juntos. Conecte esforço a prazer.",
-                                        "A meditação aumenta a espessura da matéria cinzenta ligada ao controle emocional.",
-                                        "O cérebro gasta 20% da sua energia. Use-a para visualizar sua melhor versão.",
-                                        "Respirar conscientemente envia um sinal de segurança para as amígdalas cerebrais.",
-                                        "Seu subconsciente é programado por imagens. Alimente-o com visões de prosperidade.",
-                                        "O estado de 'Flow' é onde seu cérebro atinge a máxima harmonia neurofisiológica.",
-                                        "Pequenos sucessos liberam micro-doses de dopamina, criando um ciclo de vitória.",
-                                        "A visualização com emoção é a linguagem que seu cérebro entende mais rápido.",
-                                        "O silêncio permite que a rede de modo padrão (DMN) processe aprendizados profundos.",
-                                        "Você tem o poder de remodelar seu cérebro através de escolhas conscientes diárias."
-                                    ];
-                                    return messages[Math.floor(Math.random() * messages.length)];
-                                })()}
+                                {advice.explicacaoNeurocientifica || neuroMessages[neuroIdx]}
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.fraseProsperidade || "Sintonize sua mente com a abundância."}</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                    {advice.fraseProsperidade || prosperityPhrases[prosIdx]}
+                                </div>
                             </div>
                         </div>
                     )}
