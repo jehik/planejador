@@ -1,13 +1,13 @@
 import React from 'react';
 import useAppStore from '../../store/useAppStore';
-import { Home, Folder, Plane, Menu as MenuIcon } from 'lucide-react';
+import { Home, Briefcase, Plane, Menu as MenuIcon } from 'lucide-react';
 
 const BottomNav = () => {
     const { activeTab, setActiveTab, toggleMenu } = useAppStore();
 
     const navItems = [
         { id: 'home', label: 'Início', icon: Home },
-        { id: 'projects', label: 'Projetos', icon: Folder },
+        { id: 'projects', label: 'Projetos', icon: Briefcase },
         { id: 'travel', label: 'Viagem', icon: Plane },
         { id: 'menu', label: 'Menu', icon: MenuIcon, isAction: true },
     ];

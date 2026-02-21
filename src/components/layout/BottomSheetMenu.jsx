@@ -2,7 +2,8 @@ import React from 'react';
 import useAppStore from '../../store/useAppStore';
 import {
     X, LayoutGrid, CheckSquare, Home, Utensils,
-    ShoppingCart, BookOpen, Plane, Settings, LogOut
+    ShoppingCart, BookOpen, Plane, Settings, LogOut,
+    Briefcase, Heart, Shield, DollarSign
 } from 'lucide-react';
 
 const BottomSheetMenu = () => {
@@ -17,9 +18,12 @@ const BottomSheetMenu = () => {
         { id: 'nutrition', label: 'Nutrição', icon: Utensils, color: '#EC4899' },
         { id: 'shopping', label: 'Compras', icon: ShoppingCart, color: '#3B82F6' },
         { id: 'studies', label: 'Estudos', icon: BookOpen, color: '#8B5CF6' },
-        { id: 'trip', label: 'Viagem', icon: Plane, color: '#06B6D4' },
-        // { id: 'finance', label: 'Finanças', icon: DollarSign, color: '#14B8A6' }, // Only if needed based on Prompt
-        { id: 'profile', label: 'Configurações', icon: Settings, color: '#6B7280' },
+        { id: 'travel', label: 'Viagem', icon: Plane, color: '#06B6D4' },
+        { id: 'finance', label: 'Finanças', icon: DollarSign, color: '#14B8A6' },
+        { id: 'projects', label: 'Projetos', icon: Briefcase, color: '#6366F1' },
+        { id: 'relationship', label: 'Nós', icon: Heart, color: '#EC4899' },
+        { id: 'restrictions', label: 'Restrições', icon: Shield, color: '#6B7280' },
+        { id: 'profile', label: 'Perfil', icon: Settings, color: '#6B7280' },
     ];
 
     return (

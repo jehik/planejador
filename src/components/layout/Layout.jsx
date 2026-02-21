@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
+import BottomSheetMenu from './BottomSheetMenu';
 import useAppStore from '../../store/useAppStore';
 
 const Layout = ({ children }) => {
@@ -21,6 +22,7 @@ const Layout = ({ children }) => {
                 {children}
             </main>
             <BottomNav />
+            <BottomSheetMenu />
         </div>
     );
 };
