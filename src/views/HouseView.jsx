@@ -9,21 +9,22 @@ const HouseView = () => {
     const [categoryType, setCategoryType] = useState('cleaning');
     const [period, setPeriod] = useState(null);
     const [notes, setNotes] = useState('');
+    const [isAdding, setIsAdding] = useState(false);
 
     const daysOfWeek = [
-        { id: 'sun', label: 'D' },
-        { id: 'mon', label: 'S' },
-        { id: 'tue', label: 'T' },
-        { id: 'wed', label: 'Q' },
-        { id: 'thu', label: 'Q' },
-        { id: 'fri', label: 'S' },
-        { id: 'sat', label: 'S' }
+        { id: 'sun', label: 'Dom' },
+        { id: 'mon', label: 'Seg' },
+        { id: 'tue', label: 'Ter' },
+        { id: 'wed', label: 'Qua' },
+        { id: 'thu', label: 'Qui' },
+        { id: 'fri', label: 'Sex' },
+        { id: 'sat', label: 'Sáb' }
     ];
 
     const categories = [
-        { id: 'cleaning', label: 'Limpeza', color: '#10B981' },
-        { id: 'shopping', label: 'Compras', color: '#F59E0B' },
-        { id: 'organization', label: 'Organização', color: '#8B5CF6' }
+        { id: 'cleaning', label: 'Limpeza', color: '#10B981', bg: 'rgba(16, 185, 129, 0.08)' },
+        { id: 'shopping', label: 'Compras', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.08)' },
+        { id: 'organization', label: 'Organização', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.08)' }
     ];
 
     const periods = [
@@ -32,7 +33,6 @@ const HouseView = () => {
         { id: 'night', label: 'Noite', icon: Moon, color: '#8B5CF6' }
     ];
 
-    // Filter regular tasks + custom "house" fields
     const houseTasks = tasks.filter(t => t.category === 'house').sort((a, b) => a.completed - b.completed);
 
     const handleAdd = () => {
@@ -51,6 +51,8 @@ const HouseView = () => {
         setTitle('');
         setNotes('');
         setPeriod(null);
+        setSelectedDays([]);
+        setIsAdding(false);
     };
 
     const toggleDaySelection = (dayId) => {
@@ -62,176 +64,185 @@ const HouseView = () => {
     };
 
     return (
-        <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <div style={{
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    padding: '10px', borderRadius: '12px',
-                    color: '#D97706'
-                }}>
-                    <Home size={28} />
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h2 className="text-xl">Casa</h2>
+                    <p className="text-sm text-secondary">Organize seu santuário</p>
                 </div>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: 0 }}>Minha Casa</h2>
-            </div>
-
-            {/* Quick Add Card */}
-            <div className="card" style={{ marginBottom: '2rem' }}>
-                <h4 style={{ marginBottom: '16px', fontSize: '1rem', fontWeight: '600' }}>Adicionar Tarefa</h4>
-
-                {/* Category Selection */}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                    {categories.map(cat => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setCategoryType(cat.id)}
-                            className={`btn ${categoryType === cat.id ? 'btn-primary' : 'btn-ghost'}`}
-                            style={{
-                                flex: 1,
-                                fontSize: '0.85rem',
-                                border: `1px solid ${categoryType === cat.id ? cat.color : 'var(--border-color)'}`,
-                                backgroundColor: categoryType === cat.id ? `${cat.color}20` : 'transparent',
-                                color: categoryType === cat.id ? cat.color : 'var(--text-secondary)'
-                            }}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
-                    <input
-                        value={title} onChange={e => setTitle(e.target.value)}
-                        placeholder="O que precisa ser feito?"
-                        style={{
-                            flex: 1, padding: '12px', borderRadius: '12px',
-                            border: '1px solid var(--border-color)',
-                            backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
-                        }}
-                    />
-                </div>
-
-                {/* Period Selection */}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                    {periods.map(p => (
-                        <button
-                            key={p.id}
-                            onClick={() => setPeriod(period === p.id ? null : p.id)}
-                            className={`btn`}
-                            style={{
-                                flex: 1,
-                                padding: '8px',
-                                borderRadius: '8px',
-                                border: `1px solid ${period === p.id ? p.color : 'var(--border-color)'}`,
-                                backgroundColor: period === p.id ? `${p.color}20` : 'transparent',
-                                color: period === p.id ? p.color : 'var(--text-secondary)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                                fontSize: '0.8rem'
-                            }}
-                        >
-                            <p.icon size={14} />
-                            <span>{p.label}</span>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Notes Field */}
-                <div style={{ position: 'relative', marginBottom: '12px' }}>
-                    <div style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-secondary)' }}><AlignLeft size={16} /></div>
-                    <textarea
-                        placeholder="Anotações (opcional)..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        style={{
-                            width: '100%', padding: '10px 10px 10px 32px', borderRadius: '12px', border: '1px solid var(--border-color)',
-                            backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem',
-                            minHeight: '60px', resize: 'vertical', fontFamily: 'inherit'
-                        }}
-                    />
-                </div>
-
-                {/* Days Selection */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    {daysOfWeek.map(day => (
-                        <button
-                            key={day.id}
-                            onClick={() => toggleDaySelection(day.id)}
-                            style={{
-                                width: '32px', height: '32px', borderRadius: '50%',
-                                fontSize: '0.75rem', fontWeight: '600',
-                                border: '1px solid var(--border-color)',
-                                backgroundColor: selectedDays.includes(day.id) ? 'var(--primary-color)' : 'transparent',
-                                color: selectedDays.includes(day.id) ? 'white' : 'var(--text-secondary)',
-                                cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                        >
-                            {day.label}
-                        </button>
-                    ))}
-                </div>
-
                 <button
-                    onClick={handleAdd}
-                    className="btn btn-primary"
-                    style={{ borderRadius: '12px', width: '100%', justifyContent: 'center' }}
-                >
-                    <Plus size={20} style={{ marginRight: '8px' }} /> Adicionar Tarefa
+                    onClick={() => setIsAdding(!isAdding)}
+                    style={{
+                        width: '44px', height: '44px',
+                        borderRadius: '14px',
+                        backgroundColor: isAdding ? 'var(--text-primary)' : 'rgba(245, 158, 11, 0.08)',
+                        color: isAdding ? 'white' : '#F59E0B',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: 'none', cursor: 'pointer', transition: 'all 0.3s'
+                    }}>
+                    {isAdding ? <X size={20} /> : <Plus size={24} strokeWidth={2.5} />}
                 </button>
             </div>
 
-            {/* Task List */}
-            <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Tarefas</h3>
-                    <button className="btn btn-ghost" style={{ padding: '8px' }}>
-                        <Filter size={18} />
+            {/* Quick Add Form */}
+            {isAdding && (
+                <div className="card fade-in" style={{ marginBottom: '32px', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Categoria</label>
+                        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+                            {categories.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setCategoryType(cat.id)}
+                                    style={{
+                                        flexShrink: 0, padding: '10px 16px', borderRadius: '12px', border: 'none',
+                                        backgroundColor: categoryType === cat.id ? cat.color : 'rgba(0,0,0,0.03)',
+                                        color: categoryType === cat.id ? 'white' : 'var(--text-secondary)',
+                                        fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>O que precisa ser feito?</label>
+                        <input
+                            value={title} onChange={e => setTitle(e.target.value)}
+                            placeholder="Ex: Lavar louça, Aspirar sala..."
+                            autoFocus
+                            style={{
+                                width: '100%', padding: '12px', backgroundColor: 'rgba(0,0,0,0.02)',
+                                border: '1px solid var(--border-color)', borderRadius: '12px',
+                                fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', outline: 'none'
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Período</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {periods.map(p => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => setPeriod(period === p.id ? null : p.id)}
+                                    style={{
+                                        flex: 1, padding: '12px 8px', borderRadius: '12px', border: 'none',
+                                        backgroundColor: period === p.id ? p.color : 'rgba(0,0,0,0.03)',
+                                        color: period === p.id ? 'white' : 'var(--text-secondary)',
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                                        cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <p.icon size={18} />
+                                    <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>{p.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Dias (Recorrência)</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                            {daysOfWeek.map(day => (
+                                <button
+                                    key={day.id}
+                                    onClick={() => toggleDaySelection(day.id)}
+                                    style={{
+                                        flex: 1, height: '36px', borderRadius: '10px', border: 'none',
+                                        backgroundColor: selectedDays.includes(day.id) ? 'var(--text-primary)' : 'rgba(0,0,0,0.03)',
+                                        color: selectedDays.includes(day.id) ? 'white' : 'var(--text-secondary)',
+                                        fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {day.label.charAt(0)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Anotações</label>
+                        <div style={{ position: 'relative' }}>
+                            <AlignLeft size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-tertiary)' }} />
+                            <textarea
+                                placeholder="Mais detalhes..."
+                                value={notes} onChange={(e) => setNotes(e.target.value)}
+                                style={{
+                                    width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                                    backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-primary)', fontSize: '0.9rem',
+                                    minHeight: '80px', outline: 'none', resize: 'none'
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleAdd}
+                        className="btn btn-primary"
+                        style={{ width: '100%', padding: '16px', borderRadius: '14px', backgroundColor: '#F59E0B', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)' }}
+                    >
+                        Agendar Tarefa
                     </button>
                 </div>
+            )}
 
-                <div className="house-task-list">
+            {/* List Section */}
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 className="text-lg">Suas Tarefas</h3>
+                    <div style={{ padding: '6px 12px', borderRadius: '20px', backgroundColor: 'rgba(0,0,0,0.03)', fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
+                        {houseTasks.filter(t => !t.completed).length} Pendentes
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {houseTasks.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-                            <p>Tudo limpo e organizado!</p>
+                        <div style={{ textAlign: 'center', padding: '48px 24px', opacity: 0.5 }}>
+                            <Home size={40} style={{ marginBottom: '16px', opacity: 0.2 }} />
+                            <p style={{ fontWeight: '600', fontSize: '0.9rem' }}>Sua casa está impecável!</p>
                         </div>
                     ) : (
                         houseTasks.map(task => {
                             const cat = categories.find(c => c.id === task.houseCategory) || categories[0];
                             const taskPeriod = periods.find(p => p.id === task.period);
                             return (
-                                <div key={task.id} className="house-task-item card">
-                                    <label className="checkbox-container">
-                                        <input
-                                            type="checkbox"
-                                            checked={task.completed}
-                                            onChange={() => toggleTask(task.id, task.completed)}
-                                        />
-                                        <span className="checkmark" style={{
-                                            borderColor: task.completed ? 'var(--success-color)' : 'var(--text-secondary)',
-                                            backgroundColor: task.completed ? 'var(--success-color)' : 'transparent'
-                                        }}>
-                                            <CheckCircle size={14} className="check-icon" />
-                                        </span>
-                                    </label>
+                                <div key={task.id} className="card fade-in" style={{ padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                                    <button
+                                        onClick={() => toggleTask(task.id, task.completed)}
+                                        style={{
+                                            width: '32px', height: '32px', borderRadius: '50%',
+                                            border: `2px solid ${task.completed ? '#10B981' : 'var(--border-color)'}`,
+                                            backgroundColor: task.completed ? '#10B981' : 'transparent',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: 'white', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0, marginTop: '2px'
+                                        }}
+                                    >
+                                        {task.completed && <CheckCircle size={20} strokeWidth={3} />}
+                                    </button>
 
                                     <div style={{ flex: 1 }}>
-                                        <span className={`task-title ${task.completed ? 'completed' : ''}`}>
+                                        <h4 style={{
+                                            fontSize: '1rem', fontWeight: '700',
+                                            color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                            textDecoration: task.completed ? 'line-through' : 'none',
+                                            marginBottom: '6px'
+                                        }}>
                                             {task.title}
-                                        </span>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
+                                        </h4>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                             <span style={{
-                                                fontSize: '0.7rem',
-                                                color: cat.color,
-                                                backgroundColor: `${cat.color}15`,
-                                                padding: '2px 8px', borderRadius: '4px'
+                                                fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em',
+                                                color: cat.color, backgroundColor: cat.bg, padding: '2px 8px', borderRadius: '6px'
                                             }}>
                                                 {cat.label}
                                             </span>
-
                                             {taskPeriod && (
                                                 <span style={{
-                                                    fontSize: '0.7rem', color: taskPeriod.color,
-                                                    backgroundColor: `${taskPeriod.color}15`,
-                                                    padding: '2px 8px', borderRadius: '4px',
+                                                    fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em',
+                                                    color: taskPeriod.color, backgroundColor: `${taskPeriod.color}15`, padding: '2px 8px', borderRadius: '6px',
                                                     display: 'flex', alignItems: 'center', gap: '4px'
                                                 }}>
                                                     <taskPeriod.icon size={10} /> {taskPeriod.label}
@@ -239,14 +250,17 @@ const HouseView = () => {
                                             )}
                                         </div>
                                         {task.description && (
-                                            <div style={{ marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                            <p style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                                                 {task.description}
-                                            </div>
+                                            </p>
                                         )}
                                     </div>
 
-                                    <button onClick={() => deleteTask(task.id)} className="delete-icon">
-                                        <Trash2 size={18} />
+                                    <button
+                                        onClick={() => deleteTask(task.id)}
+                                        style={{ padding: '4px', color: 'var(--danger-color)', opacity: 0.2, border: 'none', background: 'none', cursor: 'pointer' }}
+                                    >
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
                             );
@@ -254,55 +268,6 @@ const HouseView = () => {
                     )}
                 </div>
             </div>
-
-            <style>{`
-                .house-task-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-                .house-task-item {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 16px;
-                    padding: 16px;
-                }
-                .checkbox-container {
-                    position: relative;
-                    cursor: pointer;
-                    width: 24px;
-                    height: 24px;
-                    margin-top: 2px;
-                }
-                .checkbox-container input { opacity: 0; width: 0; height: 0; }
-                .checkmark {
-                    position: absolute; top: 0; left: 0;
-                    height: 24px; width: 24px;
-                    border-radius: 50%;
-                    border: 2px solid;
-                    display: flex; alignItems: center; justifyContent: center;
-                    transition: all 0.2s;
-                }
-                .check-icon { opacity: 0; color: white; transform: scale(0.5); transition: all 0.2s; }
-                .checkbox-container input:checked ~ .checkmark .check-icon { opacity: 1; transform: scale(1); }
-                
-                .task-title.completed {
-                    color: var(--text-secondary);
-                    text-decoration: line-through;
-                }
-                .delete-icon {
-                    color: var(--text-secondary);
-                    opacity: 0.5;
-                    transition: all 0.2s;
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                }
-                .delete-icon:hover {
-                    opacity: 1;
-                    color: var(--danger-color);
-                }
-            `}</style>
         </div>
     );
 };

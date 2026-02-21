@@ -9,7 +9,6 @@ const RelationshipView = () => {
     const daysTogether = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 
     // Photo Logic
-    const { userData } = useAppStore();
     const [localPhoto, setLocalPhoto] = useState(localStorage.getItem('relationship_photo'));
     const fileInputRef = useRef(null);
 
@@ -52,123 +51,129 @@ const RelationshipView = () => {
     };
 
     return (
-        <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
-            {/* Header / Hero */}
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                <div
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{
-                        width: '120px', height: '120px', borderRadius: '50%',
-                        backgroundColor: 'var(--surface-color)', margin: '0 auto 16px auto',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: '4px solid var(--primary-color)', overflow: 'hidden',
-                        boxShadow: '0 0 20px rgba(124, 92, 255, 0.3)', cursor: 'pointer',
-                        position: 'relative'
-                    }}
-                >
-                    {localPhoto ? (
-                        <img src={localPhoto} alt="Nós" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                        <ImageIcon size={40} color="var(--text-secondary)" />
-                    )}
-
-                    {/* Upload Overlay hint */}
-                    <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.5)', padding: '4px' }}>
-                        <Upload size={12} color="white" />
-                    </div>
-                </div>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                />
-
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Nós dois</h2>
-                <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '8px',
-                    padding: '8px 16px', borderRadius: '20px',
-                    backgroundColor: 'rgba(236, 72, 153, 0.1)', color: '#EC4899', marginTop: '8px'
-                }}>
-                    <Heart size={16} fill="currentColor" />
-                    <span style={{ fontWeight: '600' }}>{daysTogether} dias juntos</span>
-                </div>
-                <p style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>Desde 15 de julho de 2024</p>
-            </div>
-
-            {/* Date Night Planner */}
-            <div className="card" style={{ marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <Calendar size={20} color="#EC4899" />
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Ideias de Encontros</h3>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {dateIdeas.map(idea => (
-                        <div
-                            key={idea.id}
-                            onClick={() => toggleIdea(idea.id)}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '12px',
-                                padding: '12px', borderRadius: '12px',
-                                backgroundColor: idea.checked ? 'rgba(236, 72, 153, 0.05)' : 'var(--bg-color)',
-                                border: '1px solid var(--border-color)',
-                                cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                        >
-                            <div style={{
-                                width: '20px', height: '20px', borderRadius: '50%',
-                                border: `2px solid ${idea.checked ? '#EC4899' : 'var(--text-secondary)'}`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                backgroundColor: idea.checked ? '#EC4899' : 'transparent',
-                                flexShrink: 0
-                            }}>
-                                {idea.checked && <Heart size={10} color="white" fill="white" />}
-                            </div>
-                            <span style={{
-                                textDecoration: idea.checked ? 'line-through' : 'none',
-                                color: idea.checked ? 'var(--text-secondary)' : 'var(--text-primary)',
-                                flex: 1
-                            }}>
-                                {idea.text}
-                            </span>
-                            <button
-                                onClick={(e) => deleteIdea(e, idea.id)}
-                                style={{
-                                    border: 'none', background: 'none',
-                                    color: 'var(--text-tertiary)', cursor: 'pointer',
-                                    padding: '4px'
-                                }}
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-
-                <form onSubmit={addIdea} style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
-                    <input
-                        placeholder="Nova ideia..."
-                        value={newIdea}
-                        onChange={(e) => setNewIdea(e.target.value)}
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+            {/* Hero Profile Section */}
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <div style={{ position: 'relative', width: '160px', height: '160px', margin: '0 auto 24px auto' }}>
+                    <div
+                        onClick={() => fileInputRef.current?.click()}
                         style={{
-                            flex: 1, padding: '10px', borderRadius: '12px',
-                            border: '1px solid var(--border-color)',
-                            backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
-                        }}
-                    />
-                    <button
-                        type="submit"
-                        style={{
-                            backgroundColor: '#EC4899', color: 'white', border: 'none',
-                            borderRadius: '12px', width: '44px', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center'
+                            width: '100%', height: '100%', borderRadius: '48px',
+                            backgroundColor: 'var(--surface-color)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '1px solid rgba(236, 72, 153, 0.2)', overflow: 'hidden',
+                            boxShadow: '0 12px 32px rgba(236, 72, 153, 0.15)', cursor: 'pointer',
+                            position: 'relative', transform: 'rotate(-2deg)', transition: 'transform 0.3s ease'
                         }}
                     >
-                        <Plus size={20} />
-                    </button>
-                </form>
+                        {localPhoto ? (
+                            <img src={localPhoto} alt="Nós" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <div style={{ textAlign: 'center' }}>
+                                <ImageIcon size={48} color="rgba(236, 72, 153, 0.4)" />
+                                <p style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-tertiary)', marginTop: '8px', textTransform: 'uppercase' }}>Foto do Casal</p>
+                            </div>
+                        )}
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(236, 72, 153, 0.8)', backdropFilter: 'blur(4px)', padding: '8px', display: 'flex', justifyContent: 'center' }}>
+                            <Upload size={16} color="white" />
+                        </div>
+                    </div>
+                    {/* Decorative Hearts */}
+                    <Heart size={24} fill="#EC4899" color="#EC4899" style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.8, filter: 'drop-shadow(0 4px 8px rgba(236,72,153,0.3))' }} />
+                </div>
+
+                <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handlePhotoUpload} />
+
+                <h2 style={{ fontSize: '2rem', fontWeight: '900', letterSpacing: '-0.05em', marginBottom: '8px' }}>Nós dois</h2>
+                <p style={{ color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '24px' }}>Desde 15 de julho de 2024</p>
+
+                <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '12px',
+                    padding: '16px 32px', borderRadius: '24px',
+                    background: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+                    color: 'white', boxShadow: '0 10px 25px rgba(236, 72, 153, 0.3)',
+                    transform: 'scale(1.05)'
+                }}>
+                    <Heart size={20} fill="white" />
+                    <span style={{ fontWeight: '800', fontSize: '1.2rem' }}>{daysTogether} dias juntos</span>
+                </div>
+            </div>
+
+            {/* Content Area */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div className="card fade-in" style={{ padding: '32px', background: 'linear-gradient(135deg, var(--surface-color) 0%, rgba(236, 72, 153, 0.03) 100%)', border: '1px solid rgba(236, 72, 153, 0.1)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                        <div>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em' }}>Próximos Momentos</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Ideias para curtir juntos</p>
+                        </div>
+                        <Calendar size={24} color="#EC4899" />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                        {dateIdeas.map(idea => (
+                            <div
+                                key={idea.id}
+                                onClick={() => toggleIdea(idea.id)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '16px',
+                                    padding: '16px 20px', borderRadius: '18px',
+                                    backgroundColor: 'var(--bg-color)',
+                                    border: idea.checked ? '1px solid rgba(236, 72, 153, 0.2)' : '1px solid var(--border-color)',
+                                    cursor: 'pointer', transition: 'all 0.3s ease',
+                                    opacity: idea.checked ? 0.7 : 1,
+                                    boxShadow: idea.checked ? 'none' : '0 4px 12px rgba(0,0,0,0.02)'
+                                }}
+                            >
+                                <div style={{
+                                    width: '26px', height: '26px', borderRadius: '50%',
+                                    border: `2px solid ${idea.checked ? '#EC4899' : 'rgba(236, 72, 153, 0.2)'}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    backgroundColor: idea.checked ? '#EC4899' : 'transparent',
+                                    transition: 'all 0.2s'
+                                }}>
+                                    {idea.checked && <Heart size={14} color="white" fill="white" />}
+                                </div>
+                                <span style={{
+                                    textDecoration: idea.checked ? 'line-through' : 'none',
+                                    color: idea.checked ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                                    fontWeight: '700', fontSize: '0.95rem',
+                                    flex: 1
+                                }}>
+                                    {idea.text}
+                                </span>
+                                <button
+                                    onClick={(e) => deleteIdea(e, idea.id)}
+                                    style={{ border: 'none', background: 'none', color: 'var(--text-tertiary)', opacity: 0.3, cursor: 'pointer' }}
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <form onSubmit={addIdea} style={{
+                        display: 'flex', gap: '12px',
+                        backgroundColor: 'var(--bg-color)',
+                        padding: '6px 6px 6px 20px',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                    }}>
+                        <input
+                            placeholder="Sugerir novo encontro..."
+                            value={newIdea}
+                            onChange={(e) => setNewIdea(e.target.value)}
+                            style={{ flex: 1, background: 'transparent', border: 'none', fontSize: '0.95rem', fontWeight: '600', outline: 'none', color: 'var(--text-primary)' }}
+                        />
+                        <button
+                            type="submit"
+                            style={{ width: '44px', height: '44px', borderRadius: '16px', backgroundColor: '#EC4899', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        >
+                            <Plus size={24} strokeWidth={2.5} />
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

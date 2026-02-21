@@ -15,15 +15,16 @@ const StudiesView = () => {
     const [period, setPeriod] = useState(null);
     const [notes, setNotes] = useState('');
     const [selectedDays, setSelectedDays] = useState([]);
+    const [isAddingActivity, setIsAddingActivity] = useState(false);
 
     const daysOfWeek = [
-        { id: 'sun', label: 'D' },
-        { id: 'mon', label: 'S' },
-        { id: 'tue', label: 'T' },
-        { id: 'wed', label: 'Q' },
-        { id: 'thu', label: 'Q' },
-        { id: 'fri', label: 'S' },
-        { id: 'sat', label: 'S' }
+        { id: 'sun', label: 'Dom' },
+        { id: 'mon', label: 'Seg' },
+        { id: 'tue', label: 'Ter' },
+        { id: 'wed', label: 'Qua' },
+        { id: 'thu', label: 'Qui' },
+        { id: 'fri', label: 'Sex' },
+        { id: 'sat', label: 'Sáb' }
     ];
 
     const periods = [
@@ -33,15 +34,15 @@ const StudiesView = () => {
     ];
 
     const handleAddStudy = (e) => {
-        e.preventDefault();
-        if (!title) return;
+        if (e) e.preventDefault();
+        if (!title.trim()) return;
         addStudy({ title, color: '#8B5CF6' });
         setIsAdding(false);
         setTitle('');
     };
 
     const handleAddActivity = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!newActivity.trim()) return;
         addTask({
             title: newActivity,
@@ -57,6 +58,7 @@ const StudiesView = () => {
         setNotes('');
         setPeriod(null);
         setSelectedDays([]);
+        setIsAddingActivity(false);
     };
 
     const toggleDaySelection = (dayId) => {
@@ -72,198 +74,85 @@ const StudiesView = () => {
         : [];
 
     return (
-        <div className="fade-in" style={{ padding: '20px 20px 100px 20px' }}>
-            {!activeStudy && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Meus Estudos</h2>
-                    <button onClick={() => setIsAdding(true)} className="btn btn-primary" style={{ borderRadius: '12px', padding: '8px 16px' }}>
-                        <Plus size={20} /> <span style={{ marginLeft: '8px' }}>Matéria</span>
-                    </button>
-                </div>
-            )}
-
-            {activeStudy ? (
-                // DETAIL
-                <div className="fade-in">
-                    <button onClick={() => setActiveStudy(null)} style={{ border: 'none', background: 'none', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', cursor: 'pointer' }}>
-                        <ArrowRight size={16} transform="rotate(180)" /> Voltar
-                    </button>
-
-                    <div className="card" style={{ padding: '24px', marginBottom: '24px', borderLeft: '6px solid #8B5CF6' }}>
-                        <h2 style={{ fontSize: '2rem', fontWeight: 'bold' }}>{activeStudy.title}</h2>
-                        <div style={{ marginTop: '12px', color: 'var(--text-secondary)' }}>
-                            {studyTasks.length} atividades registradas
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+            {!activeStudy ? (
+                <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                        <div>
+                            <h2 className="text-xl">Estudos</h2>
+                            <p className="text-sm text-secondary">Expanda seus horizontes</p>
                         </div>
+                        <button
+                            onClick={() => setIsAdding(!isAdding)}
+                            style={{
+                                width: '44px', height: '44px',
+                                borderRadius: '14px',
+                                backgroundColor: isAdding ? 'var(--text-primary)' : 'rgba(139, 92, 246, 0.08)',
+                                color: isAdding ? 'white' : '#8B5CF6',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                border: 'none', cursor: 'pointer', transition: 'all 0.3s'
+                            }}>
+                            {isAdding ? <X size={20} /> : <Plus size={24} strokeWidth={2.5} />}
+                        </button>
                     </div>
 
-                    <div className="card">
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '16px' }}>Atividades & Revisões</h3>
-
-                        <form onSubmit={handleAddActivity} style={{ marginBottom: '20px' }}>
-                            <input
-                                value={newActivity} onChange={e => setNewActivity(e.target.value)}
-                                placeholder="Adicionar tópico, exercício ou revisão..."
-                                style={{
-                                    width: '100%', padding: '12px', borderRadius: '8px',
-                                    border: '1px solid var(--border-color)', background: 'var(--bg-color)',
-                                    color: 'var(--text-primary)', marginBottom: '12px'
-                                }}
-                            />
-
-                            {/* Options Row */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
-                                {/* Period */}
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    {periods.map(p => (
-                                        <button
-                                            key={p.id}
-                                            type="button"
-                                            onClick={() => setPeriod(period === p.id ? null : p.id)}
-                                            className={`btn`}
-                                            style={{
-                                                flex: 1, padding: '8px', borderRadius: '8px',
-                                                border: `1px solid ${period === p.id ? p.color : 'var(--border-color)'}`,
-                                                backgroundColor: period === p.id ? `${p.color}20` : 'transparent',
-                                                color: period === p.id ? p.color : 'var(--text-secondary)',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                                                fontSize: '0.8rem'
-                                            }}
-                                        >
-                                            <p.icon size={14} /> {p.label}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Days */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    {daysOfWeek.map(day => (
-                                        <button
-                                            key={day.id}
-                                            type="button"
-                                            onClick={() => toggleDaySelection(day.id)}
-                                            style={{
-                                                width: '32px', height: '32px', borderRadius: '50%',
-                                                fontSize: '0.75rem', fontWeight: '600',
-                                                border: '1px solid var(--border-color)',
-                                                backgroundColor: selectedDays.includes(day.id) ? 'var(--primary-color)' : 'transparent',
-                                                color: selectedDays.includes(day.id) ? 'white' : 'var(--text-secondary)',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {day.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Notes */}
-                            <div style={{ position: 'relative', marginBottom: '12px' }}>
-                                <div style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-secondary)' }}><AlignLeft size={16} /></div>
-                                <textarea
-                                    placeholder="Anotações (opcional)..."
-                                    value={notes}
-                                    onChange={(e) => setNotes(e.target.value)}
+                    {isAdding && (
+                        <div className="card fade-in" style={{ marginBottom: '32px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                            <form onSubmit={handleAddStudy}>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Nova Matéria</label>
+                                <input
+                                    value={title} onChange={e => setTitle(e.target.value)}
+                                    placeholder="Ex: Matemática, Inglês, Programação..."
+                                    autoFocus
                                     style={{
-                                        width: '100%', padding: '10px 10px 10px 32px', borderRadius: '12px', border: '1px solid var(--border-color)',
-                                        backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem',
-                                        minHeight: '60px', resize: 'vertical', fontFamily: 'inherit'
+                                        width: '100%', padding: '12px', backgroundColor: 'rgba(0,0,0,0.02)',
+                                        border: '1px solid var(--border-color)', borderRadius: '12px',
+                                        fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', outline: 'none',
+                                        marginBottom: '16px'
                                     }}
                                 />
-                            </div>
-
-                            <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '8px' }}>
-                                <Plus style={{ marginRight: '8px' }} /> Adicionar Atividade
-                            </button>
-                        </form>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {studyTasks.map(task => {
-                                const taskPeriod = periods.find(p => p.id === task.period);
-                                return (
-                                    <div key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
-                                        <button
-                                            onClick={() => toggleTask(task.id, task.completed)}
-                                            style={{ border: 'none', background: 'none', cursor: 'pointer', color: task.completed ? '#10B981' : 'var(--text-secondary)', marginTop: '2px' }}
-                                        >
-                                            <CheckCircle size={20} fill={task.completed ? "currentColor" : "none"} />
-                                        </button>
-                                        <div style={{ flex: 1 }}>
-                                            <span style={{
-                                                textDecoration: task.completed ? 'line-through' : 'none',
-                                                color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                                                fontWeight: '500'
-                                            }}>
-                                                {task.title}
-                                            </span>
-
-                                            <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                                {taskPeriod && (
-                                                    <span style={{
-                                                        fontSize: '0.7rem', color: taskPeriod.color,
-                                                        backgroundColor: `${taskPeriod.color}15`,
-                                                        padding: '2px 8px', borderRadius: '4px',
-                                                        display: 'flex', alignItems: 'center', gap: '4px'
-                                                    }}>
-                                                        <taskPeriod.icon size={10} /> {taskPeriod.label}
-                                                    </span>
-                                                )}
-                                                {task.days && task.days.length > 0 && (
-                                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                                                        {task.days.map(d => daysOfWeek.find(dw => dw.id === d)?.label).join(', ')}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {task.description && (
-                                                <div style={{ marginTop: '4px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                                    {task.description}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                );
-                            })}
+                                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '16px', borderRadius: '14px', backgroundColor: '#8B5CF6', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)' }}>
+                                    Criar Matéria
+                                </button>
+                            </form>
                         </div>
-                    </div>
-                </div>
-            ) : (
-                // LIST
-                <>
+                    )}
+
                     {studies.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: 'var(--surface-color)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
-                            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', color: '#8B5CF6' }}>
-                                <BookOpen size={32} />
-                            </div>
-                            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', fontWeight: 'bold' }}>Organize seus Estudos</h3>
-                            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Crie matérias e adicione atividades para acompanhar seu aprendizado.</p>
-                            <button onClick={() => setIsAdding(true)} className="btn btn-ghost">Criar primeira matéria</button>
+                        <div style={{ textAlign: 'center', padding: '64px 24px', opacity: 0.5 }}>
+                            <BookOpen size={48} style={{ marginBottom: '16px', opacity: 0.1 }} />
+                            <p style={{ fontWeight: '600' }}>Nenhuma matéria cadastrada.</p>
+                            <p className="text-sm">Comece adicionando o que você está estudando.</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
                             {studies.map(study => {
-                                const studyTasks = tasks.filter(t => t.studyId === study.id);
-                                const total = studyTasks.length;
-                                const completed = studyTasks.filter(t => t.completed).length;
-                                const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+                                const relevantTasks = tasks.filter(t => t.studyId === study.id);
+                                const completed = relevantTasks.filter(t => t.completed).length;
+                                const progress = relevantTasks.length > 0 ? Math.round((completed / relevantTasks.length) * 100) : 0;
 
                                 return (
-                                    <div key={study.id} className="card" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px', position: 'relative', overflow: 'hidden' }}>
-                                        <div style={{ marginBottom: '12px', color: '#8B5CF6' }}>
-                                            <BookOpen size={32} />
+                                    <div key={study.id} className="card fade-in" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: '180px', justifyContent: 'center' }}>
+                                        <div style={{
+                                            width: '56px', height: '56px', borderRadius: '18px',
+                                            backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: '#8B5CF6', marginBottom: '16px'
+                                        }}>
+                                            <BookOpen size={28} />
                                         </div>
-                                        <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{study.title}</h3>
+                                        <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px' }}>{study.title}</h3>
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{relevantTasks.length} Atividades</p>
 
-                                        {/* Progress Bar */}
-                                        <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--surface-hover)', borderRadius: '3px', marginTop: '16px', overflow: 'hidden' }}>
-                                            <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#8B5CF6', transition: 'width 0.5s ease' }} />
+                                        <div style={{ width: '100%', marginTop: 'auto', paddingTop: '16px' }}>
+                                            <div style={{ height: '4px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '2px', overflow: 'hidden', marginBottom: '6px' }}>
+                                                <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#8B5CF6', transition: 'width 0.6s ease' }} />
+                                            </div>
+                                            <span style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>{progress}% Concluído</span>
                                         </div>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{progress}% concluído</span>
 
-                                        <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ position: 'absolute', top: '10px', right: '10px', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                            <Trash2 size={16} />
+                                        <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ position: 'absolute', top: '12px', right: '12px', color: 'var(--danger-color)', opacity: 0.2, border: 'none', background: 'none', cursor: 'pointer' }}>
+                                            <Trash2 size={14} />
                                         </button>
                                     </div>
                                 );
@@ -271,28 +160,188 @@ const StudiesView = () => {
                         </div>
                     )}
                 </>
-            )}
+            ) : (
+                <div className="fade-in">
+                    <button onClick={() => setActiveStudy(null)} style={{ border: 'none', background: 'none', color: '#8B5CF6', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '700' }}>
+                        <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} /> Voltar para Estudos
+                    </button>
 
-            {isAdding && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div className="card fade-in" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
-                        <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px' }}>Nova Matéria</h3>
-                        <form onSubmit={handleAddStudy}>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Nome da Matéria</label>
-                                <input
-                                    value={title} onChange={e => setTitle(e.target.value)}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
-                                    required
-                                    autoFocus
-                                    placeholder="Ex: Matemática, Inglês..."
-                                />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                        <div>
+                            <h2 style={{ fontSize: '2rem', fontWeight: '800', letterSpacing: '-0.02em' }}>{activeStudy.title}</h2>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Gerencie suas metas de aprendizado</p>
+                        </div>
+                        <button
+                            onClick={() => setIsAddingActivity(!isAddingActivity)}
+                            style={{
+                                width: '40px', height: '40px', borderRadius: '12px',
+                                backgroundColor: isAddingActivity ? 'var(--text-primary)' : 'rgba(139, 92, 246, 0.08)',
+                                color: isAddingActivity ? 'white' : '#8B5CF6',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer'
+                            }}
+                        >
+                            {isAddingActivity ? <X size={18} /> : <Plus size={20} />}
+                        </button>
+                    </div>
+
+                    {isAddingActivity && (
+                        <div className="card fade-in" style={{ marginBottom: '32px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                            <form onSubmit={handleAddActivity}>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Atividade / Tópico</label>
+                                    <input
+                                        value={newActivity} onChange={e => setNewActivity(e.target.value)}
+                                        placeholder="Ex: Estudar capítulo 4, Responder lista..."
+                                        autoFocus
+                                        style={{
+                                            width: '100%', padding: '12px', backgroundColor: 'rgba(0,0,0,0.02)',
+                                            border: '1px solid var(--border-color)', borderRadius: '12px',
+                                            fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', outline: 'none'
+                                        }}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Período</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        {periods.map(p => (
+                                            <button
+                                                key={p.id}
+                                                type="button"
+                                                onClick={() => setPeriod(period === p.id ? null : p.id)}
+                                                style={{
+                                                    flex: 1, padding: '12px 8px', borderRadius: '12px', border: 'none',
+                                                    backgroundColor: period === p.id ? p.color : 'rgba(0,0,0,0.03)',
+                                                    color: period === p.id ? 'white' : 'var(--text-secondary)',
+                                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                                                    cursor: 'pointer', transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                <p.icon size={18} />
+                                                <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>{p.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Dias de Estudo</label>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                                        {daysOfWeek.map(day => (
+                                            <button
+                                                key={day.id}
+                                                type="button"
+                                                onClick={() => toggleDaySelection(day.id)}
+                                                style={{
+                                                    flex: 1, height: '36px', borderRadius: '10px', border: 'none',
+                                                    backgroundColor: selectedDays.includes(day.id) ? 'var(--text-primary)' : 'rgba(0,0,0,0.03)',
+                                                    color: selectedDays.includes(day.id) ? 'white' : 'var(--text-secondary)',
+                                                    fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {day.label.charAt(0)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Anotações</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <AlignLeft size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-tertiary)' }} />
+                                        <textarea
+                                            placeholder="Detalhes sobre a revisão ou exercício..."
+                                            value={notes} onChange={(e) => setNotes(e.target.value)}
+                                            style={{
+                                                width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                                                backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-primary)', fontSize: '0.9rem',
+                                                minHeight: '80px', outline: 'none', resize: 'none'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    style={{ width: '100%', padding: '16px', borderRadius: '14px', backgroundColor: '#8B5CF6', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)' }}
+                                >
+                                    Adicionar ao Plano
+                                </button>
+                            </form>
+                        </div>
+                    )}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {studyTasks.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '48px 24px', opacity: 0.5 }}>
+                                <p style={{ fontWeight: '600' }}>Nenhuma atividade para esta matéria.</p>
+                                <p className="text-sm">Mantenha seu foco e organização!</p>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button type="button" onClick={() => setIsAdding(false)} className="btn btn-ghost" style={{ flex: 1 }}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Criar</button>
-                            </div>
-                        </form>
+                        ) : (
+                            studyTasks.map(task => {
+                                const taskPeriod = periods.find(p => p.id === task.period);
+                                return (
+                                    <div key={task.id} className="card fade-in" style={{ padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                                        <button
+                                            onClick={() => toggleTask(task.id, task.completed)}
+                                            style={{
+                                                width: '32px', height: '32px', borderRadius: '50%',
+                                                border: `2px solid ${task.completed ? '#10B981' : 'var(--border-color)'}`,
+                                                backgroundColor: task.completed ? '#10B981' : 'transparent',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                color: 'white', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0, marginTop: '2px'
+                                            }}
+                                        >
+                                            {task.completed && <CheckCircle size={20} strokeWidth={3} />}
+                                        </button>
+
+                                        <div style={{ flex: 1 }}>
+                                            <h4 style={{
+                                                fontSize: '1rem', fontWeight: '700',
+                                                color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                                textDecoration: task.completed ? 'line-through' : 'none',
+                                                marginBottom: '6px'
+                                            }}>
+                                                {task.title}
+                                            </h4>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {taskPeriod && (
+                                                    <span style={{
+                                                        fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.02em',
+                                                        color: taskPeriod.color, backgroundColor: `${taskPeriod.color}15`, padding: '2px 8px', borderRadius: '6px',
+                                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                                    }}>
+                                                        <taskPeriod.icon size={10} /> {taskPeriod.label}
+                                                    </span>
+                                                )}
+                                                {task.days && task.days.length > 0 && (
+                                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                                        {task.days.map(d => (
+                                                            <span key={d} style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-tertiary)' }}>
+                                                                {daysOfWeek.find(dw => dw.id === d)?.label.charAt(0)}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {task.description && (
+                                                <p style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                                                    {task.description}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <button
+                                            onClick={() => deleteTask(task.id)}
+                                            style={{ padding: '4px', color: 'var(--danger-color)', opacity: 0.2, border: 'none', background: 'none', cursor: 'pointer' }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             )}
