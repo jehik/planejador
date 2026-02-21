@@ -295,12 +295,18 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
         return content;
 
     } catch (error) {
-        console.error("Mentor Service Error:", error);
+        console.error("Mentor Service Error (Groq):", error);
+
+        // Se for erro de quota (429), podemos ser mais específicos
+        const isQuotaError = error.message?.includes('429');
+
         return {
             alinhamentoSonho: 0,
             analiseComportamental: "Ocorreu um erro na ponte com a IA.",
-            fraseMentor: "Siga o planejamento básico enquanto restabelecemos a conexão.",
-            chatResponse: "Tive um problema técnico ao acessar o cérebro da IA. Verifique se o limite da chave foi atingido ou se há erro de rede.",
+            fraseMentor: isQuotaError ? "Mantenha a calma, o limite de consultas à IA foi atingido. Tente novamente em alguns minutos." : "Siga o planejamento básico enquanto restabelecemos a conexão.",
+            chatResponse: isQuotaError
+                ? "Limite de consultas temporário atingido (API Rate Limit). Por favor, aguarde uns minutos e tente novamente."
+                : "Tive um problema técnico ao acessar o cérebro da IA. Verifique se o limite da chave foi atingido ou se há erro de rede.",
             ajusteImediato: "Verificar logs do console.",
             acaoMinimaAmanha: "Tentar novamente mais tarde.",
             explicacaoNeurocientifica: "Ruído no sinal de entrada.",

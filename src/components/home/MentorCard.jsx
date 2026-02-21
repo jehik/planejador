@@ -117,7 +117,7 @@ const MentorCard = () => {
             }
         };
         getAdvice();
-    }, [userName, userData?.finance?.income, userData?.finance?.expenses, tasks.length]);
+    }, [userName, userData?.finance?.income, userData?.finance?.expenses]);
 
     const handleChatSubmit = async (e) => {
         e.preventDefault();
