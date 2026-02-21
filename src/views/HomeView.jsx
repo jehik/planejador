@@ -73,7 +73,7 @@ const HomeView = () => {
 
 // Sub-component for tasks to keep HomeView clean
 const SimpleTaskList = () => {
-    const { tasks, toggleTask, addTask } = useAppStore();
+    const { tasks, toggleTask, addTask, setActiveTab } = useAppStore();
     const [newTaskTitle, setNewTaskTitle] = React.useState('');
 
     const todayDate = new Date();
@@ -95,17 +95,17 @@ const SimpleTaskList = () => {
 
     const getCategoryBadge = (category) => {
         switch (category) {
-            case 'nutrition': return { label: 'Nutrição', color: '#FF2D55' };
-            case 'studies': return { label: 'Estudos', color: '#5856D6' };
-            case 'work': return { label: 'Trabalho', color: '#FF9500' };
-            case 'projects': return { label: 'Projeto', color: '#34C759' };
-            case 'house': return { label: 'Casa', color: '#AF52DE' };
-            case 'travel': return { label: 'Viagem', color: '#007AFF' };
-            case 'finance': return { label: 'Finanças', color: '#34C759' };
-            case 'relationship': return { label: 'Nós', color: '#FF2D78' };
-            case 'restrictions': return { label: 'Foco', color: '#8E8E93' };
-            case 'workouts': return { label: 'Treino', color: '#FF2D55' };
-            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93' };
+            case 'nutrition': return { label: 'Nutrição', color: '#FF2D55', tab: 'nutrition' };
+            case 'studies': return { label: 'Estudos', color: '#5856D6', tab: 'studies' };
+            case 'work': return { label: 'Trabalho', color: '#FF9500', tab: 'tasks' };
+            case 'projects': return { label: 'Projeto', color: '#34C759', tab: 'projects' };
+            case 'house': return { label: 'Casa', color: '#AF52DE', tab: 'house' };
+            case 'travel': return { label: 'Viagem', color: '#007AFF', tab: 'travel' };
+            case 'finance': return { label: 'Finanças', color: '#34C759', tab: 'finance' };
+            case 'relationship': return { label: 'Nós', color: '#FF2D78', tab: 'relationship' };
+            case 'restrictions': return { label: 'Foco', color: '#8E8E93', tab: 'restrictions' };
+            case 'workouts': return { label: 'Treino', color: '#FF2D55', tab: 'workouts' };
+            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93', tab: 'tasks' };
         }
     };
 
@@ -191,7 +191,21 @@ const SimpleTaskList = () => {
                                         {badge.label}
                                     </span>
                                 </div>
-                                <ArrowRight size={16} style={{ color: 'var(--text-tertiary)', opacity: 0.3, flexShrink: 0 }} />
+                                <ArrowRight
+                                    size={16}
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // IMPORTANTE: Impede marcar como concluído
+                                        if (badge.tab) setActiveTab(badge.tab);
+                                    }}
+                                    style={{
+                                        color: 'var(--text-tertiary)',
+                                        opacity: 0.6,
+                                        flexShrink: 0,
+                                        padding: '8px',
+                                        marginRight: '-8px',
+                                        cursor: 'pointer'
+                                    }}
+                                />
                             </div>
                         );
                     })
