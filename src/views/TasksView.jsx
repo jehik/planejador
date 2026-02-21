@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAppStore from '../store/useAppStore';
-import { X, Plus, Trash2, CheckCircle2, Sun, Sunset, Moon } from 'lucide-react';
+import { X, Plus, Trash2, CheckCircle2, Sun, Sunset, Moon, Calendar as CalendarIcon } from 'lucide-react';
 
 const TasksView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
 
+    const todayStr = new Date().toLocaleDateString('en-CA'); // yyyy-mm-dd local
+
     // New Task State
     const [title, setTitle] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [time, setTime] = useState('12:00');
+    const [date, setDate] = useState(todayStr);
+    const [isChangingDate, setIsChangingDate] = useState(false);
     const [notes, setNotes] = useState('');
     const [period, setPeriod] = useState(null); // 'morning', 'afternoon', 'night'
     const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+
+    // Memory for custom date within the current session/view mount
+    const [memoDate, setMemoDate] = useState(null);
+
+    useEffect(() => {
+        if (memoDate) {
+            setDate(memoDate);
+        }
+    }, [isAddFormOpen, memoDate]);
 
     const handleAddTask = (e) => {
         e.preventDefault();
         if (!title.trim()) return;
 
         const [year, month, day] = date.split('-');
-        const [hours, minutes] = time.split(':');
-        const scheduledAt = new Date(year, month - 1, day, hours, minutes);
+        // Default to midday to avoid timezone shifts near midnight
+        const scheduledAt = new Date(year, month - 1, day, 12, 0, 0);
 
         addTask({
             title: title,
@@ -34,6 +45,13 @@ const TasksView = () => {
         setNotes('');
         setPeriod(null);
         setIsAddFormOpen(false);
+        setIsChangingDate(false);
+        // We keep the memoDate if it was changed
+    };
+
+    const handleDateChange = (newDate) => {
+        setDate(newDate);
+        setMemoDate(newDate);
     };
 
     const filteredTasks = tasks.filter(task => {
@@ -78,7 +96,7 @@ const TasksView = () => {
                     <form onSubmit={handleAddTask}>
                         <input
                             type="text"
-                            placeholder="Título da tarefa..."
+                            placeholder="O que precisa ser feito?"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             autoFocus
@@ -89,12 +107,41 @@ const TasksView = () => {
                                 border: 'none',
                                 borderBottom: '1px solid var(--border-color)',
                                 marginBottom: '20px',
-                                fontSize: '1.1rem',
+                                fontSize: '1.2rem',
                                 fontWeight: '700',
                                 color: 'var(--text-primary)',
                                 outline: 'none'
                             }}
                         />
+
+                        {/* Date Selection Control */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <CalendarIcon size={14} />
+                                    {date === todayStr ? 'Para Hoje' : new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsChangingDate(!isChangingDate)}
+                                    style={{ border: 'none', background: 'none', color: 'var(--primary-color)', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}
+                                >
+                                    {isChangingDate ? 'Manter' : 'Trocar dia?'}
+                                </button>
+                            </div>
+
+                            {isChangingDate && (
+                                <input
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => handleDateChange(e.target.value)}
+                                    style={{
+                                        width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)',
+                                        backgroundColor: 'rgba(0,0,0,0.015)', color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '600', outline: 'none'
+                                    }}
+                                />
+                            )}
+                        </div>
 
                         <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '4px' }}>
                             {periods.map(p => (
@@ -119,50 +166,23 @@ const TasksView = () => {
                             ))}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-                            <div style={{ flex: 1 }}>
-                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '6px' }}>Data</label>
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    style={{
-                                        width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)',
-                                        backgroundColor: 'rgba(0,0,0,0.015)', color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '600', outline: 'none'
-                                    }}
-                                />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '6px' }}>Hora</label>
-                                <input
-                                    type="time"
-                                    value={time}
-                                    onChange={(e) => setTime(e.target.value)}
-                                    style={{
-                                        width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)',
-                                        backgroundColor: 'rgba(0,0,0,0.015)', color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '600', outline: 'none'
-                                    }}
-                                />
-                            </div>
-                        </div>
-
                         <textarea
-                            placeholder="Adicione notas aqui..."
+                            placeholder="Alguma nota importante?"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             style={{
                                 width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)',
                                 backgroundColor: 'rgba(0,0,0,0.015)', color: 'var(--text-primary)', fontSize: '0.85rem',
-                                minHeight: '80px', resize: 'none', fontFamily: 'inherit', outline: 'none', marginBottom: '24px'
+                                minHeight: '60px', resize: 'none', fontFamily: 'inherit', outline: 'none', marginBottom: '24px'
                             }}
                         />
 
                         <button
                             type="submit"
                             className="btn btn-primary"
-                            style={{ width: '100%', padding: '16px', borderRadius: '14px' }}
+                            style={{ width: '100%', padding: '16px', borderRadius: '14px', fontWeight: '800' }}
                         >
-                            Salvar Tarefa
+                            Confirmar Tarefa
                         </button>
                     </form>
                 </div>
@@ -179,6 +199,9 @@ const TasksView = () => {
                 ) : (
                     filteredTasks.map(task => {
                         const taskPeriod = periods.find(p => p.id === task.period);
+                        const taskDate = new Date(task.scheduledAt);
+                        const isTaskToday = taskDate.toLocaleDateString('en-CA') === todayStr;
+
                         return (
                             <div key={task.id}
                                 className="card fade-in"
@@ -218,7 +241,7 @@ const TasksView = () => {
 
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                                         <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
-                                            {new Date(task.scheduledAt).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })} • {new Date(task.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {isTaskToday ? 'Hoje' : taskDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}
                                         </span>
 
                                         {taskPeriod && (
