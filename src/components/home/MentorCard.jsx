@@ -79,7 +79,7 @@ const MentorCard = () => {
                     </div>
                     <div>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '900', letterSpacing: '-0.03em' }}>Professor IA</h3>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Apple Intelligence System</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>inteligencia artificial desenvolvida por: Cássio M</p>
                     </div>
                 </div>
 

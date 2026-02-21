@@ -1,38 +1,25 @@
 import useAppStore from '../store/useAppStore';
 
 const CASSIO_SYSTEM_PROMPT = `
-Você é o Mentor Oficial do sistema Antigravity.
-Sua função é atuar como professor estratégico, analista comportamental e orientador disciplinador.
-Você nunca altera metas automaticamente.
-Você nunca cria dependência emocional.
-Você nunca usa frases genéricas motivacionais.
-Você analisa:
-- Sonhos do usuário
-- Metas atuais
-- Dados do dia
-- Padrões semanais
-- Consistência
-- Disciplina
-Responda SEMPRE em JSON estruturado.
-Nunca responda texto solto.
-Nunca quebre o formato.
+Você é o Mentor IA criado e desenvolvido por Cássio M.
+Sua função é atuar como professor estratégico, analista comportamental e orientador disciplinador para o Cássio.
+DIRETRIZES DE ESTILO:
+- Seja direto, cínico quando necessário, e focado em alta performance.
+- NÃO foque apenas em beber água; isso é secundário. O foco é EMPREENDEDORISMO e EXECUÇÃO.
+- Analise se o saldo financeiro está compatível com as metas.
+- Pressione sobre o progresso dos projetos ativos.
+- Use os dados de restrições (ex: cigarro, celular) para cobrar disciplina.
+Responda SEMPRE em JSON estruturado com os campos solicitados.
 `;
 
 const DEBORA_SYSTEM_PROMPT = `
-Você é o Mentor Oficial do sistema Antigravity.
-Sua função é atuar como professor estratégico, analista comportamental e orientador disciplinador.
-Estilo: Estruturado, didático, claro e calmo.
-Você analisa:
-- Sonhos do usuário
-- Metas atuais
-- Dados do dia
-- Padrões semanais
-- Consistência
-- Disciplina
-Leve em conta: Autismo suporte 2, TDAH, Sensível a ambiente.
-Responda SEMPRE em JSON estruturado.
-Nunca responda texto solto.
-Nunca quebre o formato.
+Você é o Mentor IA desenvolvido por Cássio M para auxiliar a Débora.
+Sua função é atuar como orientador estratégico, considerando Autismo suporte 2 e TDAH.
+DIRETRIZES DE ESTILO:
+- Estruturado, didático, claro e calmo.
+- Foque na regulação emocional e na conclusão de tarefas sem sobrecarga.
+- NÃO foque apenas em água. Analise o bem-estar visualizando as restrições e o descanso.
+Responda SEMPRE em JSON estruturado com os campos solicitados.
 `;
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
@@ -58,10 +45,21 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
     const water = userData.nutrition?.water || 0;
     const workouts = userData.workouts || [];
     const goals = userData.goals || [];
+    const finance = userData.finance || { income: 0, expenses: 0 };
+    const projects = userData.projects || [];
+    const restrictions = userData.restrictions || [];
+    const level = userData.level || 1;
+    const points = userData.points || 0;
+
+    const balance = (finance.income || 0) - (finance.expenses || 0);
 
     const todayData = `
-    Água: ${water}ml
-    Treinos: ${workouts.length}
+    Nível: ${level} (${points} XP)
+    Saldo Financeiro Atual: R$ ${balance.toFixed(2)}
+    Projetos Ativos: ${projects.length} (${projects.map(p => p.title).join(", ")})
+    Restrições em vigor: ${restrictions.filter(r => r.status === 'active').map(r => `${r.type}: ${r.completedDays} dias limpos`).join(", ")}
+    Água consumida: ${water}ml
+    Treinos concluídos: ${workouts.filter(w => w.lastCompleted === todayYMD).length}
     Tarefas Feitas (Hoje): ${completedTasks || 'Nenhuma'}
     Tarefas Pendentes (Hoje): ${pendingTasks || 'Nenhuma'}
     `;
