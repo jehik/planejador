@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { User } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
+import cassioImg from '../../assets/cassio.jpeg';
+import deboraImg from '../../assets/debora.jpeg';
 
 const Header = () => {
-    const { userData, setActiveTab } = useAppStore();
+    const { userData, currentUser, setActiveTab } = useAppStore();
     const user = userData || { name: 'Visitante' };
+
+    const isDebora = currentUser?.email?.includes('debora');
+    const userPhoto = isDebora ? deboraImg : cassioImg;
 
     const [greeting, setGreeting] = useState('');
 
@@ -27,7 +31,7 @@ const Header = () => {
             <div className="nav-left" onClick={() => setActiveTab('profile')}>
                 <div className="avatar-container">
                     <div className="avatar">
-                        <User size={22} strokeWidth={2.5} />
+                        <img src={userPhoto} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                     </div>
                 </div>
                 <div className="user-info">
@@ -67,6 +71,7 @@ const Header = () => {
                     color: var(--primary-color);
                     border: 1px solid rgba(0,0,0,0.05);
                     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+                    overflow: hidden;
                 }
 
                 .greeting {
