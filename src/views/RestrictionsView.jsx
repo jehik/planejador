@@ -111,25 +111,7 @@ const RestrictionsView = () => {
                         Grandes mudanças não precisam ser extremas. Reduzir com estratégia é mais sustentável do que cortar tudo de uma vez.
                     </p>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '48px' }}>
-                        {[
-                            { step: "1️⃣", text: "Escolha o hábito" },
-                            { step: "2️⃣", text: "Defina o período" },
-                            { step: "3️⃣", text: "Acompanhe" }
-                        ].map((s, i) => (
-                            <div key={i} style={{ padding: '16px', backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: '16px' }}>
-                                <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>{s.step}</div>
-                                <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-secondary)' }}>{s.text}</div>
-                            </div>
-                        ))}
-                    </div>
 
-                    <div style={{ backgroundColor: 'rgba(255, 149, 0, 0.05)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255, 149, 0, 0.1)', marginBottom: '32px', display: 'flex', gap: '12px', alignItems: 'center', textAlign: 'left' }}>
-                        <Info size={20} color="#FF9500" />
-                        <p style={{ fontSize: '0.85rem', color: '#8E8E93', fontWeight: '500' }}>
-                            Longos períodos sem um vício podem gerar compulsão posterior. <strong>Prefira ciclos curtos e consistentes.</strong>
-                        </p>
-                    </div>
 
                     <button
                         onClick={() => setShowModal(true)}
