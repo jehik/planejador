@@ -18,7 +18,6 @@ const MentorCard = () => {
             if (!userData) return;
             setLoading(true);
             try {
-                // Passamos os dados atuais para que o serviço use os valores mais recentes do store
                 const data = await fetchMentorAdvice(userName);
                 setAdvice(data);
             } catch (err) {
@@ -28,7 +27,6 @@ const MentorCard = () => {
             }
         };
         getAdvice();
-        // Re-executa quando os dados principais mudam, para a IA estar "sempre conectada"
     }, [userName, userData?.finance?.income, userData?.finance?.expenses, tasks.length]);
 
     const handleChatSubmit = async (e) => {
@@ -38,7 +36,6 @@ const MentorCard = () => {
         setChatLoading(true);
         try {
             const data = await fetchMentorAdvice(userName, chatQuestion);
-            // Mesclar resposta do chat com o conselho atual, ou apenas atualizar o chatResponse
             setAdvice(prev => ({ ...prev, chatResponse: data.chatResponse }));
             setChatQuestion('');
         } catch (err) {
@@ -64,8 +61,8 @@ const MentorCard = () => {
     if (!advice) return null;
 
     return (
-        <div className="card fade-in" style={{
-            padding: '32px',
+        <div className="card mentor-card-container fade-in" style={{
+            padding: '24px', // Reduzido de 32px para ganhar espaço lateral
             background: `linear-gradient(135deg, var(--surface-color) 0%, ${accentColor}08 100%)`,
             border: `1px solid ${accentColor}20`,
             position: 'relative',
@@ -76,13 +73,13 @@ const MentorCard = () => {
 
             <div style={{ position: 'relative', zIndex: 1 }}>
                 {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}dd 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: `0 8px 16px ${accentColor}30` }}>
-                        <Sparkles size={22} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}dd 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0, boxShadow: `0 8px 16px ${accentColor}30` }}>
+                        <Sparkles size={20} />
                     </div>
-                    <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', letterSpacing: '-0.03em' }}>Psicólogo AI</h3>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>inteligencia artificial desenvolvida por: Cássio M</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '900', letterSpacing: '-0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Psicólogo AI</h3>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: '1.2' }}>Desenvolvido por: Cássio M</p>
                     </div>
                 </div>
 
@@ -90,63 +87,63 @@ const MentorCard = () => {
                 <div style={{
                     backgroundColor: 'rgba(255,255,255,0.4)',
                     backdropFilter: 'blur(10px)',
-                    padding: '24px',
-                    borderRadius: '24px',
+                    padding: '20px',
+                    borderRadius: '20px',
                     border: '1px solid rgba(255,255,255,0.5)',
-                    marginBottom: '24px',
+                    marginBottom: '20px',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
                 }}>
-                    <Quote size={20} style={{ color: accentColor, opacity: 0.3, marginBottom: '12px' }} />
-                    <p style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.5', fontStyle: 'italic' }}>
+                    <Quote size={18} style={{ color: accentColor, opacity: 0.3, marginBottom: '8px' }} />
+                    <p style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.4', fontStyle: 'italic' }}>
                         "{advice.fraseMentor}"
                     </p>
                 </div>
 
-                {/* Chat Response Area (Condicional) */}
+                {/* Chat Response Area */}
                 {advice.chatResponse && (
                     <div className="fade-in" style={{
                         backgroundColor: `${accentColor}10`,
-                        padding: '20px',
-                        borderRadius: '20px',
+                        padding: '16px',
+                        borderRadius: '16px',
                         border: `1px solid ${accentColor}20`,
-                        marginBottom: '24px',
+                        marginBottom: '20px',
                         animation: 'slideUp 0.4s ease-out'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: accentColor }}></div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Resposta do Mentor</span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Resposta do Mentor</span>
                         </div>
-                        <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+                        <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.4' }}>
                             {advice.chatResponse}
                         </p>
                     </div>
                 )}
 
                 {/* Grid for details */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {userName === 'debora' && (
-                        <div style={{ backgroundColor: `${accentColor}05`, padding: '20px', borderRadius: '20px', border: `1px solid ${accentColor}10` }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                <Sparkles size={16} style={{ color: accentColor }} />
-                                <span style={{ fontSize: '0.75rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Neurociência & Visualização</span>
+                        <div style={{ backgroundColor: `${accentColor}05`, padding: '16px', borderRadius: '16px', border: `1px solid ${accentColor}10` }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                <Sparkles size={14} style={{ color: accentColor }} />
+                                <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Neurociência & Visualização</span>
                             </div>
-                            <p style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.4' }}>{advice.explicacaoNeurocientifica}</p>
+                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.3' }}>{advice.explicacaoNeurocientifica}</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                                <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.fraseProsperidade}</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.fraseProsperidade}</div>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Chat Input Section */}
-                <div style={{ marginTop: '24px' }}>
+                <div style={{ marginTop: '20px' }}>
                     <form onSubmit={handleChatSubmit} style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
+                        gap: '10px',
                         backgroundColor: 'rgba(0,0,0,0.03)',
-                        padding: '8px 8px 8px 20px',
-                        borderRadius: '22px',
+                        padding: '6px 6px 6px 16px',
+                        borderRadius: '20px',
                         border: '1px solid rgba(0,0,0,0.02)',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
                     }}>
@@ -162,16 +159,17 @@ const MentorCard = () => {
                                 border: 'none',
                                 outline: 'none',
                                 color: 'var(--text-primary)',
-                                fontSize: '0.95rem',
-                                fontWeight: '600'
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                minWidth: 0 // Importante para flexbox não quebrar
                             }}
                         />
                         <button
                             type="submit"
                             disabled={!chatQuestion.trim() || chatLoading}
                             style={{
-                                width: '40px',
-                                height: '40px',
+                                width: '36px',
+                                height: '36px',
                                 borderRadius: '50%',
                                 backgroundColor: chatQuestion.trim() ? accentColor : 'rgba(0,0,0,0.05)',
                                 color: 'white',
@@ -180,23 +178,24 @@ const MentorCard = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: chatQuestion.trim() ? 'pointer' : 'default',
-                                transition: 'all 0.3s'
+                                transition: 'all 0.3s',
+                                flexShrink: 0
                             }}
                         >
-                            {chatLoading ? <Loader2 size={18} className="spin" /> : <ArrowRight size={20} />}
+                            {chatLoading ? <Loader2 size={16} className="spin" /> : <ArrowRight size={18} />}
                         </button>
                     </form>
                 </div>
 
                 {/* Dream Alignment Footer */}
-                <div style={{ marginTop: '32px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '40px', height: '8px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ marginTop: '24px', paddingTop: '12px', borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                        <div style={{ width: '32px', height: '6px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
                             <div style={{ width: `${advice.alinhamentoSonho || 0}%`, height: '100%', backgroundColor: accentColor, borderRadius: '4px' }}></div>
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-tertiary)' }}>Alinhamento com Sonho</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-tertiary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Alinhamento com Sonho</span>
                     </div>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '900', color: accentColor }}>{advice.alinhamentoSonho || 0}%</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: '900', color: accentColor, marginLeft: '8px' }}>{advice.alinhamentoSonho || 0}%</span>
                 </div>
             </div>
             <style>{`
