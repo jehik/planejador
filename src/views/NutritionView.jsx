@@ -97,63 +97,6 @@ const NutritionView = () => {
                 </div>
             </div>
 
-            {/* Apple Fitness Style Water Card */}
-            <div className="card" style={{ marginBottom: '32px', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-                <div style={{ position: 'relative', width: '180px', height: '180px' }}>
-                    {/* Ring Path */}
-                    <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                        <path
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                            fill="none"
-                            stroke="rgba(0, 122, 255, 0.08)"
-                            strokeWidth="3.5"
-                        />
-                        <path
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                            fill="none"
-                            stroke="var(--primary-color)"
-                            strokeWidth="3.5"
-                            strokeDasharray={`${waterPercentage}, 100`}
-                            strokeLinecap="round"
-                            style={{ transition: 'stroke-dasharray 1s ease-out' }}
-                        />
-                    </svg>
-
-                    <div style={{
-                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                        <Droplets size={28} color="var(--primary-color)" style={{ marginBottom: '4px' }} />
-                        <h3 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1' }}>
-                            {nutrition.water}<span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ml</span>
-                        </h3>
-                        <p style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            Meta: {GOAL_WATER}
-                        </p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                    <button
-                        onClick={() => addWater(250)}
-                        style={{
-                            flex: 1, padding: '14px', borderRadius: '16px', border: '1px solid var(--border-color)',
-                            backgroundColor: 'white', color: 'var(--text-primary)', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer'
-                        }}>
-                        +250ml
-                    </button>
-                    <button
-                        onClick={() => addWater(500)}
-                        style={{
-                            flex: 1.2, padding: '14px', borderRadius: '16px', border: 'none',
-                            backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(0, 122, 255, 0.2)'
-                        }}>
-                        Beber +500ml
-                    </button>
-                </div>
-            </div>
-
             {/* Meals Section */}
             <div>
                 <h3 className="text-lg" style={{ marginBottom: '16px' }}>Suas Refeições</h3>
@@ -271,6 +214,65 @@ const NutritionView = () => {
                             </div>
                         ))
                     )}
+                </div>
+            </div>
+
+            <div style={{ height: '32px' }} />
+
+            {/* Apple Fitness Style Water Card */}
+            <div className="card" style={{ marginBottom: '32px', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                <div style={{ position: 'relative', width: '180px', height: '180px' }}>
+                    {/* Ring Path */}
+                    <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                        <path
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            fill="none"
+                            stroke="rgba(0, 122, 255, 0.08)"
+                            strokeWidth="3.5"
+                        />
+                        <path
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            fill="none"
+                            stroke="var(--primary-color)"
+                            strokeWidth="3.5"
+                            strokeDasharray={`${waterPercentage}, 100`}
+                            strokeLinecap="round"
+                            style={{ transition: 'stroke-dasharray 1s ease-out' }}
+                        />
+                    </svg>
+
+                    <div style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <Droplets size={28} color="var(--primary-color)" style={{ marginBottom: '4px' }} />
+                        <h3 style={{ fontSize: '2.2rem', fontWeight: '800', lineHeight: '1' }}>
+                            {nutrition.water}<span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ml</span>
+                        </h3>
+                        <p style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Meta: {GOAL_WATER}
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                    <button
+                        onClick={() => addWater(250)}
+                        style={{
+                            flex: 1, padding: '14px', borderRadius: '16px', border: '1px solid var(--border-color)',
+                            backgroundColor: 'white', color: 'var(--text-primary)', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer'
+                        }}>
+                        +250ml
+                    </button>
+                    <button
+                        onClick={() => addWater(500)}
+                        style={{
+                            flex: 1.2, padding: '14px', borderRadius: '16px', border: 'none',
+                            backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(0, 122, 255, 0.2)'
+                        }}>
+                        Beber +500ml
+                    </button>
                 </div>
             </div>
         </div>
