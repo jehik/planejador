@@ -66,8 +66,11 @@ const WorkoutsView = () => {
 
     // Filter "Today's" Workouts
     const todaysWorkouts = workouts.filter(w => isToday(w));
-    // Check if completed today. `lastCompleted` format usually YYYY-MM-DD
-    const todayISO = todayDate.toISOString().split('T')[0];
+    // Check if completed today. Use local date string YYYY-MM-DD
+    const localYear = todayDate.getFullYear();
+    const localMonth = String(todayDate.getMonth() + 1).padStart(2, '0');
+    const localDay = String(todayDate.getDate()).padStart(2, '0');
+    const todayISO = `${localYear}-${localMonth}-${localDay}`;
 
     const isCompletedToday = (workout) => workout.lastCompleted === todayISO;
 

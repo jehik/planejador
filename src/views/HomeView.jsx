@@ -1,7 +1,7 @@
 import React from 'react';
 import MotivationalQuote from '../components/home/MotivationalQuote';
 import PomodoroTimer from '../components/home/PomodoroTimer';
-import DreamBoard from '../components/home/DreamBoard';
+import DreamBoard from '../components/dream/DreamBoard';
 import useAppStore from '../store/useAppStore';
 import { CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 
@@ -61,13 +61,14 @@ const SimpleTaskList = () => {
             // Convert task date/timestamp to Date object
             const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
 
-            // Create local string for task date
+            // Create local string for task date (to compare only Day/Month/Year)
             const tYear = d.getFullYear();
             const tMonth = String(d.getMonth() + 1).padStart(2, '0');
             const tDay = String(d.getDate()).padStart(2, '0');
             const taskYMD = `${tYear}-${tMonth}-${tDay}`;
 
-            return taskYMD === todayYMD;
+            // Return true if same day AND not completed (to "sumir da lista ativa")
+            return taskYMD === todayYMD && !t.completed;
         });
     }, [tasks]);
 

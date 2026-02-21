@@ -8,14 +8,20 @@ const DailyFocusCard = () => {
         focusMode,
         toggleFocusMode,
         userData,
+        tasks,
         addPoints
     } = useAppStore();
 
-    const tasks = userData?.tasks || [];
-
     // Get first uncompleted task for today
-    const today = new Date().toISOString().split('T')[0];
-    const todaysTasks = tasks.filter(t => t.date === today);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const todaysTasks = tasks.filter(t => {
+        if (!t.scheduledAt) return false;
+        const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+        const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return taskYMD === today;
+    });
     const activeTask = todaysTasks.find(t => !t.completed) || todaysTasks[0] || { title: 'Definir meta para hoje', completed: false, id: null };
 
     // Timer State
@@ -95,7 +101,7 @@ const DailyFocusCard = () => {
         if (!focusMode && isActive && mode === 'focus') {
             setIsActive(false);
         }
-    }, [focusMode]);
+    }, [focusMode, isActive, mode]);
 
     return (
         <div className="fade-in" style={{

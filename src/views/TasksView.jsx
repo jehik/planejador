@@ -25,7 +25,7 @@ const TasksView = () => {
         addTask({
             title: title,
             category: 'personal',
-            scheduledAt: scheduledAt.toString(), // Use toString to preserve local timezone offset info if needed, or stick to Date object
+            scheduledAt: scheduledAt, // Use Date object directly
             periodType: 'day',
             period: period, // New field
             description: notes // Using description field for notes

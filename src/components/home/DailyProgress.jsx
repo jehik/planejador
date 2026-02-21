@@ -2,16 +2,22 @@ import React from 'react';
 import useAppStore from '../../store/useAppStore';
 
 const DailyProgress = () => {
-    const { userData } = useAppStore();
+    const { userData, tasks } = useAppStore();
     const currentUser = userData;
 
     // 1. Get Today's Date and Day
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    const currentDayOfWeek = daysMap[new Date().getDay()];
+    const currentDayOfWeek = daysMap[now.getDay()];
 
     // 2. Filter Items for Today
-    const todayTasks = currentUser?.tasks?.filter(t => t.date === today) || [];
+    const todayTasks = tasks.filter(t => {
+        if (!t.scheduledAt) return false;
+        const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+        const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return taskYMD === today;
+    });
     const todayWorkouts = currentUser?.workouts?.filter(w => w.days.includes(currentDayOfWeek)) || [];
     const waterLevel = currentUser?.nutrition?.water || 0;
 

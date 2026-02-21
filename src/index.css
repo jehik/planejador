@@ -1,24 +1,22 @@
 :root {
-  /* Colors - Ultra Premium Light Palette */
+  /* Colors - Ultra Premium Apple Style Palette */
   --bg-color: #FFFFFF;
-  /* Branco Puro */
-  --surface-color: #F4F4F5;
-  /* Cinza muito claro para cards */
-  --surface-hover: #E4E4E7;
-  --border-color: #E4E4E7;
-  /* Bordas sutis */
-  --primary-color: #7C5CFF;
-  /* Roxo suave mantido */
-  --primary-glow: rgba(124, 92, 255, 0.15);
+  --surface-color: #F8F8F9;
+  --surface-hover: #F1F1F4;
+  --border-color: rgba(0, 0, 0, 0.06);
+  --primary-color: #007AFF;
+  /* Apple Blue */
+  --primary-glow: rgba(0, 122, 255, 0.15);
 
-  --text-primary: #09090B;
-  /* Quase preto */
-  --text-secondary: #71717A;
+  --text-primary: #1D1D1F;
+  /* Apple Black */
+  --text-secondary: #6E6E73;
+  /* Apple Gray */
   --text-tertiary: #A1A1AA;
 
-  --success-color: #10B981;
-  --warning-color: #F59E0B;
-  --danger-color: #EF4444;
+  --success-color: #34C759;
+  --warning-color: #FF9500;
+  --danger-color: #FF3B30;
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -31,26 +29,25 @@
   /* Safe Area Variables */
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 20px);
-  /* Default logic for iPhone 8+ usually 0 but we want padding, iPhone 12 has notch */
 
   /* Radius */
   --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
 
-  /* Shadows - Adjusted for Light Mode */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --glow-primary: 0 4px 14px rgba(124, 92, 255, 0.25);
+  /* Shadows - Apple Style */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.04);
+  --glow-primary: 0 4px 14px rgba(0, 122, 255, 0.2);
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Transitions */
-  --transition-fast: 0.2s ease-in-out;
-  --transition-normal: 0.3s ease-in-out;
-  --transition-slow: 0.5s ease-in-out;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Reset & Base */
@@ -64,7 +61,6 @@ body {
   font-family: var(--font-family);
   background-color: var(--bg-color);
   color: var(--text-primary);
-  /* Mobile-first centering */
   display: flex;
   justify-content: center;
   min-height: 100vh;
@@ -78,15 +74,9 @@ body {
   justify-content: center;
 }
 
-/* App Container */
 .app-container {
   width: 100%;
   max-width: 100%;
-  /* Full width for desktop/tablet as requested, or keep constrained? Prompt implies full dashboard */
-  /* For now, let's allow it to be wider but maybe max-width for large screens if it's a web app */
-  /* Reverting to max-width 480px if it's strictly mobile app simulation, but prompt says "Dashboard" which implies desktop usually.
-     However, "Navbar Superior Fixa" and "App" hints might mean mobile web. 
-     Let's use a responsive max-width. */
   min-height: 100vh;
   background-color: var(--bg-color);
   position: relative;
@@ -95,11 +85,8 @@ body {
 }
 
 @media (min-width: 768px) {
-
-  /* If user wants a desktop dashboard */
   .app-container {
     max-width: 1200px;
-    /* Or full width */
   }
 }
 
@@ -110,8 +97,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
 }
 
@@ -135,35 +122,50 @@ h6 {
   color: var(--text-secondary);
 }
 
-/* Card Styles */
+/* Card Styles - Apple Premium */
 .card {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all var(--transition-normal);
 }
 
 .card:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--glow-primary);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
-/* Buttons */
+/* Glassmorphism - Apple Style */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Interactive Elements */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 12px 24px;
   border-radius: var(--radius-full);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.95rem;
   transition: all var(--transition-fast);
   cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
 .btn-ghost {
@@ -176,15 +178,19 @@ h6 {
   color: var(--text-primary);
 }
 
+.btn:active {
+  transform: scale(0.96);
+}
+
 /* Animations */
 .fade-in {
-  animation: fadeIn 0.4s ease-in-out;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
 
   to {
@@ -203,19 +209,10 @@ h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--surface-hover);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-color);
-}
-
-/* Glassmorphism */
-/* Glassmorphism - Light Mode */
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.2);
 }

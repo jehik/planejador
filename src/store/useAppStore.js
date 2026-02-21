@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { auth, db } from '../firebase.config';
 import {
   signInWithEmailAndPassword,
@@ -48,8 +49,7 @@ const initialUserData = {
   romanticStoryViewed: false
 };
 
-const useAppStore = create((set, get) => ({
-
+const useAppStore = create(persist((set, get) => ({
   // --- 1. Persistent State (Local) ---
   darkMode: localStorage.getItem('theme') === 'dark',
   toggleTheme: () => {
@@ -64,6 +64,7 @@ const useAppStore = create((set, get) => ({
   userData: null,
   tasks: [], // NEW: Subcollection Data
   tasksUnsubscribe: null, // Listener cleanup function
+  userDataUnsubscribe: null,
 
   isHydrated: false,
   isSyncing: false,
@@ -95,6 +96,7 @@ const useAppStore = create((set, get) => ({
         set({ currentUser: user });
         await get().loadUserData(user.uid);
         get().subscribeToTasks(user.uid); // Start Real-time Listener
+        get().subscribeToUserData(user.uid); // Start Real-time UserData Listener
       } else {
         console.log('Auth: No user');
         get().logout();
@@ -116,8 +118,11 @@ const useAppStore = create((set, get) => ({
   logout: async () => {
     try {
       // Unsubscribe from Firestore
-      const unsub = get().tasksUnsubscribe;
-      if (unsub) unsub();
+      const unsubTasks = get().tasksUnsubscribe;
+      if (unsubTasks) unsubTasks();
+
+      const unsubUser = get().userDataUnsubscribe;
+      if (unsubUser) unsubUser();
 
       await signOut(auth);
       set({
@@ -125,6 +130,7 @@ const useAppStore = create((set, get) => ({
         userData: null,
         tasks: [],
         tasksUnsubscribe: null,
+        userDataUnsubscribe: null,
         isHydrated: false,
         isSyncing: false,
         hasUnsyncedChanges: false,
@@ -212,6 +218,24 @@ const useAppStore = create((set, get) => ({
     set({ tasksUnsubscribe: unsubscribe });
   },
 
+  subscribeToUserData: (uid) => {
+    if (get().userDataUnsubscribe) return;
+
+    const unsub = onSnapshot(doc(db, 'users', uid), (snapshot) => {
+      if (snapshot.exists()) {
+        const remoteData = snapshot.data();
+        const currentData = get().userData;
+
+        // Only update if we don't have local unsynced changes to avoid overwrite race conditions
+        if (!get().hasUnsyncedChanges) {
+          set({ userData: remoteData });
+        }
+      }
+    });
+
+    set({ userDataUnsubscribe: unsub });
+  },
+
   addTask: async (task) => {
     // task: { title, category, scheduledAt, periodType, description, etc }
     const { currentUser } = get();
@@ -227,8 +251,8 @@ const useAppStore = create((set, get) => ({
       ...task,
       completed: false,
       createdAt: serverTimestamp(),
-      // Ensure scheduledAt is Date or Timestamp
-      scheduledAt: new Date(task.scheduledAt)
+      // Ensure scheduledAt is a valid Date or ISO string for Firestore
+      scheduledAt: task.scheduledAt instanceof Date ? task.scheduledAt : new Date(task.scheduledAt)
     };
 
     try {
@@ -447,6 +471,53 @@ const useAppStore = create((set, get) => ({
     travel: (data.travel || []).map(t => t.id === id ? { ...t, ...updates } : t)
   })),
 
+  // --- Other Actions ---
+  // Goals/Finance (Keep for now)
+  addGoal: (goal) => get().setUserData(data => ({ ...data, goals: [...(data.goals || []), goal] })),
+  removeGoal: (id) => get().setUserData(data => ({ ...data, goals: data.goals.filter(g => g.id !== id) })),
+  addTransaction: (tx) => get().setUserData(data => ({
+    ...data,
+    finance: {
+      ...data.finance,
+      transactions: [...(data.finance.transactions || []), tx]
+    }
+  })),
+  removeTransaction: (id) => get().setUserData(data => ({
+    ...data,
+    finance: {
+      ...data.finance,
+      transactions: data.finance.transactions.filter(t => t.id !== id)
+    }
+  })),
+
+  // --- Projects Actions ---
+  addProject: (project) => get().setUserData(data => ({
+    ...data,
+    projects: [...(data.projects || []), { ...project, id: Date.now().toString(), createdAt: new Date().toISOString() }]
+  })),
+  deleteProject: (id) => get().setUserData(data => ({
+    ...data,
+    projects: (data.projects || []).filter(p => p.id !== id)
+  })),
+  updateProject: (id, updates) => get().setUserData(data => ({
+    ...data,
+    projects: (data.projects || []).map(p => p.id === id ? { ...p, ...updates } : p)
+  })),
+
+  // --- Travel Actions ---
+  addTravel: (trip) => get().setUserData(data => ({
+    ...data,
+    travel: [...(data.travel || []), { ...trip, id: Date.now().toString() }]
+  })),
+  deleteTravel: (id) => get().setUserData(data => ({
+    ...data,
+    travel: (data.travel || []).filter(t => t.id !== id)
+  })),
+  updateTravel: (id, updates) => get().setUserData(data => ({
+    ...data,
+    travel: (data.travel || []).map(t => t.id === id ? { ...t, ...updates } : t)
+  })),
+
   // --- Studies Actions ---
   addStudy: (study) => get().setUserData(data => ({
     ...data,
@@ -483,6 +554,17 @@ const useAppStore = create((set, get) => ({
   }),
 
 
+}), {
+  name: 'planejador-storage',
+  storage: createJSONStorage(() => localStorage),
+  partialize: (state) => ({
+    userData: state.userData,
+    activeTab: state.activeTab,
+    darkMode: state.darkMode
+  }),
+  onRehydrateStorage: () => (state) => {
+    if (state) state.isHydrated = true;
+  }
 }));
 
 export default useAppStore;

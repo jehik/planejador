@@ -74,7 +74,7 @@ const RomanticStory = ({ onClose }) => {
 
         const startAudio = () => {
             if (audioRef.current && audioRef.current.paused) {
-                audioRef.current.play().then(() => setIsMuted(false)).catch(e => console.log("Play failed", e));
+                audioRef.current.play().then(() => setIsMuted(false)).catch(() => { });
             }
             window.removeEventListener('pointerdown', startAudio);
         };

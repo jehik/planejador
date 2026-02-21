@@ -25,8 +25,7 @@ const App = () => {
 
   React.useEffect(() => {
     initializeAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initializeAuth]);
 
   React.useEffect(() => {
     const handleFocus = () => {
@@ -35,11 +34,19 @@ const App = () => {
       }
     };
 
+    const handleUnload = () => {
+      if (useAppStore.getState().hasUnsyncedChanges) {
+        useAppStore.getState().syncData();
+      }
+    };
+
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('beforeunload', handleUnload);
     document.addEventListener('visibilitychange', handleFocus);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('beforeunload', handleUnload);
       document.removeEventListener('visibilitychange', handleFocus);
     };
   }, []);

@@ -9,7 +9,7 @@ const RelationshipView = () => {
     const daysTogether = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 
     // Photo Logic
-    const { userData, setUserData } = useAppStore();
+    const { userData } = useAppStore();
     const [localPhoto, setLocalPhoto] = useState(localStorage.getItem('relationship_photo'));
     const fileInputRef = useRef(null);
 

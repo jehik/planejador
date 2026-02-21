@@ -19,7 +19,6 @@ const NutritionView = () => {
 
     useEffect(() => {
         setMessage(getRandomMessage());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Filter Meals
@@ -40,7 +39,10 @@ const NutritionView = () => {
         const defaultTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const mealTime = time || defaultTime;
 
-        const scheduledAt = new Date(`${todayStr}T${mealTime}:00`);
+        // Create local date object
+        const [hours, minutes] = mealTime.split(':');
+        const scheduledAt = new Date();
+        scheduledAt.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
         addTask({
             title: food,

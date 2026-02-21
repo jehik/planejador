@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 
+const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
 const PomodoroTimer = () => {
     const [selectedTime, setSelectedTime] = useState(25); // Minutes
-    const DEFAULT_TIME = selectedTime * 60;
-    const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
+    const [timeLeft, setTimeLeft] = useState(25 * 60);
     const [isActive, setIsActive] = useState(false);
 
     // Update timeLeft when selectedTime changes (if not active)
@@ -31,12 +36,6 @@ const PomodoroTimer = () => {
     const resetTimer = () => {
         setIsActive(false);
         setTimeLeft(selectedTime * 60);
-    };
-
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     // Circular Progress

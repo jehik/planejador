@@ -3,18 +3,24 @@ import { CheckCircle2, Circle, Dumbbell, Calendar, Droplet } from 'lucide-react'
 import useAppStore from '../../store/useAppStore';
 
 const TodayOverview = () => {
-    const { userData, toggleTask, toggleWorkout } = useAppStore();
+    const { userData, tasks, toggleTask, toggleWorkout } = useAppStore();
     const currentUser = userData;
 
-    // Get today's date in YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
+    // Get today's local date string YYYY-MM-DD
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     // Get day of week (Seg, Ter, Qua...)
     const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    const currentDayOfWeek = daysMap[new Date().getDay()];
+    const currentDayOfWeek = daysMap[now.getDay()];
 
-    // Filter Tasks for Today
-    const todayTasks = currentUser?.tasks?.filter(t => t.date === today) || [];
+    // Filter Tasks for Today (using scheduledAt)
+    const todayTasks = tasks.filter(t => {
+        if (!t.scheduledAt) return false;
+        const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+        const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return taskYMD === today && !t.completed; // Only non-completed for today list
+    });
 
     // Filter Workouts for Today
     const todayWorkouts = currentUser?.workouts?.filter(w => w.days.includes(currentDayOfWeek)) || [];

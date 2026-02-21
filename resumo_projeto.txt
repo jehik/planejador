@@ -1,0 +1,47 @@
+# Resumo do Projeto: Planejador
+
+## Visão Geral
+O projeto "Planejador" é uma aplicação web moderna para organização pessoal, abrangendo áreas como finanças, nutrição, treinos, estudos e gamificação de tarefas. A aplicação é construída com React e utiliza uma arquitetura modular e escalável.
+
+## Estrutura de Pastas e Organização
+- **`src/`**: Diretório principal do código-fonte.
+    - **`assets/`**: Recursos estáticos (imagens, ícones).
+    - **`components/`**: Componentes React reutilizáveis, organizados por funcionalidades (ex: `finance`, `nutrition`, `layout`, `tasks`).
+    - **`views/`**: Componentes que representam as telas completas da aplicação (ex: `HomeView`, `FinanceView`, `NutritionView`).
+    - **`store/`**: Gerenciamento de estado global utilizando a biblioteca **Zustand** (`useAppStore.js`).
+    - **`services/`**: Camada de serviços para integração com APIs externas ou IA (`mentorService.js`).
+    - **`utils/`**: Funções utilitárias (ex: `timeUtils.js` para manipulação de datas).
+    - **`firebase.config.js`**: Configuração e inicialização do Firebase.
+    - **`App.jsx`**: Componente raiz que gerencia o roteamento e a estrutura principal.
+    - **`main.jsx`**: Ponto de entrada da aplicação.
+
+## Tecnologias Utilizadas
+- **Core**: React 18
+- **Build Tool**: Vite
+- **Estado Global**: Zustand
+- **Backend / Persistência**: Firebase (Firestore e Storage)
+- **Ícones**: Lucide React
+- **Manipulação de Datas**: date-fns
+- **Estilização**: CSS Vanilla (index.css)
+- **Deployment**: Vercel
+
+## Funcionalidades Principais (Baseado nas Views)
+1. **Home**: Visão geral com progresso diário e mentor de IA.
+2. **Finanças**: Controle financeiro e overview de gastos.
+3. **Metas (Goals)**: Definição e acompanhamento de objetivos.
+4. **Nutrição**: Planejamento de refeições e acompanhamento nutricional.
+5. **Treinos**: Registro e visualização de atividades físicas.
+6. **Estudos**: Organização de cronogramas de estudo.
+7. **Projetos**: Gerenciamento de projetos pessoais.
+8. **Relacionamento**: Seção dedicada a interações românticas/pessoais.
+9. **Gamificação**: Sistema de recompensas e progresso (ex: `DailyProgress`).
+
+## Arquivos de Configuração
+- `package.json`: Dependências e scripts do projeto.
+- `vite.config.js`: Configurações do ambiente de desenvolvimento Vite.
+- `vercel.json`: Configurações para deploy na Vercel.
+- `firestore.rules` & `storage.rules`: Regras de segurança para o Firebase.
+- `.env.local`: Variáveis de ambiente (API Keys, etc).
+
+---
+Gerado automaticamente em: 20/02/2026
