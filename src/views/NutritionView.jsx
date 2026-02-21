@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Droplets, Plus, ArrowRight, Heart, Trash2 } from 'lucide-react';
+import { Droplets, Plus, ArrowRight, Heart, Trash2, X } from 'lucide-react';
 import { getRandomMessage } from '../components/nutrition/NutritionMessages';
 
 const NutritionView = () => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import MotivationalQuote from '../components/home/MotivationalQuote';
 import PomodoroTimer from '../components/home/PomodoroTimer';
+import MentorCard from '../components/home/MentorCard';
 import DreamBoard from '../components/dream/DreamBoard';
 import useAppStore from '../store/useAppStore';
 import { CheckCircle2, Plus, AlertTriangle, ArrowRight } from 'lucide-react';
@@ -11,9 +12,13 @@ const HomeView = () => {
             paddingBottom: '120px',
             paddingTop: 'env(safe-area-inset-top, 24px)'
         }}>
-            {/* Header Section */}
             <div style={{ marginBottom: '32px' }}>
                 <MotivationalQuote />
+            </div>
+
+            {/* Mentor AI Advice Section */}
+            <div style={{ marginBottom: '32px' }}>
+                <MentorCard />
             </div>
 
             {/* Main Interactive Grid */}

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Heart, Calendar, Image as ImageIcon, Plus, Upload, Trash2 } from 'lucide-react';
+import { Heart, Calendar, Image as ImageIcon, Plus, Upload, Trash2, Clock, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const RelationshipView = () => {
     // Fixed Date: 15 July 2024
@@ -25,29 +25,24 @@ const RelationshipView = () => {
         }
     };
 
-    const [dateIdeas, setDateIdeas] = useState([
-        { id: 1, text: 'Jantar à luz de velas', checked: false },
-        { id: 2, text: 'Piquenique no parque', checked: false },
-        { id: 3, text: 'Maratona de filmes', checked: true }
-    ]);
+    const { userData, addDateIdea, toggleDateIdea, removeDateIdea } = useAppStore();
+    const dateIdeas = userData?.dateIdeas || [];
     const [newIdea, setNewIdea] = useState('');
 
     const toggleIdea = (id) => {
-        setDateIdeas(dateIdeas.map(idea =>
-            idea.id === id ? { ...idea, checked: !idea.checked } : idea
-        ));
+        toggleDateIdea(id);
     };
 
     const addIdea = (e) => {
         e.preventDefault();
         if (!newIdea.trim()) return;
-        setDateIdeas([...dateIdeas, { id: Date.now(), text: newIdea, checked: false }]);
+        addDateIdea(newIdea);
         setNewIdea('');
     };
 
     const deleteIdea = (e, id) => {
         e.stopPropagation(); // Prevent toggling
-        setDateIdeas(dateIdeas.filter(idea => idea.id !== id));
+        removeDateIdea(id);
     };
 
     return (

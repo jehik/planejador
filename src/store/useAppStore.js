@@ -424,69 +424,57 @@ const useAppStore = create(persist((set, get) => ({
     return data;
   }),
 
-  // --- Other Actions ---
-  // Goals/Finance (Keep for now)
-  addGoal: (goal) => get().setUserData(data => ({ ...data, goals: [...(data.goals || []), goal] })),
-  removeGoal: (id) => get().setUserData(data => ({ ...data, goals: data.goals.filter(g => g.id !== id) })),
+  // --- Goals Actions ---
+  addGoal: (goal) => get().setUserData(data => ({
+    ...data,
+    goals: [...(data.goals || []), { ...goal, id: Date.now().toString(), steps: [] }]
+  })),
+  removeGoal: (id) => get().setUserData(data => ({
+    ...data,
+    goals: (data.goals || []).filter(g => g.id !== id)
+  })),
+  addGoalStep: (goalId, stepTitle) => get().setUserData(data => ({
+    ...data,
+    goals: (data.goals || []).map(g => g.id === goalId ? {
+      ...g,
+      steps: [...(g.steps || []), { id: Date.now().toString(), title: stepTitle, completed: false }]
+    } : g)
+  })),
+  toggleGoalStep: (goalId, stepId) => get().setUserData(data => ({
+    ...data,
+    goals: (data.goals || []).map(g => g.id === goalId ? {
+      ...g,
+      steps: (g.steps || []).map(s => s.id === stepId ? { ...s, completed: !s.completed } : s)
+    } : g)
+  })),
+
+  // --- Shopping Actions ---
+  addShoppingItem: (item) => get().setUserData(data => ({
+    ...data,
+    shopping: [...(data.shopping || []), { ...item, id: Date.now().toString() }]
+  })),
+  removeShoppingItem: (id) => get().setUserData(data => ({
+    ...data,
+    shopping: (data.shopping || []).filter(item => item.id !== id)
+  })),
+  toggleShoppingItem: (id) => get().setUserData(data => ({
+    ...data,
+    shopping: (data.shopping || []).map(item => item.id === id ? { ...item, completed: !item.completed } : item)
+  })),
+
+  // --- Finance Actions ---
   addTransaction: (tx) => get().setUserData(data => ({
     ...data,
     finance: {
       ...data.finance,
-      transactions: [...(data.finance.transactions || []), tx]
+      transactions: [...(data.finance.transactions || []), { ...tx, id: Date.now().toString() }]
     }
   })),
   removeTransaction: (id) => get().setUserData(data => ({
     ...data,
     finance: {
       ...data.finance,
-      transactions: data.finance.transactions.filter(t => t.id !== id)
-    }
-  })),
-
-  // --- Projects Actions ---
-  addProject: (project) => get().setUserData(data => ({
-    ...data,
-    projects: [...(data.projects || []), { ...project, id: Date.now().toString(), createdAt: new Date().toISOString() }]
-  })),
-  deleteProject: (id) => get().setUserData(data => ({
-    ...data,
-    projects: (data.projects || []).filter(p => p.id !== id)
-  })),
-  updateProject: (id, updates) => get().setUserData(data => ({
-    ...data,
-    projects: (data.projects || []).map(p => p.id === id ? { ...p, ...updates } : p)
-  })),
-
-  // --- Travel Actions ---
-  addTravel: (trip) => get().setUserData(data => ({
-    ...data,
-    travel: [...(data.travel || []), { ...trip, id: Date.now().toString() }]
-  })),
-  deleteTravel: (id) => get().setUserData(data => ({
-    ...data,
-    travel: (data.travel || []).filter(t => t.id !== id)
-  })),
-  updateTravel: (id, updates) => get().setUserData(data => ({
-    ...data,
-    travel: (data.travel || []).map(t => t.id === id ? { ...t, ...updates } : t)
-  })),
-
-  // --- Other Actions ---
-  // Goals/Finance (Keep for now)
-  addGoal: (goal) => get().setUserData(data => ({ ...data, goals: [...(data.goals || []), goal] })),
-  removeGoal: (id) => get().setUserData(data => ({ ...data, goals: data.goals.filter(g => g.id !== id) })),
-  addTransaction: (tx) => get().setUserData(data => ({
-    ...data,
-    finance: {
-      ...data.finance,
-      transactions: [...(data.finance.transactions || []), tx]
-    }
-  })),
-  removeTransaction: (id) => get().setUserData(data => ({
-    ...data,
-    finance: {
-      ...data.finance,
-      transactions: data.finance.transactions.filter(t => t.id !== id)
+      transactions: (data.finance.transactions || []).filter(t => t.id !== id)
     }
   })),
 
@@ -528,7 +516,7 @@ const useAppStore = create(persist((set, get) => ({
     studies: (data.studies || []).filter(s => s.id !== id)
   })),
 
-  // --- Workout Actions (Fix for missing functions) ---
+  // --- Workout Actions ---
   addWorkout: (workout) => get().setUserData(data => ({
     ...data,
     workouts: [...(data.workouts || []), { ...workout, id: Date.now().toString(), lastCompleted: null, streak: 0 }]
@@ -553,6 +541,19 @@ const useAppStore = create(persist((set, get) => ({
     };
   }),
 
+  // --- Relationship Actions ---
+  addDateIdea: (text) => get().setUserData(data => ({
+    ...data,
+    dateIdeas: [...(data.dateIdeas || []), { id: Date.now().toString(), text, checked: false }]
+  })),
+  toggleDateIdea: (id) => get().setUserData(data => ({
+    ...data,
+    dateIdeas: (data.dateIdeas || []).map(i => i.id === id ? { ...i, checked: !i.checked } : i)
+  })),
+  removeDateIdea: (id) => get().setUserData(data => ({
+    ...data,
+    dateIdeas: (data.dateIdeas || []).filter(i => i.id !== id)
+  })),
 
 }), {
   name: 'planejador-storage',

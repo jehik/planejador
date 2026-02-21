@@ -35,22 +35,35 @@ Nunca responda texto solto.
 Nunca quebre o formato.
 `;
 
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+
 export const fetchMentorAdvice = async (userType) => {
     const store = useAppStore.getState();
-    const currentUser = store.users[userType];
-    const tasks = currentUser.tasks || [];
-    const completedTasks = tasks.filter(t => t.completed).map(t => t.title).join(", ");
-    const pendingTasks = tasks.filter(t => !t.completed).map(t => t.title).join(", ");
-    const water = currentUser.water || 0;
-    const workouts = currentUser.workouts || [];
-    const goals = currentUser.goals || [];
+    const userData = store.userData || {};
+    const tasks = store.tasks || []; // Correctly accessing top-level tasks
 
-    // Construct User Prompt details
+    // Filter tasks for today
+    const now = new Date();
+    const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const todayTasks = tasks.filter(t => {
+        const d = t.scheduledAt instanceof Date ? t.scheduledAt : new Date(t.scheduledAt);
+        const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return taskYMD === todayYMD;
+    });
+
+    const completedTasks = todayTasks.filter(t => t.completed).map(t => t.title).join(", ");
+    const pendingTasks = todayTasks.filter(t => !t.completed).map(t => t.title).join(", ");
+
+    const water = userData.nutrition?.water || 0;
+    const workouts = userData.workouts || [];
+    const goals = userData.goals || [];
+
     const todayData = `
     Água: ${water}ml
     Treinos: ${workouts.length}
-    Tarefas Feitas: ${completedTasks || 'Nenhuma'}
-    Tarefas Pendentes: ${pendingTasks || 'Nenhuma'}
+    Tarefas Feitas (Hoje): ${completedTasks || 'Nenhuma'}
+    Tarefas Pendentes (Hoje): ${pendingTasks || 'Nenhuma'}
     `;
 
     const goalsList = goals.map(g => g.title).join(", ");
@@ -70,7 +83,7 @@ export const fetchMentorAdvice = async (userType) => {
         3. Avanço real?
         4. Micro-ajuste amanhã.
         5. Observação relacionamento/disciplina.
-        Return JSON format.
+        Return ONLY valid JSON.
         `;
     } else {
         systemPrompt = DEBORA_SYSTEM_PROMPT;
@@ -83,69 +96,47 @@ export const fetchMentorAdvice = async (userType) => {
         2. Estabilidade emocional.
         3. Regularidade.
         4. Neurociência/Visualização.
-        Return JSON format.
+        Return ONLY valid JSON.
         `;
     }
 
-    // Localhost Check: Vercel Functions don't run on standard `npm run dev`
-    // Includes standard private IPs for mobile testing: 192.168.x.x, 10.x.x.x, 172.16.x.x
-    const isLocalhost = window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1' ||
-        window.location.hostname.startsWith('192.168.') ||
-        window.location.hostname.startsWith('10.') ||
-        window.location.hostname.startsWith('172.');
-
-    if (isLocalhost) {
-        console.warn("Mentor Service: Backend API not available on localhost/LAN (requires 'vercel dev' or deployment). Returning Mock.");
-        return getMockResponse();
-    }
-
     try {
-        // Calls the Vercel Serverless Function
-        // This keeps the API KEY hidden in the backend
-        const response = await fetch("/api/mentor", {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                userPrompt,
-                systemPrompt
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt }
+                ],
+                temperature: 0.7,
+                response_format: { type: "json_object" }
             })
         });
 
         if (!response.ok) {
-            console.error("Mentor Backend Error Status:", response.status);
-            // If 404, it might mean we are in a preview env where the API isn't set up, or local.
-            if (response.status === 404) {
-                return getMockResponse();
-            }
-            throw new Error(`Erro no servidor do Mentor (${response.status})`);
+            throw new Error(`Erro Groq API: ${response.status}`);
         }
 
         const data = await response.json();
-        return data;
+        const content = JSON.parse(data.choices[0].message.content);
+        return content;
 
     } catch (error) {
-        console.error("Mentor Service Client Error:", error);
-
-        // If explicitly localhost, we can fallback to mock safely on error
-        if (isLocalhost) {
-            console.warn("Falling back to Mock due to error in Local env.");
-            return getMockResponse();
-        }
-
-        // In PRODUCTION, do not show "Local Mock". Show a graceful error message.
+        console.error("Mentor Service Error:", error);
         return {
             alinhamentoSonho: 0,
-            analiseComportamental: "O Mentor está indisponível no momento (Erro no Servidor).",
-            fraseMentor: "Verifique a configuração da API na Vercel.",
-            ajusteImediato: "Aguarde alguns instantes.",
-            acaoMinimaAmanha: "Tente novamente mais tarde.",
-            // Debora compatibility
-            explicacaoNeurocientifica: "Sistema em manutenção.",
-            visualizacaoGuiada: "Respire fundo.",
-            fraseProsperidade: "Tudo se resolverá."
+            analiseComportamental: "O Mentor está processando novos dados.",
+            fraseMentor: "Continue focado no seu propósito hoje.",
+            ajusteImediato: "Mantenha a rotina planejada.",
+            acaoMinimaAmanha: "Revisar metas ao acordar.",
+            explicacaoNeurocientifica: "Estabilidade pré-frontal necessária.",
+            visualizacaoGuiada: "Respire e visualize o sucesso.",
+            fraseProsperidade: "A abundância flui através da disciplina."
         };
     }
 };
@@ -153,16 +144,15 @@ export const fetchMentorAdvice = async (userType) => {
 const getMockResponse = () => {
     return {
         alinhamentoSonho: 100,
-        analiseComportamental: "MODO LOCAL (MOCK): A IA via Backend só funciona no ambiente Vercel (Deploy).",
+        analiseComportamental: "MODO LOCAL (MOCK): A IA via Backend só funciona no ambiente Groq configurado.",
         padraoDetectado: "Teste Local Detectado",
-        ajusteImediato: "Faça o deploy para testar a inteligência real.",
-        acaoMinimaAmanha: "Testar na URL da Vercel.",
+        ajusteImediato: "Configure sua chave Groq.",
+        acaoMinimaAmanha: "Finalizar integração.",
         alertaDisciplina: "Ambiente de Desenvolvimento",
-        fraseMentor: "Acesse o site publicado para falar comigo de verdade.",
-        // Debora compatibility
+        fraseMentor: "Sigo observando seu progresso.",
         explicacaoNeurocientifica: "Simulação local.",
-        visualizacaoGuiada: "Imagine o sistema funcionando na nuvem.",
-        fraseProsperidade: "O deploy é o caminho."
+        visualizacaoGuiada: "Imagine o sistema funcionando perfeitamente.",
+        fraseProsperidade: "O sucesso é inevitável."
     };
 };
 

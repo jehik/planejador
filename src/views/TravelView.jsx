@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Plane, Plus, Calendar, Trash2, DollarSign, CheckSquare, ShoppingCart } from 'lucide-react';
+import { Plane, Plus, Calendar, Trash2, DollarSign, CheckSquare, ShoppingCart, Briefcase, MapPin, CircleDollarSign } from 'lucide-react';
 
 const TravelView = () => {
     const { userData, addTravel, deleteTravel } = useAppStore();
