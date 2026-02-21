@@ -54,14 +54,26 @@ const TasksView = () => {
         setMemoDate(newDate);
     };
 
-    const filteredTasks = tasks.filter(task => {
-        if (task.category === 'nutrition') return false;
-        if (task.category === 'house') return false;
-        return true;
-    }).sort((a, b) => {
+    const filteredTasks = tasks.sort((a, b) => {
         if (a.completed !== b.completed) return a.completed - b.completed;
         return new Date(a.scheduledAt) - new Date(b.scheduledAt);
     });
+
+    const getCategoryBadge = (category) => {
+        switch (category) {
+            case 'nutrition': return { label: 'Nutrição', color: '#FF2D55' };
+            case 'studies': return { label: 'Estudos', color: '#5856D6' };
+            case 'work': return { label: 'Trabalho', color: '#FF9500' };
+            case 'projects': return { label: 'Projeto', color: '#34C759' };
+            case 'house': return { label: 'Casa', color: '#AF52DE' };
+            case 'travel': return { label: 'Viagem', color: '#007AFF' };
+            case 'finance': return { label: 'Finanças', color: '#34C759' };
+            case 'relationship': return { label: 'Nós', color: '#FF2D78' };
+            case 'restrictions': return { label: 'Foco', color: '#8E8E93' };
+            case 'workouts': return { label: 'Treino', color: '#FF2D55' };
+            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93' };
+        }
+    };
 
     const periods = [
         { id: 'morning', label: 'Manhã', icon: Sun, color: '#FF9500' }, // Orange
@@ -228,16 +240,32 @@ const TasksView = () => {
                                 </button>
 
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
-                                    <span style={{
-                                        fontSize: '1rem',
-                                        fontWeight: '700',
-                                        color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                                        textDecoration: task.completed ? 'line-through' : 'none',
-                                        display: 'block',
-                                        marginBottom: '6px'
-                                    }}>
-                                        {task.title}
-                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                        <span style={{
+                                            fontSize: '1.1rem',
+                                            fontWeight: '700',
+                                            color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                            textDecoration: task.completed ? 'line-through' : 'none',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {task.title}
+                                        </span>
+                                        <span style={{
+                                            fontSize: '0.6rem',
+                                            color: getCategoryBadge(task.category).color,
+                                            backgroundColor: `${getCategoryBadge(task.category).color}15`,
+                                            padding: '2px 8px',
+                                            borderRadius: '6px',
+                                            fontWeight: '800',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            flexShrink: 0
+                                        }}>
+                                            {getCategoryBadge(task.category).label}
+                                        </span>
+                                    </div>
 
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                                         <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
