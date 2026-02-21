@@ -18,11 +18,6 @@ const HomeView = () => {
                 <MotivationalQuote />
             </div>
 
-            {/* Mentor AI Advice Section */}
-            <div style={{ marginBottom: '32px' }}>
-                <MentorCard />
-            </div>
-
             {/* Main Interactive Grid */}
             <div style={{
                 display: 'grid',
@@ -31,6 +26,11 @@ const HomeView = () => {
                 maxWidth: '800px',
                 margin: '0 auto'
             }}>
+                {/* Mentor AI Advice Section */}
+                <div style={{ width: '100%' }}>
+                    <MentorCard />
+                </div>
+
                 {/* 1. Pomodoro Timer Section */}
                 <section style={{ width: '100%' }}>
                     <div className="card fade-in" style={{
