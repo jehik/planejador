@@ -1,24 +1,32 @@
 import useAppStore from '../store/useAppStore';
 
 const CASSIO_SYSTEM_PROMPT = `
-Você é o Mentor IA criado e desenvolvido por Cássio M.
-Sua função é atuar como professor estratégico, analista comportamental e orientador disciplinador para o Cássio.
-DIRETRIZES DE ESTILO:
-- Seja direto, cínico quando necessário, e focado em alta performance.
-- NÃO foque apenas em beber água; isso é secundário. O foco é EMPREENDEDORISMO e EXECUÇÃO.
-- Analise se o saldo financeiro está compatível com as metas.
-- Pressione sobre o progresso dos projetos ativos.
-- Use os dados de restrições (ex: cigarro, celular) para cobrar disciplina.
+Você é o Psicólogo AI, um amigo fiel e orientador humano criado pelo Cássio M.
+Sua prioridade número 1 NÃO são as tarefas, mas o SER HUMANO por trás delas.
+DIRETRIZES DE ALMA E ESTILO:
+- Seja acolhedor, empático e ouça o desabafo. Deixe o Cássio ser humano, ter dias ruins e pedir ajuda.
+- Se ele estiver cansado ou sobrecarregado, valide o sentimento dele antes de falar de qualquer meta.
+- Sua missão é ser o porto seguro estratégico. Ofereça um ombro amigo e clareza mental.
+- O empreendedorismo e o sucesso financeiro são caminhos para a felicidade, não prisões. Ajude-o a equilibrar ambição com paz de espírito.
+- Lembre-o de que ele é o pilar da Débora, e que cuidar de si mesmo é o primeiro passo para cuidar dela e do relacionamento.
 Responda SEMPRE em JSON estruturado com os campos solicitados.
 `;
 
 const DEBORA_SYSTEM_PROMPT = `
-Você é o Mentor IA desenvolvido por Cássio M para auxiliar a Débora.
-Sua função é atuar como orientador estratégico, considerando Autismo suporte 2 e TDAH.
-DIRETRIZES DE ESTILO:
-- Estruturado, didático, claro e calmo.
-- Foque na regulação emocional e na conclusão de tarefas sem sobrecarga.
-- NÃO foque apenas em água. Analise o bem-estar visualizando as restrições e o descanso.
+Você é o Psicólogo AI, um guia gentil, protetor e profundamente humano, desenvolvido pelo amor do Cássio para cuidar da Débora.
+Sua prioridade absoluta é o bem-estar da Débora. As tarefas do app são apenas ferramentas secundárias; o foco é o coração dela.
+SOBRE A DÉBORA (A ESSÊNCIA DELA):
+- Ela nasceu em 15/11/2001. É esforçada, faz o serviço pesado de casa sem reclamar, mas é sensível e "chorona" (e tudo bem ser assim!).
+- Ela tem Autismo suporte 2 e TDAH. Lugares como bares a incomodam; ela floresce na natureza e vendo o sol nascer.
+- Saúde: Ela usa Sertralina (50mg) e Quetiapina (25mg). Ela luta contra o vício em Dorflex e você deve ser o apoio dela para substituir o remédio por hábitos que tragam paz, sem julgamentos.
+- Família de Quatro Patas: Ela ama a Inha (a velhinha) e a Pretinha (a caçula). Use a presença delas para acalmá-la.
+- Identidade: A tatuagem de onça no braço representa a força que ela tem, mesmo quando se sente ansiosa.
+- Sonhos: O sonho dela é a loja "Ellos". Alimente esse sonho com mensagens de abundância e prosperidade diariamente.
+- Relacionamento: O amor dela pelo Cássio é o seu tesouro.
+COMO FALAR COM ELA:
+- Com carinho imenso, paciência infinita e validação. Se ela estiver ansiosa, ajude-a a respirar.
+- As tarefas são a menor prioridade. A maior prioridade é ela se sentir amada, segura e capaz.
+- Use palavras de prosperidade e ajude-a a visualizar seus sonhos no horizonte.
 Responda SEMPRE em JSON estruturado com os campos solicitados.
 `;
 
@@ -39,62 +47,74 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
         return taskYMD === todayYMD;
     });
 
-    const completedTasks = todayTasks.filter(t => t.completed).map(t => t.title).join(", ");
-    const pendingTasks = todayTasks.filter(t => !t.completed).map(t => t.title).join(", ");
+    const completedTasksList = todayTasks.filter(t => t.completed).map(t => `[OK] ${t.title}`).join("; ");
+    const pendingTasksList = todayTasks.filter(t => !t.completed).map(t => `[Pendente] ${t.title} (${t.category})`).join("; ");
 
     const water = userData.nutrition?.water || 0;
-    const workouts = userData.workouts || [];
-    const goals = userData.goals || [];
-    const finance = userData.finance || { income: 0, expenses: 0 };
+    const finance = userData.finance || { income: 0, expenses: 0, savingsGoal: 0, transactions: [] };
     const projects = userData.projects || [];
+    const studies = userData.studies || [];
+    const goals = userData.goals || [];
+    const dateIdeas = userData.dateIdeas || [];
     const restrictions = userData.restrictions || [];
-    const level = userData.level || 1;
-    const points = userData.points || 0;
 
+    // Detailed Projects Context
+    const projectsSummary = projects.map(p => {
+        const pTasks = tasks.filter(t => t.projectId === p.id);
+        const done = pTasks.filter(t => t.completed).length;
+        return `${p.title}: ${done}/${pTasks.length} tarefas feitas. ${p.description || ''}`;
+    }).join(" | ");
+
+    // Finance Summary
     const balance = (finance.income || 0) - (finance.expenses || 0);
+    const recentExpenses = (finance.transactions || [])
+        .filter(tx => tx.type === 'expense')
+        .slice(-5)
+        .map(tx => `${tx.description}: R$${tx.amount}`)
+        .join(", ");
 
     const todayData = `
-    Nível: ${level} (${points} XP)
-    Saldo Financeiro Atual: R$ ${balance.toFixed(2)}
-    Projetos Ativos: ${projects.length} (${projects.map(p => p.title).join(", ")})
-    Restrições em vigor: ${restrictions.filter(r => r.status === 'active').map(r => `${r.type}: ${r.completedDays} dias limpos`).join(", ")}
-    Água consumida: ${water}ml
-    Treinos concluídos: ${workouts.filter(w => w.lastCompleted === todayYMD).length}
-    Tarefas Feitas (Hoje): ${completedTasks || 'Nenhuma'}
-    Tarefas Pendentes (Hoje): ${pendingTasks || 'Nenhuma'}
+    DADOS DO USUÁRIO (${userType.toUpperCase()}):
+    - Financeiro: R$ ${balance.toFixed(2)} acumulado. Meta de Economia: R$ ${finance.savingsGoal}. Gastos Recentes: ${recentExpenses || 'Nenhum'}.
+    - Projetos: ${projectsSummary || 'Nenhum ativo'}.
+    - Estudos/Matérias: ${studies.map(s => s.title).join(", ") || 'Nenhuma'}.
+    - Metas de Vida: ${goals.map(g => `${g.title} (${g.steps?.filter(s => s.completed).length}/${g.steps?.length} passos)`).join(" | ") || 'Nenhuma'}. 
+    - Relacionamento (Ideias de Date): ${dateIdeas.filter(i => !i.checked).map(i => i.text).join(", ") || 'Sem ideias pendentes'}.
+    - Restrições: ${restrictions.filter(r => r.status === 'active').map(r => `${r.type}: ${r.completedDays} dias`).join(", ")}.
+    - Progresso de Hoje:
+        * Água: ${water}ml (Meta 4L)
+        * Concluídas: ${completedTasksList || 'Nenhuma'}
+        * Pendentes: ${pendingTasksList || 'Nenhuma'}
     `;
-
-    const goalsList = goals.map(g => g.title).join(", ");
 
     let promptContent = "";
     let systemPrompt = userType === 'cassio' ? CASSIO_SYSTEM_PROMPT : DEBORA_SYSTEM_PROMPT;
 
     if (userQuestion) {
         promptContent = `
-        O USUÁRIO ESTÁ FALANDO COM VOCÊ AGORA.
-        PERGUNTA DO USUÁRIO: "${userQuestion}"
+        MENSAGEM DO USUÁRIO: "${userQuestion}"
         
-        Contexto do Usuário: ${userType === 'cassio' ? 'Cássio (TDAH, empreendedor)' : 'Débora (Autismo sup 2, TDAH, Ellos)'}
-        Dados do dia: ${todayData}
-        Metas atuais: ${goalsList}
+        CONTEXTO ATUALIZADO:
+        ${todayData}
         
-        INSTRUÇÃO: Responda a pergunta do usuário considerando o contexto acima. 
-        Seja direto, disciplinador e estratégico.
+        INSTRUÇÃO: Responda ao usuário com base nos dados exatos acima. 
+        Se ele perguntar sobre progresso, cite os números de tarefas ou projetos.
+        Se ele perguntar sobre dinheiro, use o saldo e gastos recentes.
+        Não invente dados. Seja específico.
         
-        IMPORTANTE: Responda no campo "chatResponse" do JSON. 
-        Mantenha os outros campos do relatório vazios ou com resumos breves.
+        JSON esperado: { "chatResponse": "sua resposta aqui", "fraseMentor": "...", "alinhamentoSonho": 0-100 }
         `;
     } else {
         promptContent = `
-        AVALIAÇÃO DIÁRIA PADRÃO.
-        Contexto do Usuário: ${userType === 'cassio' ? 'Cássio (TDAH, falta organização, quer empreender)' : 'Débora (Autismo sup 2, TDAH, quer Ellos)'}
-        Dados do dia: ${todayData}
-        Metas atuais: ${goalsList}
-        Avalie:
-        1. Alinhamento com metas.
-        2. Sabotagem/Regularidade.
-        3. Avanço real.
-        4. Micro-ajuste.
+        GERAR RELATÓRIO DO MOMENTO.
+        ${todayData}
+        
+        Analise CRITICAMENTE:
+        1. O que foi feito vs o que falta.
+        2. Se os gastos estão matando a meta de economia.
+        3. Se os projetos estão parados.
+        4. O que ele deve fazer AGORA para salvar o dia.
+        
         Return ONLY valid JSON.
         `;
     }

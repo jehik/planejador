@@ -10,9 +10,9 @@ $importRegex = "import\s+\{([^}]+)\}\s+from\s+'lucide-react'"
 $usedIcons = @()
 Get-ChildItem -Path $srcPath -Recurse -Filter *.jsx | ForEach-Object {
     $content = Get-Content $_.FullName -Raw
-    if ($content -match $importRegex) {
-        $matches = [regex]::Matches($content, $importRegex)
-        foreach ($match in $matches) {
+    if ([regex]::IsMatch($content, $importRegex)) {
+        $allMatches = [regex]::Matches($content, $importRegex)
+        foreach ($match in $allMatches) {
             $imports = $match.Groups[1].Value
             $imports -split ',' | ForEach-Object {
                 $iconName = $_.Trim()
@@ -91,8 +91,9 @@ foreach ($icon in $uniqueIcons) {
         # Pattern: createLucideIcon("Name", [ ... ])
         # We need to extract the [ ... ] part.
         
-        if ($content -match 'createLucideIcon\("[^"]+",\s*(\[[\s\S]*?\])\);') {
-            $iconData = $matches[1]
+        $iconMatch = [regex]::Match($content, 'createLucideIcon\("[^"]+",\s*(\[[\s\S]*?\])\);')
+        if ($iconMatch.Success) {
+            $iconData = $iconMatch.Groups[1].Value
             $body += "export const $icon = createLucideIcon(`"$icon`", $iconData);`n"
         }
         else {

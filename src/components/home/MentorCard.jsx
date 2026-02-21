@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useAppStore from '../../store/useAppStore';
 import { fetchMentorAdvice } from '../../services/mentorService';
-import { Sparkles, Brain, Zap, Target, ArrowRight, Loader2, Quote } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, Quote } from 'lucide-react';
 
 const MentorCard = () => {
     const { currentUser } = useAppStore();
@@ -78,7 +78,7 @@ const MentorCard = () => {
                         <Sparkles size={22} />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', letterSpacing: '-0.03em' }}>Professor IA</h3>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: '900', letterSpacing: '-0.03em' }}>Psicólogo AI</h3>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>inteligencia artificial desenvolvida por: Cássio M</p>
                     </div>
                 </div>
@@ -120,35 +120,9 @@ const MentorCard = () => {
                 )}
 
                 {/* Grid for details */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div style={{ backgroundColor: 'rgba(0,0,0,0.02)', padding: '20px', borderRadius: '20px', gridColumn: 'span 2', border: '1px solid rgba(0,0,0,0.03)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                            <Brain size={18} style={{ color: accentColor }} />
-                            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Análise Comportamental</span>
-                        </div>
-                        <p style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                            {advice.analiseComportamental}
-                        </p>
-                    </div>
-
-                    <div style={{ backgroundColor: 'rgba(0,0,0,0.02)', padding: '16px', borderRadius: '18px', border: '1px solid rgba(0,0,0,0.03)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                            <Zap size={16} style={{ color: '#FF9500' }} />
-                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Ajuste Agora</span>
-                        </div>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.ajusteImediato}</p>
-                    </div>
-
-                    <div style={{ backgroundColor: 'rgba(0,0,0,0.02)', padding: '16px', borderRadius: '18px', border: '1px solid rgba(0,0,0,0.03)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                            <Target size={16} style={{ color: '#34C759' }} />
-                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Amanhã</span>
-                        </div>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.acaoMinimaAmanha}</p>
-                    </div>
-
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {userName === 'debora' && (
-                        <div style={{ backgroundColor: `${accentColor}05`, padding: '20px', borderRadius: '20px', gridColumn: 'span 2', border: `1px solid ${accentColor}10` }}>
+                        <div style={{ backgroundColor: `${accentColor}05`, padding: '20px', borderRadius: '20px', border: `1px solid ${accentColor}10` }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                 <Sparkles size={16} style={{ color: accentColor }} />
                                 <span style={{ fontSize: '0.75rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Neurociência & Visualização</span>

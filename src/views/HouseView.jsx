@@ -35,24 +35,34 @@ const HouseView = () => {
 
     const houseTasks = tasks.filter(t => t.category === 'house').sort((a, b) => a.completed - b.completed);
 
-    const handleAdd = () => {
-        if (!title.trim()) return;
+    const [isSaving, setIsSaving] = useState(false);
 
-        addTask({
-            title: title,
-            category: 'house',
-            houseCategory: categoryType,
-            scheduledAt: new Date().toISOString(),
-            periodType: 'day',
-            recurrence: selectedDays,
-            period: period,
-            description: notes
-        });
-        setTitle('');
-        setNotes('');
-        setPeriod(null);
-        setSelectedDays([]);
-        setIsAdding(false);
+    const handleAdd = async () => {
+        if (!title.trim() || isSaving) return;
+
+        setIsSaving(true);
+        try {
+            await addTask({
+                title: title,
+                category: 'house',
+                houseCategory: categoryType,
+                scheduledAt: new Date().toISOString(),
+                periodType: 'day',
+                recurrence: selectedDays,
+                period: period,
+                description: notes
+            });
+            setTitle('');
+            setNotes('');
+            setPeriod(null);
+            setSelectedDays([]);
+            setIsAdding(false);
+        } catch (error) {
+            console.error("House save error:", error);
+            alert("Erro ao salvar tarefa da casa. Verifique sua conexão.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const toggleDaySelection = (dayId) => {
@@ -181,10 +191,18 @@ const HouseView = () => {
 
                     <button
                         onClick={handleAdd}
+                        disabled={isSaving || !title.trim()}
                         className="btn btn-primary"
-                        style={{ width: '100%', padding: '16px', borderRadius: '14px', backgroundColor: '#F59E0B', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)' }}
+                        style={{
+                            width: '100%',
+                            padding: '16px',
+                            borderRadius: '14px',
+                            backgroundColor: isSaving ? 'var(--text-tertiary)' : '#F59E0B',
+                            boxShadow: isSaving ? 'none' : '0 4px 12px rgba(245, 158, 11, 0.2)',
+                            cursor: isSaving ? 'not-allowed' : 'pointer'
+                        }}
                     >
-                        Agendar Tarefa
+                        {isSaving ? 'Salvando...' : 'Agendar Tarefa'}
                     </button>
                 </div>
             )}

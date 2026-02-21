@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
 import RomanticStory from '../components/romantic/RomanticStory';
-import { User, LogOut, Moon, Sun, Trash2, Heart, Shield, Settings } from 'lucide-react';
+import { User, LogOut, Moon, Sun, Trash2, Heart, Shield, Settings, ArrowRight } from 'lucide-react';
 import cassioImg from '../assets/cassio.jpeg';
 import deboraImg from '../assets/debora.jpeg';
 

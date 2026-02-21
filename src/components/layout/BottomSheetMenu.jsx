@@ -1,7 +1,7 @@
 import React from 'react';
 import useAppStore from '../../store/useAppStore';
 import {
-    X, LayoutGrid, CheckSquare, Home, Utensils,
+    Dumbbell, X, LayoutGrid, CheckSquare, Home, Utensils,
     ShoppingCart, BookOpen, Plane, Settings, LogOut,
     Briefcase, Heart, Shield, DollarSign
 } from 'lucide-react';
@@ -14,6 +14,7 @@ const BottomSheetMenu = () => {
     const menuItems = [
         { id: 'home', label: 'Dashboard', icon: LayoutGrid, color: '#6366F1' },
         { id: 'tasks', label: 'Tarefas', icon: CheckSquare, color: '#10B981' },
+        { id: 'workouts', label: 'Treino', icon: Dumbbell, color: '#FF2D55' },
         { id: 'house', label: 'Casa', icon: Home, color: '#F59E0B' },
         { id: 'nutrition', label: 'Nutrição', icon: Utensils, color: '#EC4899' },
         { id: 'shopping', label: 'Compras', icon: ShoppingCart, color: '#3B82F6' },
