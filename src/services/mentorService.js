@@ -37,10 +37,10 @@ Nunca quebre o formato.
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
-export const fetchMentorAdvice = async (userType) => {
+export const fetchMentorAdvice = async (userType, userQuestion = null) => {
     const store = useAppStore.getState();
     const userData = store.userData || {};
-    const tasks = store.tasks || []; // Correctly accessing top-level tasks
+    const tasks = store.tasks || [];
 
     // Filter tasks for today
     const now = new Date();
@@ -68,34 +68,35 @@ export const fetchMentorAdvice = async (userType) => {
 
     const goalsList = goals.map(g => g.title).join(", ");
 
-    let userPrompt = "";
-    let systemPrompt = "";
+    let promptContent = "";
+    let systemPrompt = userType === 'cassio' ? CASSIO_SYSTEM_PROMPT : DEBORA_SYSTEM_PROMPT;
 
-    if (userType === 'cassio') {
-        systemPrompt = CASSIO_SYSTEM_PROMPT;
-        userPrompt = `
-        Perfil: Cássio (TDAH, falta organização, quer empreender)
+    if (userQuestion) {
+        promptContent = `
+        O USUÁRIO ESTÁ FALANDO COM VOCÊ AGORA.
+        PERGUNTA DO USUÁRIO: "${userQuestion}"
+        
+        Contexto do Usuário: ${userType === 'cassio' ? 'Cássio (TDAH, empreendedor)' : 'Débora (Autismo sup 2, TDAH, Ellos)'}
         Dados do dia: ${todayData}
         Metas atuais: ${goalsList}
-        Avalie:
-        1. Alinhamento com sonho de empresa.
-        2. Sabotagem?
-        3. Avanço real?
-        4. Micro-ajuste amanhã.
-        5. Observação relacionamento/disciplina.
-        Return ONLY valid JSON.
+        
+        INSTRUÇÃO: Responda a pergunta do usuário considerando o contexto acima. 
+        Seja direto, disciplinador e estratégico.
+        
+        IMPORTANTE: Responda no campo "chatResponse" do JSON. 
+        Mantenha os outros campos do relatório vazios ou com resumos breves.
         `;
     } else {
-        systemPrompt = DEBORA_SYSTEM_PROMPT;
-        userPrompt = `
-        Perfil: Débora (Autismo sup 2, TDAH, quer Ellos, estabilidade)
+        promptContent = `
+        AVALIAÇÃO DIÁRIA PADRÃO.
+        Contexto do Usuário: ${userType === 'cassio' ? 'Cássio (TDAH, falta organização, quer empreender)' : 'Débora (Autismo sup 2, TDAH, quer Ellos)'}
         Dados do dia: ${todayData}
         Metas atuais: ${goalsList}
         Avalie:
-        1. Alinhamento Ellos.
-        2. Estabilidade emocional.
-        3. Regularidade.
-        4. Neurociência/Visualização.
+        1. Alinhamento com metas.
+        2. Sabotagem/Regularidade.
+        3. Avanço real.
+        4. Micro-ajuste.
         Return ONLY valid JSON.
         `;
     }
@@ -111,16 +112,14 @@ export const fetchMentorAdvice = async (userType) => {
                 model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt }
+                    { role: "user", content: promptContent }
                 ],
                 temperature: 0.7,
                 response_format: { type: "json_object" }
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Erro Groq API: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Erro Groq API: ${response.status}`);
 
         const data = await response.json();
         const content = JSON.parse(data.choices[0].message.content);
@@ -132,9 +131,10 @@ export const fetchMentorAdvice = async (userType) => {
             alinhamentoSonho: 0,
             analiseComportamental: "O Mentor está processando novos dados.",
             fraseMentor: "Continue focado no seu propósito hoje.",
+            chatResponse: "Desculpe, tive um problema na conexão, mas sigo acompanhando seus dados.",
             ajusteImediato: "Mantenha a rotina planejada.",
             acaoMinimaAmanha: "Revisar metas ao acordar.",
-            explicacaoNeurocientifica: "Estabilidade pré-frontal necessária.",
+            explicacaoNeurocientifica: "Estabilidade necessária.",
             visualizacaoGuiada: "Respire e visualize o sucesso.",
             fraseProsperidade: "A abundância flui através da disciplina."
         };
