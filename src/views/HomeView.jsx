@@ -95,12 +95,17 @@ const SimpleTaskList = () => {
 
     const getCategoryBadge = (category) => {
         switch (category) {
-            case 'nutrition': return { label: 'Nutrição', color: '#FF2D55', icon: <Plus size={10} /> };
-            case 'studies': return { label: 'Estudos', color: '#5856D6', icon: <Plus size={10} /> };
-            case 'work': return { label: 'Trabalho', color: '#FF9500', icon: <Plus size={10} /> };
-            case 'projects': return { label: 'Projeto', color: '#34C759', icon: <Plus size={10} /> };
-            case 'house': return { label: 'Casa', color: '#AF52DE', icon: <Plus size={10} /> };
-            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93', icon: <Plus size={10} /> };
+            case 'nutrition': return { label: 'Nutrição', color: '#FF2D55' };
+            case 'studies': return { label: 'Estudos', color: '#5856D6' };
+            case 'work': return { label: 'Trabalho', color: '#FF9500' };
+            case 'projects': return { label: 'Projeto', color: '#34C759' };
+            case 'house': return { label: 'Casa', color: '#AF52DE' };
+            case 'travel': return { label: 'Viagem', color: '#007AFF' };
+            case 'finance': return { label: 'Finanças', color: '#34C759' };
+            case 'relationship': return { label: 'Nós', color: '#FF2D78' };
+            case 'restrictions': return { label: 'Foco', color: '#8E8E93' };
+            case 'workouts': return { label: 'Treino', color: '#FF2D55' };
+            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93' };
         }
     };
 
