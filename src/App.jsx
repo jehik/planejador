@@ -16,9 +16,10 @@ import HouseView from './views/HouseView';
 import ShoppingView from './views/ShoppingView';
 import StudiesView from './views/StudiesView';
 import TravelView from './views/TravelView';
-import SessionResumeView from './views/SessionResumeView';
 import RelationshipView from './views/RelationshipView';
 import ProjectsView from './views/ProjectsView';
+import RestrictionsView from './views/RestrictionsView';
+import SessionResumeView from './views/SessionResumeView';
 
 const App = () => {
   const { activeTab, currentUser, isHydrated, initializeAuth, sessionConfirmed } = useAppStore();
@@ -100,6 +101,7 @@ const App = () => {
       case 'finance': return <FinanceView />;
       case 'relationship': return <RelationshipView />;
       case 'projects': return <ProjectsView />;
+      case 'restrictions': return <RestrictionsView />;
       default: return <HomeView />;
     }
   };

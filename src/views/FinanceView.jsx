@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, PiggyBank, Plus, Trash2 } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, PiggyBank, Plus, Trash2, X } from 'lucide-react';
 import useAppStore from '../store/useAppStore';
 
 const FinanceView = () => {

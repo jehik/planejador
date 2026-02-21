@@ -101,6 +101,21 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
         `;
     }
 
+    if (!GROQ_API_KEY) {
+        console.warn("Mentor Service: VITE_GROQ_API_KEY não encontrada. Verifique as variáveis de ambiente.");
+        return {
+            alinhamentoSonho: 0,
+            analiseComportamental: "O Mentor está offline (Chave de API ausente).",
+            fraseMentor: "Configure as chaves de API para receber orientações personalizadas.",
+            chatResponse: "A chave da Groq API não foi configurada no ambiente de produção (Vercel). Adicione VITE_GROQ_API_KEY para ativar o chat.",
+            ajusteImediato: "Configurar variáveis de ambiente.",
+            acaoMinimaAmanha: "Revisar docs do sistema.",
+            explicacaoNeurocientifica: "Falta de conexão sináptica digital.",
+            visualizacaoGuiada: "Imagine o fluxo de dados sendo restaurado.",
+            fraseProsperidade: "A organização das ferramentas é o primeiro passo para o sucesso."
+        };
+    }
+
     try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -119,7 +134,10 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
             })
         });
 
-        if (!response.ok) throw new Error(`Erro Groq API: ${response.status}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Erro Groq API: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
 
         const data = await response.json();
         const content = JSON.parse(data.choices[0].message.content);
@@ -129,14 +147,14 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
         console.error("Mentor Service Error:", error);
         return {
             alinhamentoSonho: 0,
-            analiseComportamental: "O Mentor está processando novos dados.",
-            fraseMentor: "Continue focado no seu propósito hoje.",
-            chatResponse: "Desculpe, tive um problema na conexão, mas sigo acompanhando seus dados.",
-            ajusteImediato: "Mantenha a rotina planejada.",
-            acaoMinimaAmanha: "Revisar metas ao acordar.",
-            explicacaoNeurocientifica: "Estabilidade necessária.",
-            visualizacaoGuiada: "Respire e visualize o sucesso.",
-            fraseProsperidade: "A abundância flui através da disciplina."
+            analiseComportamental: "Ocorreu um erro na ponte com a IA.",
+            fraseMentor: "Siga o planejamento básico enquanto restabelecemos a conexão.",
+            chatResponse: "Tive um problema técnico ao acessar o cérebro da IA. Verifique se o limite da chave foi atingido ou se há erro de rede.",
+            ajusteImediato: "Verificar logs do console.",
+            acaoMinimaAmanha: "Tentar novamente mais tarde.",
+            explicacaoNeurocientifica: "Ruído no sinal de entrada.",
+            visualizacaoGuiada: "Respire e mantenha o foco.",
+            fraseProsperidade: "Obstáculos técnicos são temporários."
         };
     }
 };

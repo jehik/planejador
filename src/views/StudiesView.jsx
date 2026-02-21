@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, Sun, Sunset, Moon, AlignLeft } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight, Trash2, CheckCircle, Sun, Sunset, Moon, AlignLeft, X } from 'lucide-react';
 
 const StudiesView = () => {
     const { userData, addStudy, deleteStudy, addTask, tasks, toggleTask, deleteTask } = useAppStore();

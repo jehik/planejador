@@ -46,7 +46,8 @@ const initialUserData = {
   travel: [], // [{ id, destination, date, flight, hotel, notes, packingList: [] }]
   studies: [], // [{ id, title, color }]
   checklists: {}, // Generic checklists if needed
-  romanticStoryViewed: false
+  romanticStoryViewed: false,
+  restrictions: [] // [{ id, type, days, completedDays, strategy, status, createdAt }]
 };
 
 const useAppStore = create(persist((set, get) => ({
@@ -553,6 +554,26 @@ const useAppStore = create(persist((set, get) => ({
   removeDateIdea: (id) => get().setUserData(data => ({
     ...data,
     dateIdeas: (data.dateIdeas || []).filter(i => i.id !== id)
+  })),
+
+  // --- Restrictions Actions ---
+  addRestriction: (restriction) => get().setUserData(data => ({
+    ...data,
+    restrictions: [...(data.restrictions || []), {
+      ...restriction,
+      id: Date.now().toString(),
+      completedDays: 0,
+      status: 'active',
+      createdAt: new Date().toISOString()
+    }]
+  })),
+  updateRestriction: (id, updates) => get().setUserData(data => ({
+    ...data,
+    restrictions: (data.restrictions || []).map(r => r.id === id ? { ...r, ...updates } : r)
+  })),
+  removeRestriction: (id) => get().setUserData(data => ({
+    ...data,
+    restrictions: (data.restrictions || []).filter(r => r.id !== id)
   })),
 
 }), {

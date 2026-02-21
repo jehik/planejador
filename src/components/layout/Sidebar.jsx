@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   X, Home, CheckSquare, Home as HomeIcon, BookOpen,
-  Plane, DollarSign, Briefcase, Coffee, Dumbbell, Heart, User, LogOut
+  Plane, DollarSign, Briefcase, Coffee, Dumbbell, Heart, User, LogOut, Shield
 } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 
@@ -19,6 +19,7 @@ const Sidebar = () => {
     { id: 'nutrition', label: 'Nutrição', icon: Coffee },
     { id: 'workouts', label: 'Treino', icon: Dumbbell },
     { id: 'relationship', label: 'Relacionamento', icon: Heart }, // New
+    { id: 'restrictions', label: 'Restrições', icon: Shield },
     { id: 'profile', label: 'Perfil', icon: User },
   ];
 

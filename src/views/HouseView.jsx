@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Home, Plus, CheckCircle, Trash2, Filter, Sun, Sunset, Moon, AlignLeft } from 'lucide-react';
+import { Home, Plus, CheckCircle, Trash2, Filter, Sun, Sunset, Moon, AlignLeft, X } from 'lucide-react';
 
 const HouseView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();

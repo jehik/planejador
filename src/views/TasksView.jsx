@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
+import { X, Plus, Trash2, CheckCircle2, Sun, Sunset, Moon } from 'lucide-react';
 
 const TasksView = () => {
     const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
