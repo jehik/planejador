@@ -34,6 +34,15 @@ const initialUserData = {
   nutrition: {
     water: 0,
     lastResetDate: null,
+    plan: {
+      breakfast: '',
+      lunch: '',
+      snack: '',
+      dinner: '',
+      preWorkout: '',
+      postWorkout: '',
+      hasWorkoutMeals: false
+    }
   },
   finance: {
     income: 0,
