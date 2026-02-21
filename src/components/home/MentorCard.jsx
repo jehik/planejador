@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useAppStore from '../../store/useAppStore';
 import { fetchMentorAdvice } from '../../services/mentorService';
-import { Sparkles, ArrowRight, Loader2, Quote } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 
 const neuroMessages = [
     "Seu cérebro não distingue realidade de imaginação vívida. Visualize agora com detalhes.",
@@ -174,21 +174,6 @@ const MentorCard = () => {
                     </div>
                 </div>
 
-                {/* Main Insight Card */}
-                <div style={{
-                    backgroundColor: 'rgba(255,255,255,0.4)',
-                    backdropFilter: 'blur(10px)',
-                    padding: '20px',
-                    borderRadius: '20px',
-                    border: '1px solid rgba(255,255,255,0.5)',
-                    marginBottom: '20px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
-                }}>
-                    <Quote size={18} style={{ color: accentColor, opacity: 0.3, marginBottom: '8px' }} />
-                    <p style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.4', fontStyle: 'italic' }}>
-                        "{advice.fraseMentor}"
-                    </p>
-                </div>
 
                 {/* Chat Response Area */}
                 <div className="fade-in" style={{

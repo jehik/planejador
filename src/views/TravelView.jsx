@@ -185,54 +185,66 @@ const TravelView = () => {
 
             {/* Travel Form Modal (Add/Edit) */}
             {isModalOpen && (
-                <div className="fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '440px', padding: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-                        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-                            <div style={{ width: '64px', height: '64px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--text-primary)' }}>
-                                <Briefcase size={28} />
+                <div className="fade-in" style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                    zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <div className="card" style={{
+                        width: '100%', maxWidth: '440px',
+                        padding: '24px', // Reduced from 32px
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        maxHeight: '90vh', // Added limit
+                        overflowY: 'auto', // Added scroll
+                        position: 'relative'
+                    }}>
+                        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                            <div style={{ width: '56px', height: '56px', borderRadius: '18px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: 'var(--text-primary)' }}>
+                                <Briefcase size={24} />
                             </div>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>{editingTripId ? 'Editar Viagem' : 'Planejar Viagem'}</h3>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Defina o destino e detalhes da sua próxima aventura.</p>
+                            <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '6px' }}>{editingTripId ? 'Editar Viagem' : 'Planejar Viagem'}</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Defina o destino e detalhes da sua próxima aventura.</p>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '8px', paddingLeft: '4px' }}>Destino dos Sonhos</label>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px', paddingLeft: '4px' }}>Destino dos Sonhos</label>
                                 <input
                                     value={destination} onChange={e => setDestination(e.target.value)}
-                                    style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '600', outline: 'none' }}
+                                    style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '600', outline: 'none' }}
                                     placeholder="Ex: Paris, Tóquio, Dubai..."
                                     required
                                     autoFocus
                                 />
                             </div>
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '8px', paddingLeft: '4px' }}>Quando?</label>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px', paddingLeft: '4px' }}>Quando?</label>
                                 <input
                                     type="date" value={date} onChange={e => setDate(e.target.value)}
-                                    style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: '600', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: '600', outline: 'none' }}
                                 />
                             </div>
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '8px', paddingLeft: '4px' }}>Orçamento (R$)</label>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px', paddingLeft: '4px' }}>Orçamento (R$)</label>
                                 <input
                                     type="number" value={budget} onChange={e => setBudget(e.target.value)}
-                                    style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: '600', outline: 'none' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: '600', outline: 'none' }}
                                     placeholder="0,00"
                                 />
                             </div>
                             {!editingTripId && (
-                                <div style={{ marginBottom: '32px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '8px', paddingLeft: '4px' }}>Lista de Compras (separada por vírgula)</label>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px', paddingLeft: '4px' }}>Lista de Compras (separada por vírgula)</label>
                                     <textarea
                                         value={shoppingListInput} onChange={e => setShoppingListInput(e.target.value)}
-                                        style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '80px', resize: 'none', fontSize: '0.95rem', outline: 'none', fontFamily: 'inherit' }}
+                                        style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)', minHeight: '80px', resize: 'none', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit' }}
                                         placeholder="Protetor solar, passagens, hotel..."
                                     />
                                 </div>
                             )}
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
                                 <button type="button" onClick={handleCloseModal} style={{ flex: 1, padding: '14px', borderRadius: '14px', border: 'none', background: 'rgba(0,0,0,0.05)', color: 'var(--text-primary)', fontWeight: '700', cursor: 'pointer' }}>Cancelar</button>
-                                <button type="submit" style={{ flex: 1, padding: '14px', borderRadius: '14px', border: 'none', background: 'var(--text-primary)', color: 'white', fontWeight: '700', cursor: 'pointer' }}>Salvar</button>
+                                <button type="submit" style={{ flex: 1, padding: '14px', borderRadius: '14px', border: 'none', background: 'var(--text-primary)', color: 'white', fontWeight: '700', cursor: 'pointer' }}>Salvar Viagem</button>
                             </div>
                         </form>
                     </div>
