@@ -52,7 +52,7 @@ const StudiesView = () => {
             periodType: 'day',
             period: period,
             description: notes,
-            days: selectedDays
+            recurrence: selectedDays
         });
         setNewActivity('');
         setNotes('');
@@ -319,9 +319,9 @@ const StudiesView = () => {
                                                         <taskPeriod.icon size={10} /> {taskPeriod.label}
                                                     </span>
                                                 )}
-                                                {task.days && task.days.length > 0 && (
+                                                {task.recurrence && task.recurrence.length > 0 && (
                                                     <div style={{ display: 'flex', gap: '4px' }}>
-                                                        {task.days.map(d => (
+                                                        {task.recurrence.map(d => (
                                                             <span key={d} style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-tertiary)' }}>
                                                                 {daysOfWeek.find(dw => dw.id === d)?.label.charAt(0)}
                                                             </span>

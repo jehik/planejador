@@ -3,7 +3,7 @@ import useAppStore from '../store/useAppStore';
 import { X, Plus, Trash2, CheckCircle2, Sun, Sunset, Moon, Calendar as CalendarIcon } from 'lucide-react';
 
 const TasksView = () => {
-    const { tasks, addTask, toggleTask, deleteTask } = useAppStore();
+    const { tasks, addTask, toggleTask, deleteTask, userData, toggleWorkout } = useAppStore();
 
     const todayStr = new Date().toLocaleDateString('en-CA'); // yyyy-mm-dd local
 
@@ -54,10 +54,48 @@ const TasksView = () => {
         setMemoDate(newDate);
     };
 
-    const filteredTasks = tasks.sort((a, b) => {
-        if (a.completed !== b.completed) return a.completed - b.completed;
-        return new Date(a.scheduledAt) - new Date(b.scheduledAt);
-    });
+    const filteredTasks = React.useMemo(() => {
+        const now = new Date();
+        const todayYMD = todayStr;
+        const dayNamesEN = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const dayNamesPT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const currentDayEN = dayNamesEN[now.getDay()];
+        const currentDayPT = dayNamesPT[now.getDay()];
+
+        // 1. Filtrar tarefas normais e recorrentes
+        const normalTasks = tasks.filter(t => {
+            // Se for específica de hoje
+            if (t.scheduledAt) {
+                const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+                const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                if (taskYMD === todayYMD) return true;
+            }
+
+            // Se for recorrente para hoje
+            if (t.recurrence && t.recurrence.includes(currentDayEN)) return true;
+
+            return false;
+        });
+
+        // 2. Incluir treinos
+        const workoutTasks = (userData?.workouts || [])
+            .filter(w => w.days?.includes(currentDayPT))
+            .map(w => ({
+                id: w.id,
+                title: w.title,
+                category: 'workouts',
+                isWorkout: true,
+                completed: w.lastCompleted === todayYMD,
+                scheduledAt: new Date().toISOString()
+            }));
+
+        const combined = [...normalTasks, ...workoutTasks];
+
+        return combined.sort((a, b) => {
+            if (a.completed !== b.completed) return a.completed - b.completed;
+            return new Date(a.scheduledAt) - new Date(b.scheduledAt);
+        });
+    }, [tasks, userData?.workouts, todayStr]);
 
     const getCategoryBadge = (category) => {
         switch (category) {
@@ -71,6 +109,7 @@ const TasksView = () => {
             case 'relationship': return { label: 'Nós', color: '#FF2D78' };
             case 'restrictions': return { label: 'Foco', color: '#8E8E93' };
             case 'workouts': return { label: 'Treino', color: '#FF2D55' };
+            case 'shopping': case 'compras': return { label: 'Mercado', color: '#34C759' };
             case 'personal': default: return { label: 'Tarefa', color: '#8E8E93' };
         }
     };
@@ -79,6 +118,16 @@ const TasksView = () => {
         { id: 'morning', label: 'Manhã', icon: Sun, color: '#FF9500' }, // Orange
         { id: 'afternoon', label: 'Tarde', icon: Sunset, color: '#FF2D55' }, // Pink/Red
         { id: 'night', label: 'Noite', icon: Moon, color: '#5856D6' } // Indigo
+    ];
+
+    const daysOfWeek = [
+        { id: 'sun', label: 'Dom' },
+        { id: 'mon', label: 'Seg' },
+        { id: 'tue', label: 'Ter' },
+        { id: 'wed', label: 'Qua' },
+        { id: 'thu', label: 'Qui' },
+        { id: 'fri', label: 'Sex' },
+        { id: 'sat', label: 'Sáb' }
     ];
 
     return (
@@ -213,6 +262,7 @@ const TasksView = () => {
                         const taskPeriod = periods.find(p => p.id === task.period);
                         const taskDate = new Date(task.scheduledAt);
                         const isTaskToday = taskDate.toLocaleDateString('en-CA') === todayStr;
+                        const badge = getCategoryBadge(task.category);
 
                         return (
                             <div key={task.id}
@@ -226,7 +276,7 @@ const TasksView = () => {
                                     borderColor: task.completed ? 'transparent' : 'rgba(0,0,0,0.03)'
                                 }}>
                                 <button
-                                    onClick={() => toggleTask(task.id, task.completed)}
+                                    onClick={() => task.isWorkout ? toggleWorkout(task.id) : toggleTask(task.id, task.completed)}
                                     style={{
                                         width: '26px', height: '26px',
                                         borderRadius: '50%',
@@ -254,8 +304,8 @@ const TasksView = () => {
                                         </span>
                                         <span style={{
                                             fontSize: '0.6rem',
-                                            color: getCategoryBadge(task.category).color,
-                                            backgroundColor: `${getCategoryBadge(task.category).color}15`,
+                                            color: badge.color,
+                                            backgroundColor: `${badge.color}15`,
                                             padding: '2px 8px',
                                             borderRadius: '6px',
                                             fontWeight: '800',
@@ -263,7 +313,7 @@ const TasksView = () => {
                                             letterSpacing: '0.05em',
                                             flexShrink: 0
                                         }}>
-                                            {getCategoryBadge(task.category).label}
+                                            {badge.label}
                                         </span>
                                     </div>
 
@@ -282,6 +332,16 @@ const TasksView = () => {
                                             }}>
                                                 <taskPeriod.icon size={10} strokeWidth={3} /> {taskPeriod.label}
                                             </span>
+                                        )}
+
+                                        {task.recurrence && task.recurrence.length > 0 && (
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                {task.recurrence.map(d => (
+                                                    <span key={d} style={{ fontSize: '0.6rem', fontWeight: '900', color: 'var(--text-tertiary)', backgroundColor: 'rgba(0,0,0,0.03)', padding: '2px 4px', borderRadius: '4px' }}>
+                                                        {daysOfWeek.find(day => day.id === d)?.label.charAt(0)}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
 

@@ -73,7 +73,7 @@ const HomeView = () => {
 
 // Sub-component for tasks to keep HomeView clean
 const SimpleTaskList = () => {
-    const { tasks, toggleTask, addTask, setActiveTab } = useAppStore();
+    const { tasks, toggleTask, addTask, setActiveTab, userData, toggleWorkout } = useAppStore();
     const [newTaskTitle, setNewTaskTitle] = React.useState('');
 
     const todayDate = new Date();
@@ -84,14 +84,41 @@ const SimpleTaskList = () => {
     const todayTasks = React.useMemo(() => {
         const now = new Date();
         const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const dayNamesEN = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const dayNamesPT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const currentDayEN = dayNamesEN[now.getDay()];
+        const currentDayPT = dayNamesPT[now.getDay()];
 
-        return tasks.filter(t => {
-            if (!t.scheduledAt) return false;
-            const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
-            const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            return taskYMD === todayYMD && !t.completed;
+        // 1. Filtrar tarefas normais e recorrentes
+        const normalTasks = tasks.filter(t => {
+            if (t.completed) return false;
+
+            // Checar data específica
+            if (t.scheduledAt) {
+                const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
+                const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                if (taskYMD === todayYMD) return true;
+            }
+
+            // Checar recorrência
+            if (t.recurrence && t.recurrence.includes(currentDayEN)) return true;
+
+            return false;
         });
-    }, [tasks]);
+
+        // 2. Incluir treinos se houver
+        const workoutTasks = (userData?.workouts || [])
+            .filter(w => w.days?.includes(currentDayPT) && w.lastCompleted !== todayYMD)
+            .map(w => ({
+                id: w.id,
+                title: w.title,
+                category: 'workouts',
+                isWorkout: true,
+                completed: false
+            }));
+
+        return [...normalTasks, ...workoutTasks];
+    }, [tasks, userData?.workouts]);
 
     const getCategoryBadge = (category) => {
         switch (category) {
@@ -105,6 +132,7 @@ const SimpleTaskList = () => {
             case 'relationship': return { label: 'Nós', color: '#FF2D78', tab: 'relationship' };
             case 'restrictions': return { label: 'Foco', color: '#8E8E93', tab: 'restrictions' };
             case 'workouts': return { label: 'Treino', color: '#FF2D55', tab: 'workouts' };
+            case 'shopping': case 'compras': return { label: 'Mercado', color: '#34C759', tab: 'shopping' };
             case 'personal': default: return { label: 'Tarefa', color: '#8E8E93', tab: 'tasks' };
         }
     };
@@ -143,7 +171,7 @@ const SimpleTaskList = () => {
                         const badge = getCategoryBadge(task.category);
                         return (
                             <div key={task.id}
-                                onClick={() => toggleTask(task.id, task.completed)}
+                                onClick={() => task.isWorkout ? toggleWorkout(task.id) : toggleTask(task.id, task.completed)}
                                 className="fade-in"
                                 style={{
                                     display: 'flex',
