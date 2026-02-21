@@ -23,7 +23,6 @@ const HouseView = () => {
 
     const categories = [
         { id: 'cleaning', label: 'Limpeza', color: '#10B981', bg: 'rgba(16, 185, 129, 0.08)' },
-        { id: 'shopping', label: 'Compras', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.08)' },
         { id: 'organization', label: 'Organização', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.08)' }
     ];
 
@@ -267,6 +266,29 @@ const HouseView = () => {
                                                 </span>
                                             )}
                                         </div>
+
+                                        {/* Exibição dos dias de recorrência */}
+                                        {task.recurrence && task.recurrence.length > 0 && (
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
+                                                {task.recurrence.map(dayId => {
+                                                    const day = daysOfWeek.find(d => d.id === dayId);
+                                                    return (
+                                                        <span key={dayId} style={{
+                                                            fontSize: '0.6rem',
+                                                            fontWeight: '800',
+                                                            backgroundColor: 'rgba(0,0,0,0.05)',
+                                                            padding: '2px 6px',
+                                                            borderRadius: '6px',
+                                                            color: 'var(--text-secondary)',
+                                                            textTransform: 'uppercase'
+                                                        }}>
+                                                            {day?.label}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
                                         {task.description && (
                                             <p style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                                                 {task.description}
