@@ -100,24 +100,34 @@ const MentorCard = () => {
                 </div>
 
                 {/* Chat Response Area */}
-                {advice.chatResponse && (
-                    <div className="fade-in" style={{
-                        backgroundColor: `${accentColor}10`,
-                        padding: '16px',
-                        borderRadius: '16px',
-                        border: `1px solid ${accentColor}20`,
-                        marginBottom: '20px',
-                        animation: 'slideUp 0.4s ease-out'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: accentColor }}></div>
-                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Resposta do Mentor</span>
-                        </div>
-                        <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.4' }}>
-                            {advice.chatResponse}
+                <div className="fade-in" style={{
+                    backgroundColor: advice.chatResponse ? `${accentColor}10` : 'rgba(0,0,0,0.02)',
+                    padding: '16px',
+                    borderRadius: '16px',
+                    border: advice.chatResponse ? `1px solid ${accentColor}20` : '1px dashed var(--border-color)',
+                    marginBottom: '20px',
+                    animation: 'slideUp 0.4s ease-out',
+                    minHeight: '80px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                }}>
+                    {advice.chatResponse ? (
+                        <>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: accentColor }}></div>
+                                <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Resposta do Mentor</span>
+                            </div>
+                            <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: '1.4' }}>
+                                {advice.chatResponse}
+                            </p>
+                        </>
+                    ) : (
+                        <p style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-tertiary)', lineHeight: '1.4', textAlign: 'center', fontStyle: 'italic' }}>
+                            Fale com o Psicólogo AI, ele te responderá nesse campo...
                         </p>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {/* Grid for details */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
