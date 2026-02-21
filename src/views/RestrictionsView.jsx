@@ -80,7 +80,7 @@ const RestrictionsView = () => {
     };
 
     return (
-        <div className="view-container fade-in" style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="view-container fade-in" style={{ padding: '100px 24px 120px 24px', maxWidth: '800px', margin: '0 auto' }}>
 
             {/* Header com Frase Inteligente */}
             <header style={{ marginBottom: '40px', textAlign: 'center' }}>

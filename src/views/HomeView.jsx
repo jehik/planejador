@@ -10,7 +10,7 @@ const HomeView = () => {
     return (
         <div className="fade-in" style={{
             paddingBottom: '120px',
-            paddingTop: '100px',
+            paddingTop: '80px',
             paddingLeft: '24px',
             paddingRight: '24px'
         }}>

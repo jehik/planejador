@@ -188,7 +188,7 @@ const GoalsView = () => {
     };
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: '100px' }}>
             <div style={{ marginBottom: '32px' }}>
                 <h2 className="text-xl">Grandes Metas</h2>
                 <p className="text-sm text-secondary">A jornada para o sucesso começa com um plano</p>

@@ -52,7 +52,7 @@ const TasksView = () => {
     ];
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: '100px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h2 className="text-xl">Tarefas</h2>

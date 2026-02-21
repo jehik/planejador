@@ -32,7 +32,7 @@ const ProfileView = () => {
     };
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: '100px' }}>
             <div style={{ marginBottom: '32px' }}>
                 <h2 className="text-xl">Perfil</h2>
                 <p className="text-sm text-secondary">Ajustes e personalização</p>
