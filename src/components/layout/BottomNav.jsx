@@ -16,18 +16,17 @@ const BottomNav = () => {
         <div className="bottom-nav glass" style={{
             position: 'fixed',
             bottom: 0,
-            left: 0,
-            right: 0,
-            width: '100vw',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            maxWidth: '1200px', // Alinhado com o app-container
             display: 'flex',
             justifyContent: 'space-around',
             paddingTop: '10px',
             paddingBottom: 'calc(10px + var(--safe-area-bottom))',
-            zIndex: 9999, // Aumentado para garantir prioridade total
-            borderTop: 'none',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
-            transform: 'translateZ(999px)', // Força a renderização em camada isolada e estável no mobile
-            backfaceVisibility: 'hidden'
+            zIndex: 9999,
+            borderTop: '1px solid var(--border-color)', // Ancoragem visual
+            boxShadow: '0 -4px 12px rgba(0,0,0,0.03)',
         }}>
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;
