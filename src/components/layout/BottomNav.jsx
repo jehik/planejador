@@ -13,19 +13,18 @@ const BottomNav = () => {
     ];
 
     return (
-        <div style={{
+        <div className="bottom-nav glass" style={{
             position: 'fixed',
             bottom: 0,
             left: 0,
             width: '100%',
-            backgroundColor: 'var(--bg-color)',
-            borderTop: '1px solid var(--border-color)',
             display: 'flex',
             justifyContent: 'space-around',
-            paddingTop: '12px',
-            paddingBottom: 'calc(12px + var(--safe-area-bottom))',
-            zIndex: 1000,
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.03)',
+            paddingTop: '10px',
+            paddingBottom: 'calc(10px + var(--safe-area-bottom))',
+            zIndex: 1100,
+            borderTop: 'none', // handeled by .glass
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
         }}>
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;
@@ -41,15 +40,30 @@ const BottomNav = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            gap: '4px',
-                            color: isActive ? 'var(--primary-color)' : 'var(--text-tertiary)',
+                            gap: '2px',
+                            color: isActive ? 'var(--primary-color)' : '#9BA1A6',
                             cursor: 'pointer',
                             flex: 1,
-                            paddingBottom: '4px'
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: isActive ? 'translateY(-2px)' : 'none'
                         }}
                     >
-                        <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-                        <span style={{ fontSize: '0.7rem', fontWeight: isActive ? '600' : '500' }}>
+                        <div style={{
+                            padding: '6px 16px',
+                            borderRadius: '16px',
+                            backgroundColor: isActive ? 'rgba(0, 122, 255, 0.08)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '2px'
+                        }}>
+                            <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                        </div>
+                        <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: isActive ? '700' : '500',
+                            letterSpacing: '0.01em'
+                        }}>
                             {item.label}
                         </span>
                     </button>

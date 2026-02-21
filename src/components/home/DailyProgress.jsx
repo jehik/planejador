@@ -39,23 +39,25 @@ const DailyProgress = () => {
     const progress = grandTotal === 0 ? 0 : Math.round((grandCompleted / grandTotal) * 100);
 
     return (
-        <div className="fade-in" style={{ marginBottom: 'var(--spacing-lg)' }}>
+        <div className="card" style={{ padding: '24px', marginBottom: 'var(--spacing-lg)', borderColor: 'rgba(0,0,0,0.03)' }}>
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'baseline',
-                marginBottom: 'var(--spacing-sm)'
+                marginBottom: '16px'
             }}>
                 <h3 style={{
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)'
+                    fontSize: '1rem',
+                    fontWeight: '700',
+                    letterSpacing: '-0.02em'
                 }}>
                     Progresso Diário
                 </h3>
                 <span style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--primary-color)'
+                    fontSize: '1.5rem',
+                    fontWeight: '800',
+                    color: 'var(--primary-color)',
+                    letterSpacing: '-0.03em'
                 }}>
                     {progress}%
                 </span>
@@ -64,18 +66,31 @@ const DailyProgress = () => {
             <div style={{
                 width: '100%',
                 height: '8px',
-                backgroundColor: 'var(--border-color)',
-                borderRadius: 'var(--radius-full)',
+                backgroundColor: 'rgba(0,0,0,0.03)',
+                borderRadius: '4px',
                 overflow: 'hidden'
             }}>
                 <div style={{
                     width: `${progress}%`,
                     height: '100%',
                     backgroundColor: 'var(--primary-color)',
-                    borderRadius: 'var(--radius-full)',
-                    transition: 'width 1s ease-in-out'
+                    borderRadius: '4px',
+                    transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }} />
             </div>
+
+            <p style={{
+                marginTop: '12px',
+                fontSize: '0.75rem',
+                color: 'var(--text-secondary)',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+            }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: progress === 100 ? 'var(--success-color)' : 'var(--primary-color)' }} />
+                {progress === 100 ? 'Todas as metas concluídas!' : `${grandCompleted} de ${grandTotal} objetivos finalizados`}
+            </p>
         </div>
     );
 };

@@ -33,24 +33,30 @@ const MotivationalQuote = () => {
     }, []);
 
     return (
-        <div className="quote-container fade-in">
-            <p className="quote-text">"{quote}"</p>
-            <style>{`
-                .quote-container {
-                    padding: var(--spacing-lg);
-                    background: linear-gradient(135deg, rgba(124, 92, 255, 0.05), transparent);
-                    border-radius: var(--radius-lg);
-                    border: 1px solid rgba(124, 92, 255, 0.1);
-                    text-align: center;
-                    margin-bottom: var(--spacing-md);
-                }
-                .quote-text {
-                    font-size: var(--font-size-lg);
-                    font-weight: 500;
-                    font-style: italic;
-                    color: var(--text-secondary);
-                }
-            `}</style>
+        <div className="fade-in" style={{
+            padding: '28px 0 10px 0',
+            textAlign: 'left'
+        }}>
+            <h2 style={{
+                fontSize: '1.75rem',
+                fontWeight: '800',
+                color: 'var(--text-primary)',
+                lineHeight: '1.2',
+                letterSpacing: '-0.04em',
+                marginBottom: '12px',
+                backgroundImage: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+            }}>
+                "{quote}"
+            </h2>
+            <div style={{
+                height: '2px',
+                width: '32px',
+                backgroundColor: 'var(--primary-color)',
+                borderRadius: '1px',
+                opacity: 0.3
+            }} />
         </div>
     );
 };

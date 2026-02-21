@@ -3,66 +3,70 @@ import { ChevronRight } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 
 const GoalCard = ({ goal }) => {
-    // New logic: count steps if they exist, else fallback or 0
     const totalSteps = goal.steps?.length || 0;
     const completedSteps = goal.steps?.filter(s => s.completed).length || 0;
 
-    // If no steps, assume 0% unless manual progress exists (legacy)
     const percentage = totalSteps > 0
         ? Math.round((completedSteps / totalSteps) * 100)
         : (goal.target ? Math.round((goal.progress / goal.target) * 100) : 0);
 
     return (
-        <div style={{
-            backgroundColor: 'var(--surface-color)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--spacing-md)',
-            marginBottom: 'var(--spacing-sm)',
-            border: '1px solid var(--border-color)',
+        <div className="card" style={{
+            padding: '16px',
+            marginBottom: '10px',
             display: 'flex',
             alignItems: 'center',
-            gap: 'var(--spacing-md)'
+            gap: '16px',
+            borderColor: 'rgba(0,0,0,0.03)',
+            cursor: 'pointer'
         }}>
             <div style={{
                 width: '40px',
                 height: '40px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--primary-soft)',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(0, 122, 255, 0.08)',
                 color: 'var(--primary-color)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase'
+                fontSize: '0.7rem',
+                fontWeight: '800',
+                textTransform: 'uppercase',
+                letterSpacing: '0.02em'
             }}>
                 {(goal.type || 'Geral').substring(0, 3)}
             </div>
 
             <div style={{ flex: 1 }}>
                 <h4 style={{
-                    fontSize: 'var(--font-size-base)',
-                    fontWeight: 'var(--font-weight-medium)',
-                    marginBottom: '4px'
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    marginBottom: '6px',
+                    letterSpacing: '-0.02em'
                 }}>
                     {goal.title}
                 </h4>
                 <div style={{
                     width: '100%',
                     height: '4px',
-                    backgroundColor: 'var(--border-color)',
-                    borderRadius: 'var(--radius-full)'
+                    backgroundColor: 'rgba(0,0,0,0.03)',
+                    borderRadius: '2px',
+                    overflow: 'hidden'
                 }}>
                     <div style={{
                         width: `${percentage}%`,
                         height: '100%',
                         backgroundColor: 'var(--success-color)',
-                        borderRadius: 'var(--radius-full)'
+                        borderRadius: '2px',
+                        transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
                     }} />
                 </div>
             </div>
 
-            <ChevronRight size={20} color="var(--text-secondary)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-tertiary)' }}>{percentage}%</span>
+                <ChevronRight size={16} color="var(--text-tertiary)" strokeWidth={2.5} />
+            </div>
         </div>
     );
 };
@@ -77,17 +81,15 @@ const GoalsPreview = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 'var(--spacing-md)'
+                marginBottom: '16px'
             }}>
                 <h3 style={{
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)'
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    letterSpacing: '-0.03em'
                 }}>
                     Visão Geral de Metas
                 </h3>
-                <button style={{ color: 'var(--primary-color)', fontSize: 'var(--font-size-sm)', fontWeight: '500' }}>
-                    Ver Tudo
-                </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column' }}>

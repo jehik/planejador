@@ -45,38 +45,121 @@ const PomodoroTimer = () => {
     const dashoffset = circumference * (1 - progress);
 
     return (
-        <div className="pomodoro-card card">
-            <h3 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px', letterSpacing: '1px' }}>
-                FOCO TOTAL
-            </h3>
+        <div className="card" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '32px',
+            borderColor: 'rgba(0,0,0,0.03)',
+            background: 'linear-gradient(145deg, var(--surface-color), #FFFFFF)',
+            width: '100%'
+        }}>
+            <div style={{
+                fontSize: '0.7rem',
+                fontWeight: '900',
+                color: 'var(--text-tertiary)',
+                letterSpacing: '0.1em',
+                marginBottom: '24px',
+                textTransform: 'uppercase'
+            }}>
+                Sessão de Foco
+            </div>
 
-            <div className="timer-circle">
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                    <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--surface-hover)" strokeWidth="8" />
+            <div style={{
+                position: 'relative',
+                width: '210px',
+                height: '210px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '32px'
+            }}>
+                <svg width="210" height="210" viewBox="0 0 210 210">
+                    <circle cx="105" cy="105" r={radius} fill="none" stroke="rgba(0,0,0,0.03)" strokeWidth="10" />
                     <circle
-                        cx="100" cy="100" r={radius} fill="none" stroke="var(--primary-color)" strokeWidth="8"
+                        cx="105" cy="105" r={radius} fill="none" stroke="var(--primary-color)" strokeWidth="10"
                         strokeDasharray={circumference} strokeDashoffset={dashoffset} strokeLinecap="round"
-                        transform="rotate(-90 100 100)"
+                        transform="rotate(-90 105 105)"
                         style={{ transition: 'stroke-dashoffset 1s linear' }}
                     />
                 </svg>
-                <div className="time-display">{formatTime(timeLeft)}</div>
+                <div style={{
+                    position: 'absolute',
+                    fontSize: '3.5rem',
+                    fontWeight: '800',
+                    color: 'var(--text-primary)',
+                    fontVariantNumeric: 'tabular-nums',
+                    letterSpacing: '-0.05em'
+                }}>
+                    {formatTime(timeLeft)}
+                </div>
             </div>
 
-            <div className="controls">
-                <button onClick={resetTimer} className="control-btn secondary" title="Recomeçar">
-                    <RotateCcw size={20} />
-                </button>
-                <button onClick={toggleTimer} className="control-btn main">
-                    {isActive ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" />}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '24px',
+                width: '100%',
+                justifyContent: 'center'
+            }}>
+                <button
+                    onClick={resetTimer}
+                    style={{
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.03)',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                >
+                    <RotateCcw size={22} strokeWidth={2.5} />
                 </button>
 
-                <div className="time-selector">
+                <button
+                    onClick={toggleTimer}
+                    style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: isActive ? 'var(--surface-hover)' : 'var(--primary-color)',
+                        border: 'none',
+                        color: isActive ? 'var(--primary-color)' : 'white',
+                        cursor: 'pointer',
+                        boxShadow: isActive ? 'none' : '0 15px 30px rgba(0, 122, 255, 0.25)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: isActive ? 'scale(0.95)' : 'scale(1)'
+                    }}
+                >
+                    {isActive ? <Pause size={32} strokeWidth={2.5} /> : <Play size={32} fill="currentColor" />}
+                </button>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[10, 25, 45, 60].map(min => (
                         <button
                             key={min}
                             onClick={() => !isActive && setSelectedTime(min)}
-                            className={`time-btn ${selectedTime === min ? 'active' : ''}`}
+                            style={{
+                                border: 'none',
+                                background: 'transparent',
+                                fontSize: '0.8rem',
+                                color: selectedTime === min ? 'var(--primary-color)' : 'var(--text-tertiary)',
+                                fontWeight: selectedTime === min ? '800' : '600',
+                                cursor: 'pointer',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                backgroundColor: selectedTime === min ? 'rgba(0, 122, 255, 0.08)' : 'transparent',
+                                transition: 'all 0.2s'
+                            }}
                             disabled={isActive}
                         >
                             {min}
@@ -84,95 +167,6 @@ const PomodoroTimer = () => {
                     ))}
                 </div>
             </div>
-
-            <style>{`
-                .pomodoro-card {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    position: relative;
-                    padding: 24px;
-                    overflow: visible;
-                }
-                .timer-circle {
-                    position: relative;
-                    width: 200px;
-                    height: 200px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 24px;
-                }
-                .time-display {
-                    position: absolute;
-                    font-size: 3rem;
-                    font-weight: 700;
-                    color: var(--text-primary);
-                    font-variant-numeric: tabular-nums;
-                }
-                .controls {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 24px;
-                    width: 100%;
-                }
-                .control-btn {
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-                    color: var(--text-primary);
-                    background: var(--surface-hover);
-                    border: none;
-                    cursor: pointer;
-                }
-                .control-btn:hover {
-                    transform: scale(1.1);
-                    background: var(--primary-soft);
-                    color: var(--primary-color);
-                }
-                .control-btn.main {
-                    width: 64px;
-                    height: 64px;
-                    background: var(--primary-color);
-                    color: white;
-                    box-shadow: 0 4px 15px var(--primary-glow);
-                }
-                .control-btn.main:hover {
-                    background: var(--primary-color);
-                    box-shadow: 0 0 25px var(--primary-glow);
-                }
-                .control-btn.secondary {
-                    width: 48px;
-                    height: 48px;
-                }
-                
-                .time-selector {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                    margin-left: 12px;
-                }
-                .time-btn {
-                    border: none;
-                    background: none;
-                    font-size: 0.8rem;
-                    color: var(--text-tertiary);
-                    cursor: pointer;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-weight: 500;
-                    transition: all 0.2s;
-                }
-                .time-btn.active {
-                    color: var(--primary-color);
-                    background: var(--surface-hover);
-                    font-weight: 700;
-                }
-            `}</style>
         </div>
     );
 };

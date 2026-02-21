@@ -39,47 +39,31 @@ const SimpleTaskList = () => {
     const { tasks, toggleTask, addTask } = useAppStore();
     const [newTaskTitle, setNewTaskTitle] = React.useState('');
 
-    // Date Header Format: "Quarta-feira, 19 Fevereiro"
     const todayDate = new Date();
     const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
     const dateString = todayDate.toLocaleDateString('pt-BR', dateOptions);
-    // Capitalize first letter
     const formattedDate = dateString.charAt(0).toUpperCase() + dateString.slice(1);
 
-    // Filter today's tasks (Aggregation from ALL sources)
     const todayTasks = React.useMemo(() => {
-        // Create local date string YYYY-MM-DD
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const todayYMD = `${year}-${month}-${day}`;
+        const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
         return tasks.filter(t => {
             if (!t.scheduledAt) return false;
-
-            // Convert task date/timestamp to Date object
             const d = t.scheduledAt.toDate ? t.scheduledAt.toDate() : new Date(t.scheduledAt);
-
-            // Create local string for task date (to compare only Day/Month/Year)
-            const tYear = d.getFullYear();
-            const tMonth = String(d.getMonth() + 1).padStart(2, '0');
-            const tDay = String(d.getDate()).padStart(2, '0');
-            const taskYMD = `${tYear}-${tMonth}-${tDay}`;
-
-            // Return true if same day AND not completed (to "sumir da lista ativa")
+            const taskYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             return taskYMD === todayYMD && !t.completed;
         });
     }, [tasks]);
 
     const getCategoryBadge = (category) => {
         switch (category) {
-            case 'nutrition': return { label: 'Nutrição', color: '#EC4899', bg: 'rgba(236, 72, 153, 0.1)' };
-            case 'studies': return { label: 'Estudos', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.1)' };
-            case 'work': return { label: 'Trabalho', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.1)' };
-            case 'projects': return { label: 'Projeto', color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' };
-            case 'house': return { label: 'Casa', color: '#F97316', bg: 'rgba(249, 115, 22, 0.1)' };
-            case 'personal': default: return { label: 'Tarefa', color: '#6B7280', bg: 'rgba(107, 114, 128, 0.1)' };
+            case 'nutrition': return { label: 'Nutrição', color: '#007AFF', bg: 'rgba(0, 122, 255, 0.08)' };
+            case 'studies': return { label: 'Estudos', color: '#5856D6', bg: 'rgba(88, 86, 214, 0.08)' };
+            case 'work': return { label: 'Trabalho', color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' };
+            case 'projects': return { label: 'Projeto', color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' };
+            case 'house': return { label: 'Casa', color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.08)' };
+            case 'personal': default: return { label: 'Tarefa', color: '#8E8E93', bg: 'rgba(142, 142, 147, 0.08)' };
         }
     };
 
@@ -95,54 +79,59 @@ const SimpleTaskList = () => {
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') handleAdd();
-    };
-
     return (
-        <div className="tasks-section card">
-            <h2 style={{ marginBottom: '4px', fontSize: '1.2rem', textTransform: 'capitalize' }}>
-                {formattedDate}
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-md)', fontSize: '0.9rem' }}>
-                {todayTasks.length} tarefas para hoje
-            </p>
+        <div className="card" style={{ padding: '24px', borderColor: 'rgba(0,0,0,0.03)' }}>
+            <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.03em', textTransform: 'capitalize', marginBottom: '4px' }}>
+                    {formattedDate}
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '600' }}>
+                    {todayTasks.length === 0 ? 'Tudo pronto para hoje!' : `${todayTasks.length} pendentes`}
+                </p>
+            </div>
 
-            <div className="task-list">
-                {todayTasks.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-tertiary)' }}>
-                        <p>Nenhuma tarefa pendente. Aproveite o dia!</p>
-                    </div>
-                )}
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {todayTasks.map(task => {
                     const badge = getCategoryBadge(task.category);
                     return (
-                        <div key={task.id} className="task-item">
-                            <label className="checkbox-container">
-                                <input
-                                    type="checkbox"
-                                    checked={task.completed}
-                                    onChange={() => toggleTask(task.id, task.completed)}
-                                />
-                                <span className="checkmark">
-                                    <CheckCircle size={16} className="check-icon" />
-                                </span>
-                            </label>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span className={`task-title ${task.completed ? 'completed' : ''}`}>
+                        <div key={task.id}
+                            onClick={() => toggleTask(task.id, task.completed)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '14px',
+                                padding: '12px 14px',
+                                borderRadius: '14px',
+                                backgroundColor: 'rgba(0,0,0,0.015)',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <div style={{
+                                width: '22px',
+                                height: '22px',
+                                borderRadius: '50%',
+                                border: '2px solid var(--border-color)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'transparent'
+                            }}>
+                                <CheckCircle2 size={14} strokeWidth={3} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>
                                     {task.title}
-                                </span>
+                                </div>
                                 <span style={{
                                     fontSize: '0.65rem',
                                     color: badge.color,
                                     backgroundColor: badge.bg,
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    alignSelf: 'flex-start',
-                                    marginTop: '2px',
+                                    padding: '3px 8px',
+                                    borderRadius: '6px',
+                                    fontWeight: '800',
                                     textTransform: 'uppercase',
-                                    fontWeight: 'bold'
+                                    letterSpacing: '0.02em'
                                 }}>
                                     {badge.label}
                                 </span>
@@ -151,115 +140,51 @@ const SimpleTaskList = () => {
                     );
                 })}
 
-                {/* Quick Add with Button */}
-                <div className="quick-add-container" style={{ display: 'flex', alignItems: 'center', marginTop: '12px', gap: '8px' }}>
+                <div style={{
+                    marginTop: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    backgroundColor: 'rgba(0,0,0,0.03)',
+                    padding: '4px 4px 4px 16px',
+                    borderRadius: '14px'
+                }}>
                     <input
                         type="text"
-                        placeholder="+ Adicionar tarefa rápida..."
-                        className="quick-add-input"
+                        placeholder="Adicionar tarefa..."
                         value={newTaskTitle}
                         onChange={(e) => setNewTaskTitle(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        style={{ flex: 1 }}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                        style={{
+                            flex: 1,
+                            background: 'transparent',
+                            border: 'none',
+                            fontSize: '0.9rem',
+                            fontWeight: '500',
+                            padding: '10px 0',
+                            outline: 'none',
+                            color: 'var(--text-primary)'
+                        }}
                     />
                     <button
                         onClick={handleAdd}
                         style={{
-                            background: 'var(--primary-color)', color: 'white', border: 'none',
-                            borderRadius: '8px', padding: '8px', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            backgroundColor: 'var(--primary-color)',
+                            color: 'white',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer'
                         }}
                     >
-                        <ArrowRight size={18} />
+                        <Plus size={20} strokeWidth={2.5} />
                     </button>
                 </div>
             </div>
-
-            <style>{`
-                .task-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                    padding: 0 8px; /* Added padding */
-                }
-                .task-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid var(--border-color);
-                }
-                .task-item:last-child {
-                    border-bottom: none;
-                }
-                
-                /* Animated Checkbox */
-                .checkbox-container {
-                    position: relative;
-                    cursor: pointer;
-                    width: 24px;
-                    height: 24px;
-                }
-                .checkbox-container input {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                }
-                .checkmark {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    height: 24px;
-                    width: 24px;
-                    background-color: var(--surface-hover);
-                    border-radius: 50%;
-                    border: 2px solid var(--text-secondary);
-                    transition: all 0.2s;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .checkbox-container input:checked ~ .checkmark {
-                    background-color: var(--success-color);
-                    border-color: var(--success-color);
-                }
-                .check-icon {
-                    opacity: 0;
-                    color: white;
-                    transform: scale(0.5);
-                    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-                }
-                .checkbox-container input:checked ~ .checkmark .check-icon {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-
-                .task-title {
-                    font-size: 1rem;
-                    color: var(--text-primary);
-                    transition: all 0.2s;
-                }
-                .task-title.completed {
-                    color: var(--text-secondary);
-                    text-decoration: line-through;
-                }
-
-                .quick-add-input {
-                    background: transparent;
-                    border: none;
-                    color: var(--text-primary);
-                    padding: 12px 0;
-                    width: 100%;
-                    font-family: inherit;
-                    font-size: 0.95rem;
-                    border-bottom: 2px solid transparent;
-                    transition: border-color 0.2s;
-                }
-                .quick-add-input:focus {
-                    outline: none;
-                    border-bottom-color: var(--primary-color);
-                }
-            `}</style>
         </div>
     );
 };

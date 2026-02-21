@@ -28,138 +28,129 @@ const TodayOverview = () => {
     const hasNothingToday = todayTasks.length === 0 && todayWorkouts.length === 0;
 
     return (
-        <div className="fade-in">
-            <h3 style={{
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                marginBottom: '16px',
-                color: 'var(--text-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-            }}>
-                <Calendar size={20} color="var(--primary-color)" />
-                O que você deve fazer hoje
-            </h3>
+        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Header Section */}
+            <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '4px', letterSpacing: '-0.03em' }}>Meus Objetivos</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Foque no que é essencial para hoje.</p>
+            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* Water Goal - ALWAYS VISIBLE */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Water Goal - Redesigned Card */}
                 <div
                     onClick={() => useAppStore.getState().setActiveTab('nutrition')}
+                    className="card"
                     style={{
-                        backgroundColor: 'var(--surface-color)',
                         padding: '16px',
-                        borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
+                        gap: '14px',
                         cursor: 'pointer',
-                        border: (currentUser?.nutrition?.water || 0) >= 4000 ? '1px solid var(--success-color)' : '1px solid var(--border-color)',
-                        opacity: (currentUser?.nutrition?.water || 0) >= 4000 ? 0.7 : 1
+                        borderColor: (currentUser?.nutrition?.water || 0) >= 4000 ? 'rgba(52, 199, 89, 0.2)' : 'rgba(0,0,0,0.03)',
+                        background: (currentUser?.nutrition?.water || 0) >= 4000 ? 'rgba(52, 199, 89, 0.02)' : 'var(--surface-color)'
                     }}
                 >
                     <div style={{
-                        backgroundColor: (currentUser?.nutrition?.water || 0) >= 4000 ? 'var(--success-color)' : '#3b82f6', // Blue for water
+                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
                         padding: '10px',
                         borderRadius: '12px',
-                        color: 'white'
+                        color: 'var(--primary-color)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
-                        <Droplet size={20} />
+                        <Droplet size={22} strokeWidth={2.5} />
                     </div>
                     <div style={{ flex: 1 }}>
-                        <p style={{ fontWeight: '600' }}>
-                            Beber 4L de Água
-                        </p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                            {currentUser?.nutrition?.water || 0} / 4000 ml
+                        <p style={{ fontWeight: '700', fontSize: '0.95rem' }}>Beber 4L de Água</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                            {currentUser?.nutrition?.water || 0} de 4000 ml
                         </p>
                     </div>
                     {(currentUser?.nutrition?.water || 0) >= 4000 ? (
-                        <CheckCircle2 size={24} color="var(--success-color)" />
+                        <CheckCircle2 size={24} color="var(--success-color)" strokeWidth={2.5} />
                     ) : (
-                        <Circle size={24} color="var(--text-secondary)" />
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid var(--border-color)' }} />
                     )}
                 </div>
 
                 {hasNothingToday ? (
                     <div style={{
-                        padding: '20px',
-                        marginTop: '10px',
-                        backgroundColor: 'var(--surface-color)',
-                        borderRadius: '16px',
+                        padding: '40px 20px',
                         textAlign: 'center',
-                        color: 'var(--text-secondary)',
-                        border: '1px dashed var(--border-color)'
+                        color: 'var(--text-tertiary)',
+                        border: '1px dashed var(--border-color)',
+                        borderRadius: '20px'
                     }}>
-                        <p>Nenhuma tarefa ou treino agendado. Foco na hidratação! 💧</p>
+                        <p style={{ fontSize: '0.9rem', fontWeight: '500' }}>Nenhuma tarefa ou treino agendado.</p>
                     </div>
                 ) : (
                     <>
-                        {/* Workouts First (Priority) */}
+                        {/* Workouts Section */}
                         {todayWorkouts.map(workout => {
                             const isCompleted = workout.lastCompleted === today;
                             return (
                                 <div key={workout.id}
-                                    onClick={() => toggleWorkout(workout.id)}
+                                    className="card"
                                     style={{
-                                        backgroundColor: 'var(--surface-color)',
                                         padding: '16px',
-                                        borderRadius: '16px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '12px',
+                                        gap: '14px',
                                         cursor: 'pointer',
-                                        border: isCompleted ? '1px solid var(--success-color)' : '1px solid var(--border-color)',
-                                        opacity: isCompleted ? 0.7 : 1
+                                        borderColor: isCompleted ? 'rgba(52, 199, 89, 0.2)' : 'rgba(0,0,0,0.03)'
                                     }}
                                 >
                                     <div style={{
-                                        backgroundColor: isCompleted ? 'var(--success-color)' : 'var(--primary-soft)', // Orange/Amber for Workout
+                                        backgroundColor: isCompleted ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 59, 48, 0.1)',
                                         padding: '10px',
                                         borderRadius: '12px',
-                                        color: isCompleted ? 'white' : 'var(--primary-color)'
+                                        color: isCompleted ? 'var(--success-color)' : 'var(--danger-color)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        <Dumbbell size={20} />
+                                        <Dumbbell size={22} strokeWidth={2.5} />
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <p style={{ fontWeight: '600', textDecoration: isCompleted ? 'line-through' : 'none' }}>
+                                        <p style={{ fontWeight: '700', fontSize: '0.95rem', textDecoration: isCompleted ? 'line-through' : 'none' }}>
                                             {workout.title}
                                         </p>
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                            Treino de Hoje
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                                            Treino do Dia
                                         </p>
                                     </div>
-                                    {isCompleted && <CheckCircle2 size={24} color="var(--success-color)" />}
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleWorkout(workout.id); }}
+                                        style={{
+                                            padding: '8px 16px', borderRadius: '12px',
+                                            backgroundColor: isCompleted ? 'rgba(52, 199,  green, 0.1)' : 'var(--primary-color)',
+                                            color: isCompleted ? 'var(--success-color)' : 'white',
+                                            border: 'none', fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        {isCompleted ? 'Concluído' : 'Check-in'}
+                                    </button>
                                 </div>
                             );
                         })}
 
-                        {/* Tasks */}
+                        {/* Tasks Section */}
                         {todayTasks.map(task => (
                             <div key={task.id}
                                 onClick={() => toggleTask(task.id)}
+                                className="card"
                                 style={{
-                                    backgroundColor: 'var(--surface-color)',
                                     padding: '16px',
-                                    borderRadius: '16px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '12px',
+                                    gap: '14px',
                                     cursor: 'pointer',
-                                    border: '1px solid var(--border-color)'
+                                    borderColor: 'rgba(0,0,0,0.03)'
                                 }}
                             >
-                                <div style={{
-                                    color: task.completed ? 'var(--success-color)' : 'var(--text-secondary)'
-                                }}>
-                                    {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+                                <div style={{ color: 'var(--border-color)' }}>
+                                    <Circle size={24} strokeWidth={2} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <p style={{
-                                        fontWeight: '500',
-                                        textDecoration: task.completed ? 'line-through' : 'none',
-                                        color: task.completed ? 'var(--text-secondary)' : 'var(--text-primary)'
-                                    }}>
+                                    <p style={{ fontWeight: '600', fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                                         {task.title}
                                     </p>
                                 </div>

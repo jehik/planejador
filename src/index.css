@@ -28,7 +28,11 @@
 
   /* Safe Area Variables */
   --safe-area-top: env(safe-area-inset-top, 0px);
-  --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Viewport Height logic */
+  --app-height: 100vh;
+  --app-height-dvh: 100dvh;
 
   /* Radius */
   --radius-sm: 8px;
@@ -77,7 +81,8 @@ body {
 .app-container {
   width: 100%;
   max-width: 100%;
-  min-height: 100vh;
+  min-height: var(--app-height);
+  min-height: var(--app-height-dvh);
   background-color: var(--bg-color);
   position: relative;
   display: flex;

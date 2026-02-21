@@ -25,25 +25,27 @@ const DreamBoard = () => {
     };
 
     return (
-        <div className="fade-in">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Quadro dos Sonhos</h2>
+        <div className="fade-in" style={{ paddingBottom: 'var(--spacing-xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.03em' }}>Mural de Sonhos</h2>
                 <button
                     onClick={() => fileInputRef.current.click()}
                     style={{
                         padding: '8px 16px',
                         borderRadius: '12px',
-                        backgroundColor: 'var(--primary-color)',
-                        color: 'white',
+                        backgroundColor: 'rgba(0, 122, 255, 0.08)',
+                        color: 'var(--primary-color)',
                         border: 'none',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '0.9rem',
-                        fontWeight: '600'
+                        gap: '6px',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
                     }}
                 >
-                    <Plus size={18} /> Adicionar
+                    <Plus size={18} strokeWidth={2.5} /> Adicionar
                 </button>
             </div>
 
@@ -58,58 +60,71 @@ const DreamBoard = () => {
             {dreams.length === 0 ? (
                 <div style={{
                     backgroundColor: 'var(--surface-color)',
-                    borderRadius: '16px',
-                    padding: '40px',
+                    borderRadius: '24px',
+                    padding: '48px 24px',
                     textAlign: 'center',
-                    border: '2px dashed var(--border-color)',
-                    color: 'var(--text-secondary)'
+                    border: '1px dashed var(--border-color)',
+                    color: 'var(--text-tertiary)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px'
                 }}>
-                    <ImageIcon size={48} style={{ opacity: 0.3, marginBottom: '16px' }} />
-                    <p>Visualize suas conquistas.</p>
-                    <p style={{ fontSize: '0.8rem' }}>Adicione fotos do que você quer alcançar.</p>
+                    <div style={{ padding: '16px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                        <ImageIcon size={32} strokeWidth={1.5} />
+                    </div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>Visualize suas conquistas</div>
+                    <p style={{ fontSize: '0.75rem', fontWeight: '500' }}>Adicione fotos do que você quer alcançar.</p>
                 </div>
             ) : (
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                    gap: '16px'
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '14px'
                 }}>
                     {dreams.map(dream => (
-                        <div key={dream.id} style={{
+                        <div key={dream.id} className="card" style={{
                             position: 'relative',
-                            borderRadius: '16px',
-                            overflow: 'hidden',
-                            boxShadow: 'var(--shadow-sm)',
-                            aspectRatio: '1',
-                            group: 'dream-card'
+                            padding: '10px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px',
+                            borderColor: 'rgba(0,0,0,0.03)'
                         }}>
-                            <img
-                                src={dream.image}
-                                alt="Sonho"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
+                            <div style={{
+                                borderRadius: '14px',
+                                overflow: 'hidden',
+                                aspectRatio: '1',
+                                backgroundColor: 'rgba(0,0,0,0.015)'
+                            }}>
+                                <img
+                                    src={dream.image}
+                                    alt="Sonho"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
                             <div style={{
                                 position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                padding: '8px',
-                                background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                                display: 'flex',
-                                justifySelf: 'end',
-                                justifyContent: 'flex-end'
+                                top: '16px',
+                                right: '16px'
                             }}>
                                 <button
                                     onClick={() => removeDream(dream.id)}
                                     style={{
                                         color: 'white',
-                                        backgroundColor: 'rgba(255,,255,255,0.2)',
+                                        backgroundColor: 'rgba(0,0,0,0.3)',
+                                        backdropFilter: 'blur(10px)',
                                         borderRadius: '50%',
-                                        padding: '6px',
-                                        border: 'none'
+                                        width: '28px',
+                                        height: '28px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        border: 'none',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={14} strokeWidth={2.5} />
                                 </button>
                             </div>
                         </div>

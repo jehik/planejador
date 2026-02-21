@@ -13,7 +13,11 @@ const Layout = ({ children }) => {
         <div className="app-container">
             <Header />
             <Sidebar />
-            <main className="content-area fade-in">
+            <main className="content-area fade-in" style={{
+                flex: 1,
+                overflowY: 'auto',
+                paddingBottom: 'calc(80px + var(--safe-area-bottom))'
+            }}>
                 {children}
             </main>
             <BottomNav />

@@ -106,114 +106,126 @@ const DailyFocusCard = () => {
     return (
         <div className="fade-in" style={{
             backgroundColor: 'var(--surface-color)',
-            padding: 'var(--spacing-lg)',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-md)',
+            padding: '24px',
+            borderRadius: 'var(--radius-lg)',
             marginBottom: 'var(--spacing-lg)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--spacing-md)',
-            border: '1px solid var(--border-color)',
-            transition: 'all 0.5s ease',
-            // Enphasize in Focus Mode
-            transform: focusMode ? 'scale(1.02)' : 'scale(1)',
+            gap: '20px',
+            border: '1px solid rgba(0,0,0,0.03)',
+            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: focusMode ? '0 20px 40px rgba(0,0,0,0.08)' : 'none',
+            transform: focusMode ? 'scale(1.01)' : 'scale(1)',
             zIndex: focusMode ? 50 : 1
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{
-                    fontSize: 'var(--font-size-sm)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    color: mode === 'break' ? 'var(--success-color)' : 'var(--primary-color)',
-                    fontWeight: 'var(--font-weight-bold)'
-                }}>
-                    {mode === 'break' ? 'Pausa Restauradora' : 'Foco Diário'}
-                </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {activeTask.completed && <CheckCircle size={20} color="var(--success-color)" />}
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: mode === 'break' ? 'var(--success-color)' : 'var(--primary-color)' }} />
+                    <h3 style={{
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: mode === 'break' ? 'var(--success-color)' : 'var(--primary-color)',
+                        fontWeight: '800'
+                    }}>
+                        {mode === 'break' ? 'Pausa' : 'Tempo de Foco'}
+                    </h3>
                 </div>
+                {activeTask.completed && <CheckCircle size={20} color="var(--success-color)" strokeWidth={2.5} />}
             </div>
 
-            <div style={{ margin: 'var(--spacing-sm) 0', textAlign: 'center' }}>
-
+            <div style={{ textAlign: 'center', margin: '10px 0' }}>
                 {/* Timer Display */}
                 <div style={{
-                    fontSize: '3.5rem',
-                    fontWeight: 'bold',
+                    fontSize: '4rem',
+                    fontWeight: '800',
                     fontVariantNumeric: 'tabular-nums',
                     color: 'var(--text-primary)',
-                    marginBottom: '16px',
-                    letterSpacing: '-2px'
+                    letterSpacing: '-0.04em',
+                    lineHeight: '1',
+                    marginBottom: '16px'
                 }}>
                     {formatTime(timeLeft)}
                 </div>
 
                 {/* Task Title */}
                 <h2 style={{
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: 'var(--font-weight-semibold)',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
                     color: activeTask.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
                     textDecoration: activeTask.completed ? 'line-through' : 'none',
-                    marginBottom: 'var(--spacing-xs)'
+                    marginBottom: '4px',
+                    letterSpacing: '-0.02em'
                 }}>
                     {activeTask.title}
                 </h2>
 
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                    {mode === 'break' ? 'Respire fundo e relaxe.' : (activeTask.completed ? 'Tudo pronto por hoje!' : 'Foco total nesta tarefa.')}
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '500', opacity: 0.7 }}>
+                    {mode === 'break' ? 'Respire fundo.' : (activeTask.completed ? 'Excelente trabalho!' : 'Concentração máxima.')}
                 </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                     onClick={toggleTimer}
                     style={{
-                        backgroundColor: isActive ? 'var(--surface-color)' : 'var(--primary-color)',
+                        backgroundColor: isActive ? 'var(--surface-hover)' : 'var(--primary-color)',
                         color: isActive ? 'var(--text-primary)' : '#fff',
-                        border: isActive ? '1px solid var(--border-color)' : 'none',
-                        padding: '12px 24px',
-                        borderRadius: 'var(--radius-full)',
+                        padding: '14px 28px',
+                        borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        fontSize: 'var(--font-size-base)',
-                        fontWeight: 'var(--font-weight-medium)',
+                        fontSize: '0.95rem',
+                        fontWeight: '700',
                         flex: 1,
-                        boxShadow: isActive ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)',
-                        transition: 'all 0.2s'
+                        border: 'none',
+                        boxShadow: isActive ? 'none' : '0 10px 20px rgba(0, 122, 255, 0.2)',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        cursor: 'pointer'
                     }}
                 >
-                    {isActive ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}
-                    {isActive ? 'Pausar' : (timeLeft < (mode === 'focus' ? 600 : 300) ? 'Retomar' : (mode === 'break' ? 'Iniciar Pausa' : 'Iniciar Foco'))}
+                    {isActive ? <Pause size={20} strokeWidth={2.5} /> : <Play size={20} fill="currentColor" />}
+                    <span>{isActive ? 'Pausar' : (timeLeft < (mode === 'focus' ? 600 : 300) ? 'Retomar' : (mode === 'break' ? 'Começar' : 'Focar'))}</span>
                 </button>
 
                 {(isActive || timeLeft < (mode === 'focus' ? 600 : 300)) && (
                     <button
                         onClick={resetTimer}
-                        aria-label="Parar"
                         style={{
-                            backgroundColor: 'var(--surface-color)',
+                            backgroundColor: 'rgba(255, 59, 48, 0.1)',
                             color: 'var(--danger-color)',
-                            border: '1px solid var(--border-color)',
-                            width: '48px',
-                            borderRadius: 'var(--radius-full)',
+                            width: '56px',
+                            borderRadius: '16px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            border: 'none',
+                            cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
                     >
-                        <Square size={18} fill="currentColor" />
+                        <Square size={20} fill="currentColor" />
                     </button>
                 )}
             </div>
 
-            {/* Simple visual cue for focus mode */}
+            {/* Focus Mode Visual Cue */}
             {focusMode && (
-                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', color: 'var(--primary-color)' }}>
-                    <Clock size={14} className="spin-slow" />
-                    <span style={{ fontSize: '12px', fontWeight: '600' }}>MODO FOCO ATIVO</span>
+                <div style={{
+                    marginTop: '4px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: 'var(--primary-color)',
+                    fontSize: '0.7rem',
+                    fontWeight: '800',
+                    letterSpacing: '0.05em'
+                }}>
+                    <Clock size={12} strokeWidth={3} />
+                    <span>MODO FOCO ATIVO</span>
                 </div>
             )}
         </div>
