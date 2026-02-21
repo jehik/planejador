@@ -132,7 +132,11 @@ const StudiesView = () => {
                                 const progress = relevantTasks.length > 0 ? Math.round((completed / relevantTasks.length) * 100) : 0;
 
                                 return (
-                                    <div key={study.id} className="card fade-in" onClick={() => setActiveStudy(study)} style={{ cursor: 'pointer', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: '180px', justifyContent: 'center' }}>
+                                    <div key={study.id} className="card fade-in" onClick={() => setActiveStudy(study)} style={{
+                                        cursor: 'pointer', padding: '24px', display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', textAlign: 'center', minHeight: '180px',
+                                        justifyContent: 'center', position: 'relative' // Crítico para ancorar o botão de excluir
+                                    }}>
                                         <div style={{
                                             width: '56px', height: '56px', borderRadius: '18px',
                                             backgroundColor: 'rgba(139, 92, 246, 0.08)',
@@ -151,7 +155,7 @@ const StudiesView = () => {
                                             <span style={{ fontSize: '0.6rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>{progress}% Concluído</span>
                                         </div>
 
-                                        <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ position: 'absolute', top: '12px', right: '12px', color: 'var(--danger-color)', opacity: 0.2, border: 'none', background: 'none', cursor: 'pointer' }}>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteStudy(study.id); }} style={{ position: 'absolute', top: '12px', right: '12px', color: 'var(--danger-color)', opacity: 0.4, border: 'none', background: 'none', cursor: 'pointer', zIndex: 10 }}>
                                             <Trash2 size={14} />
                                         </button>
                                     </div>
