@@ -4,7 +4,7 @@ import { fetchMentorAdvice } from '../../services/mentorService';
 import { Sparkles, ArrowRight, Loader2, Quote } from 'lucide-react';
 
 const MentorCard = () => {
-    const { currentUser } = useAppStore();
+    const { currentUser, userData, tasks } = useAppStore();
     const [advice, setAdvice] = useState(null);
     const [loading, setLoading] = useState(true);
     const [chatQuestion, setChatQuestion] = useState('');
@@ -15,8 +15,10 @@ const MentorCard = () => {
 
     useEffect(() => {
         const getAdvice = async () => {
+            if (!userData) return;
             setLoading(true);
             try {
+                // Passamos os dados atuais para que o serviço use os valores mais recentes do store
                 const data = await fetchMentorAdvice(userName);
                 setAdvice(data);
             } catch (err) {
@@ -26,7 +28,8 @@ const MentorCard = () => {
             }
         };
         getAdvice();
-    }, [userName]);
+        // Re-executa quando os dados principais mudam, para a IA estar "sempre conectada"
+    }, [userName, userData?.finance?.income, userData?.finance?.expenses, tasks.length]);
 
     const handleChatSubmit = async (e) => {
         e.preventDefault();

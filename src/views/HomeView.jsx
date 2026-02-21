@@ -10,7 +10,9 @@ const HomeView = () => {
     return (
         <div className="fade-in" style={{
             paddingBottom: '120px',
-            paddingTop: 'env(safe-area-inset-top, 24px)'
+            paddingTop: '100px',
+            paddingLeft: '24px',
+            paddingRight: '24px'
         }}>
             <div style={{ marginBottom: '32px' }}>
                 <MotivationalQuote />
@@ -22,26 +24,45 @@ const HomeView = () => {
             </div>
 
             {/* Main Interactive Grid */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr',
+                gap: '24px',
+                maxWidth: '800px',
+                margin: '0 auto'
+            }}>
                 {/* 1. Pomodoro Timer Section */}
-                <section style={{ display: 'flex', justifyContent: 'center' }}>
-                    <div className="card fade-in" style={{ padding: '32px', width: '100%', maxWidth: '600px', background: 'linear-gradient(135deg, var(--surface-color) 0%, rgba(124, 92, 255, 0.03) 100%)', border: '1px solid rgba(124, 92, 255, 0.1)' }}>
+                <section style={{ width: '100%' }}>
+                    <div className="card fade-in" style={{
+                        padding: '24px',
+                        width: '100%',
+                        background: 'linear-gradient(135deg, var(--surface-color) 0%, rgba(124, 92, 255, 0.03) 100%)',
+                        border: '1px solid rgba(124, 92, 255, 0.1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}>
                         <PomodoroTimer />
                     </div>
                 </section>
 
                 {/* 2. Daily Tasks Section */}
-                <section>
+                <section style={{ width: '100%' }}>
                     <SimpleTaskList />
                 </section>
 
                 {/* 3. Dream Board Section */}
-                <section>
+                <section style={{ width: '100%' }}>
                     <div style={{ marginBottom: '16px', paddingLeft: '8px' }}>
                         <h3 className="text-xl">Quadro de Sonhos</h3>
                         <p className="text-sm text-secondary">Visualize seu futuro</p>
                     </div>
-                    <div className="card fade-in" style={{ padding: '0', overflow: 'hidden' }}>
+                    <div className="card fade-in" style={{
+                        padding: '0',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                    }}>
                         <DreamBoard />
                     </div>
                 </section>
@@ -136,11 +157,20 @@ const SimpleTaskList = () => {
                                     height: '24px',
                                     borderRadius: '50%',
                                     border: '2px solid var(--border-color)',
-                                    transition: 'all 0.3s'
+                                    transition: 'all 0.3s',
+                                    flexShrink: 0
                                 }}>
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{
+                                        fontSize: '1rem',
+                                        fontWeight: '600',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '4px',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}>
                                         {task.title}
                                     </div>
                                     <span style={{
@@ -156,7 +186,7 @@ const SimpleTaskList = () => {
                                         {badge.label}
                                     </span>
                                 </div>
-                                <ArrowRight size={16} style={{ color: 'var(--text-tertiary)', opacity: 0.3 }} />
+                                <ArrowRight size={16} style={{ color: 'var(--text-tertiary)', opacity: 0.3, flexShrink: 0 }} />
                             </div>
                         );
                     })

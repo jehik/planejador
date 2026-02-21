@@ -61,7 +61,7 @@ const NutritionView = () => {
     const waterPercentage = Math.min(100, (nutrition.water / GOAL_WATER) * 100);
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: '100px' }}>
             {/* Header / Message */}
             <div style={{ marginBottom: '32px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>

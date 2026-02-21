@@ -54,6 +54,8 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
     const finance = userData.finance || { income: 0, expenses: 0, savingsGoal: 0, transactions: [] };
     const projects = userData.projects || [];
     const studies = userData.studies || [];
+    const workouts = userData.workouts || [];
+    const shopping = userData.shopping || [];
     const goals = userData.goals || [];
     const dateIdeas = userData.dateIdeas || [];
     const restrictions = userData.restrictions || [];
@@ -73,13 +75,19 @@ export const fetchMentorAdvice = async (userType, userQuestion = null) => {
         .map(tx => `${tx.description}: R$${tx.amount}`)
         .join(", ");
 
+    // Shopping and Workouts Summary
+    const shoppingSummary = shopping.filter(i => !i.completed).map(i => i.title).join(", ");
+    const workoutSummary = workouts.map(w => `${w.title} (Semanas: ${w.days?.join("/") || '?'}, Streak: ${w.streak})`).join(" | ");
+
     const todayData = `
-    DADOS DO USUÁRIO (${userType.toUpperCase()}):
-    - Financeiro: R$ ${balance.toFixed(2)} acumulado. Meta de Economia: R$ ${finance.savingsGoal}. Gastos Recentes: ${recentExpenses || 'Nenhum'}.
+    DADOS REAIS DO APP AGORA:
+    - Financeiro: SALDO ATUAL R$ ${balance.toFixed(2)}. Meta de Economia: R$ ${finance.savingsGoal}. Gastos Recentes: ${recentExpenses || 'Nenhum'}.
+    - Compras Pendentes: ${shoppingSummary || 'Nenhuma'}.
+    - Treinos/Exercícios: ${workoutSummary || 'Nenhum configurado'}.
     - Projetos: ${projectsSummary || 'Nenhum ativo'}.
     - Estudos/Matérias: ${studies.map(s => s.title).join(", ") || 'Nenhuma'}.
     - Metas de Vida: ${goals.map(g => `${g.title} (${g.steps?.filter(s => s.completed).length}/${g.steps?.length} passos)`).join(" | ") || 'Nenhuma'}. 
-    - Relacionamento (Ideias de Date): ${dateIdeas.filter(i => !i.checked).map(i => i.text).join(", ") || 'Sem ideias pendentes'}.
+    - Relacionamento: ${dateIdeas.filter(i => !i.checked).map(i => i.text).join(", ") || 'Sem ideias pendentes'}.
     - Restrições: ${restrictions.filter(r => r.status === 'active').map(r => `${r.type}: ${r.completedDays} dias`).join(", ")}.
     - Progresso de Hoje:
         * Água: ${water}ml (Meta 4L)
