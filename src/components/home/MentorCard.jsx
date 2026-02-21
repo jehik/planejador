@@ -127,9 +127,35 @@ const MentorCard = () => {
                                 <Sparkles size={14} style={{ color: accentColor }} />
                                 <span style={{ fontSize: '0.7rem', fontWeight: '800', color: accentColor, textTransform: 'uppercase' }}>Neurociência & Visualização</span>
                             </div>
-                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.3' }}>{advice.explicacaoNeurocientifica}</p>
+                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.3' }}>
+                                {advice.explicacaoNeurocientifica || (() => {
+                                    const messages = [
+                                        "Seu cérebro não distingue realidade de imaginação vívida. Visualize agora com detalhes.",
+                                        "A neuroplasticidade permite que você mude sua mente a qualquer instante através do foco.",
+                                        "O foco libera dopamina, o combustível natural da sua motivação e clareza mental.",
+                                        "Visualizar o sucesso treina seus neurônios para identificar oportunidades ocultas.",
+                                        "Repetição de pensamentos de abundância cria trilhas neurais que se tornam automáticas.",
+                                        "O córtex pré-frontal precisa de silêncio e presença para gerar soluções criativas.",
+                                        "Ensaiar mentalmente uma ação ativa as mesmas áreas motoras do cérebro que a prática real.",
+                                        "A gratidão regula o cortisol e ativa o sistema de recompensa cerebral em segundos.",
+                                        "Sua mente foca naquilo que você dá atenção. Escolha focar na sua evolução hoje.",
+                                        "A visualização matinal prepara seu Sistema de Ativação Reticular para o sucesso.",
+                                        "Neurônios que disparam juntos, permanecem juntos. Conecte esforço a prazer.",
+                                        "A meditação aumenta a espessura da matéria cinzenta ligada ao controle emocional.",
+                                        "O cérebro gasta 20% da sua energia. Use-a para visualizar sua melhor versão.",
+                                        "Respirar conscientemente envia um sinal de segurança para as amígdalas cerebrais.",
+                                        "Seu subconsciente é programado por imagens. Alimente-o com visões de prosperidade.",
+                                        "O estado de 'Flow' é onde seu cérebro atinge a máxima harmonia neurofisiológica.",
+                                        "Pequenos sucessos liberam micro-doses de dopamina, criando um ciclo de vitória.",
+                                        "A visualização com emoção é a linguagem que seu cérebro entende mais rápido.",
+                                        "O silêncio permite que a rede de modo padrão (DMN) processe aprendizados profundos.",
+                                        "Você tem o poder de remodelar seu cérebro através de escolhas conscientes diárias."
+                                    ];
+                                    return messages[Math.floor(Math.random() * messages.length)];
+                                })()}
+                            </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.fraseProsperidade}</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)' }}>{advice.fraseProsperidade || "Sintonize sua mente com a abundância."}</div>
                             </div>
                         </div>
                     )}

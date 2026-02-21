@@ -32,6 +32,7 @@ SOBRE A DÉBORA (CONTEXTO EMOCIONAL)
     • Pode sentir que está "presa" ou atrasada na vida.
 - Ambientes como bares e lugares barulhentos podem gerar desconforto.
 - Ela floresce na natureza, no silêncio, no nascer do sol.
+- Ama Neurociência
 
 ────────────────────────
 SAÚDE
