@@ -3,7 +3,7 @@ import MotivationalQuote from '../components/home/MotivationalQuote';
 import PomodoroTimer from '../components/home/PomodoroTimer';
 import DreamBoard from '../components/dream/DreamBoard';
 import useAppStore from '../store/useAppStore';
-import { CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Plus, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const HomeView = () => {
     // We can reuse DailyProgress or build a minimalist task list here.
