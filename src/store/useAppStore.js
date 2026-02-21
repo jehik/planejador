@@ -576,6 +576,16 @@ const useAppStore = create(persist((set, get) => ({
     restrictions: (data.restrictions || []).filter(r => r.id !== id)
   })),
 
+  // --- Dream Actions ---
+  addDream: (dream) => get().setUserData(data => ({
+    ...data,
+    dreams: [...(data.dreams || []), { ...dream, id: Date.now().toString() }]
+  })),
+  removeDream: (id) => get().setUserData(data => ({
+    ...data,
+    dreams: (data.dreams || []).filter(d => d.id !== id)
+  })),
+
 }), {
   name: 'planejador-storage',
   storage: createJSONStorage(() => localStorage),

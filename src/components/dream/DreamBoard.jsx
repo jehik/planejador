@@ -25,27 +25,27 @@ const DreamBoard = () => {
     };
 
     return (
-        <div className="fade-in" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.03em' }}>Mural de Sonhos</h2>
+        <div className="fade-in" style={{ paddingBottom: 'var(--spacing-xl)', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '16px', position: 'absolute', top: '24px', right: '24px', zIndex: 10 }}>
                 <button
                     onClick={() => fileInputRef.current.click()}
                     style={{
-                        padding: '8px 16px',
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(0, 122, 255, 0.08)',
-                        color: 'var(--primary-color)',
+                        padding: '10px 18px',
+                        borderRadius: '16px',
+                        backgroundColor: 'var(--text-primary)',
+                        color: 'white',
                         border: 'none',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.85rem',
+                        gap: '8px',
+                        fontSize: '0.9rem',
                         fontWeight: '700',
                         cursor: 'pointer',
-                        transition: 'all 0.2s'
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s active'
                     }}
                 >
-                    <Plus size={18} strokeWidth={2.5} /> Adicionar
+                    <Plus size={20} strokeWidth={2.5} /> Adicionar
                 </button>
             </div>
 
