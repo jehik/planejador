@@ -17,14 +17,17 @@ const BottomNav = () => {
             position: 'fixed',
             bottom: 0,
             left: 0,
-            width: '100%',
+            right: 0,
+            width: '100vw',
             display: 'flex',
             justifyContent: 'space-around',
             paddingTop: '10px',
             paddingBottom: 'calc(10px + var(--safe-area-bottom))',
-            zIndex: 1100,
-            borderTop: 'none', // handeled by .glass
+            zIndex: 9999, // Aumentado para garantir prioridade total
+            borderTop: 'none',
             boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
+            transform: 'translateZ(999px)', // Força a renderização em camada isolada e estável no mobile
+            backfaceVisibility: 'hidden'
         }}>
             {navItems.map((item) => {
                 const isActive = activeTab === item.id;

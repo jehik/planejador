@@ -68,8 +68,15 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
+  /* Fix para mobile browsers */
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+html {
+  height: -webkit-fill-available;
 }
 
 #root {
@@ -81,7 +88,7 @@ body {
 .app-container {
   width: 100%;
   max-width: 100%;
-  min-height: var(--app-height);
+  min-height: 100vh;
   min-height: var(--app-height-dvh);
   background-color: var(--bg-color);
   position: relative;
@@ -89,6 +96,8 @@ body {
   flex-direction: column;
   padding-left: 20px;
   padding-right: 20px;
+  /* Evita que transformações em filhos quebrem o z-index fixo */
+  isolation: isolate;
 }
 
 @media (min-width: 768px) {
