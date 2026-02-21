@@ -64,7 +64,9 @@ const useAppStore = create(persist((set, get) => ({
   currentUser: null,
   userData: null,
   tasks: [], // NEW: Subcollection Data
+  dreams: [], // NEW: Subcollection Data
   tasksUnsubscribe: null, // Listener cleanup function
+  dreamsUnsubscribe: null,
   userDataUnsubscribe: null,
 
   isHydrated: false,
@@ -97,6 +99,7 @@ const useAppStore = create(persist((set, get) => ({
         set({ currentUser: user });
         await get().loadUserData(user.uid);
         get().subscribeToTasks(user.uid); // Start Real-time Listener
+        get().subscribeToDreams(user.uid); // Start Dreams Listener
         get().subscribeToUserData(user.uid); // Start Real-time UserData Listener
       } else {
         console.log('Auth: No user');
@@ -122,6 +125,9 @@ const useAppStore = create(persist((set, get) => ({
       const unsubTasks = get().tasksUnsubscribe;
       if (unsubTasks) unsubTasks();
 
+      const unsubDreams = get().dreamsUnsubscribe;
+      if (unsubDreams) unsubDreams();
+
       const unsubUser = get().userDataUnsubscribe;
       if (unsubUser) unsubUser();
 
@@ -130,7 +136,9 @@ const useAppStore = create(persist((set, get) => ({
         currentUser: null,
         userData: null,
         tasks: [],
+        dreams: [],
         tasksUnsubscribe: null,
+        dreamsUnsubscribe: null,
         userDataUnsubscribe: null,
         isHydrated: false,
         isSyncing: false,
@@ -182,6 +190,11 @@ const useAppStore = create(persist((set, get) => ({
         await get().migrateLegacyTasks(uid, dataToLoad.tasks);
       }
 
+      // MIGRATION CHECK: OLD DREAMS ARRAY
+      if (dataToLoad.dreams && Array.isArray(dataToLoad.dreams) && dataToLoad.dreams.length > 0) {
+        await get().migrateLegacyDreams(uid, dataToLoad.dreams);
+      }
+
     } catch (error) {
       console.error("Load UserData failed:", error);
       // Fallback
@@ -191,16 +204,10 @@ const useAppStore = create(persist((set, get) => ({
     }
   },
 
-  // --- 5. TASKS SUBCOLLECTION LOGIC (Real-time) ---
+  // --- 5. SUBCOLLECTION LOGIC (Real-time) ---
   subscribeToTasks: (uid) => {
-    // Avoid double subscription
     if (get().tasksUnsubscribe) return;
-
-    const q = query(
-      collection(db, 'users', uid, 'tasks'),
-      orderBy('scheduledAt', 'asc') // Prompt requirement: "Ordenar por scheduledAt crescente"
-    );
-
+    const q = query(collection(db, 'users', uid, 'tasks'), orderBy('scheduledAt', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tasks = [];
       snapshot.forEach((doc) => {
@@ -208,70 +215,61 @@ const useAppStore = create(persist((set, get) => ({
         tasks.push({
           id: doc.id,
           ...data,
-          scheduledAt: data.scheduledAt?.toDate ? data.scheduledAt.toDate() : new Date(data.scheduledAt) // Handle Timestamp or String
+          scheduledAt: data.scheduledAt?.toDate ? data.scheduledAt.toDate() : new Date(data.scheduledAt)
         });
       });
       set({ tasks });
-    }, (error) => {
-      console.error("Task Subscription Error:", error);
     });
-
     set({ tasksUnsubscribe: unsubscribe });
+  },
+
+  subscribeToDreams: (uid) => {
+    if (get().dreamsUnsubscribe) return;
+    const q = query(collection(db, 'users', uid, 'dreams'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const dreams = [];
+      snapshot.forEach((doc) => {
+        dreams.push({ id: doc.id, ...doc.data() });
+      });
+      set({ dreams });
+    });
+    set({ dreamsUnsubscribe: unsubscribe });
   },
 
   subscribeToUserData: (uid) => {
     if (get().userDataUnsubscribe) return;
-
     const unsub = onSnapshot(doc(db, 'users', uid), (snapshot) => {
       if (snapshot.exists()) {
         const remoteData = snapshot.data();
-        const currentData = get().userData;
-
-        // Only update if we don't have local unsynced changes to avoid overwrite race conditions
         if (!get().hasUnsyncedChanges) {
           set({ userData: remoteData });
         }
       }
     });
-
     set({ userDataUnsubscribe: unsub });
   },
 
   addTask: async (task) => {
-    // task: { title, category, scheduledAt, periodType, description, etc }
     const { currentUser } = get();
-    if (!currentUser) return;
-
-    // Validation: Prompt "Obrigatório: Title, ScheduledAt"
-    if (!task.title || !task.scheduledAt) {
-      console.error("Validation Error: Missing title or date");
-      return;
-    }
-
+    if (!currentUser || !task.title || !task.scheduledAt) return;
     const newTask = {
       ...task,
       completed: false,
       createdAt: serverTimestamp(),
-      // Ensure scheduledAt is a valid Date or ISO string for Firestore
       scheduledAt: task.scheduledAt instanceof Date ? task.scheduledAt : new Date(task.scheduledAt)
     };
-
     try {
       await addDoc(collection(db, 'users', currentUser.uid, 'tasks'), newTask);
-      // Points for creating?
     } catch (error) {
       console.error("Add Task Failed:", error);
-      alert(`Erro ao adicionar tarefa: ${error.message}`);
     }
   },
 
   updateTask: async (taskId, updates) => {
     const { currentUser } = get();
     if (!currentUser) return;
-
     try {
-      const taskRef = doc(db, 'users', currentUser.uid, 'tasks', taskId);
-      await updateDoc(taskRef, updates);
+      await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId), updates);
     } catch (error) {
       console.error("Update Task Failed:", error);
     }
@@ -280,7 +278,6 @@ const useAppStore = create(persist((set, get) => ({
   deleteTask: async (taskId) => {
     const { currentUser } = get();
     if (!currentUser) return;
-
     try {
       await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId));
     } catch (error) {
@@ -291,24 +288,17 @@ const useAppStore = create(persist((set, get) => ({
   toggleTask: async (taskId, currentStatus) => {
     const { currentUser, setUserData } = get();
     if (!currentUser) return;
-
     try {
-      const taskRef = doc(db, 'users', currentUser.uid, 'tasks', taskId);
-      await updateDoc(taskRef, { completed: !currentStatus });
-
-      // Award Points on user profile (Optimistic update via sync logic or direct)
-      if (!currentStatus) { // If completing
-        setUserData(data => ({
-          ...data,
-          points: (data.points || 0) + 5
-        }));
+      await updateDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId), { completed: !currentStatus });
+      if (!currentStatus) {
+        setUserData(data => ({ ...data, points: (data.points || 0) + 5 }));
       }
     } catch (error) {
       console.error("Toggle Task Failed:", error);
     }
   },
 
-  // --- Checklist Items (Subcollection: tasks/{id}/checklist) ---
+  // --- Checklist Items ---
   addChecklistItem: async (taskId, title) => {
     const { currentUser } = get();
     if (!currentUser) return;
@@ -339,10 +329,9 @@ const useAppStore = create(persist((set, get) => ({
   migrateLegacyTasks: async (uid, legacyTasks) => {
     try {
       const batchPromises = legacyTasks.map(t => {
-        // Map old format to new format
         const newTask = {
           title: t.title || 'Tarefa sem título',
-          category: t.category || 'personal', // Default mapping
+          category: t.category || 'personal',
           description: '',
           scheduledAt: t.date ? new Date(t.date) : new Date(),
           periodType: 'day',
@@ -351,37 +340,41 @@ const useAppStore = create(persist((set, get) => ({
         };
         return addDoc(collection(db, 'users', uid, 'tasks'), newTask);
       });
-
       await Promise.all(batchPromises);
-
-      // Clean up old array
-      const userRef = doc(db, 'users', uid);
-      await updateDoc(userRef, { tasks: [] });
-
-      // Update local state to reflect removal
-      set(state => ({
-        userData: { ...state.userData, tasks: [] }
-      }));
+      await updateDoc(doc(db, 'users', uid), { tasks: [] });
+      set(state => ({ userData: { ...state.userData, tasks: [] } }));
     } catch (error) {
       console.error("Migration Failed:", error);
+    }
+  },
+
+  migrateLegacyDreams: async (uid, legacyDreams) => {
+    try {
+      const batchPromises = legacyDreams.map(d => {
+        return addDoc(collection(db, 'users', uid, 'dreams'), {
+          ...d,
+          createdAt: serverTimestamp()
+        });
+      });
+      await Promise.all(batchPromises);
+      await updateDoc(doc(db, 'users', uid), { dreams: [] });
+      set(state => ({ userData: { ...state.userData, dreams: [] } }));
+    } catch (error) {
+      console.error("Dreams Migration Failed:", error);
     }
   },
 
   // --- 7. AUTO SYNC (For UserData Only) ---
   syncData: async () => {
     const { userData, currentUser, isHydrated, isSyncing } = get();
-
     if (!currentUser || !userData || !isHydrated || isSyncing) return;
-
     set({ isSyncing: true });
-
     try {
       const cleanData = JSON.parse(JSON.stringify(userData));
-      delete cleanData.tasks; // Ensure we never accidentally save tasks array
-
+      delete cleanData.tasks;
+      delete cleanData.dreams;
       const docRef = doc(db, 'users', currentUser.uid);
       await setDoc(docRef, cleanData, { merge: true });
-
       set({ hasUnsyncedChanges: false, isSyncing: false });
     } catch (error) {
       console.error("[AutoSync] Error", error);
@@ -400,7 +393,6 @@ const useAppStore = create(persist((set, get) => ({
   }),
 
   // --- Nutrition (Water Logic) ---
-  // Meals are now Tasks with category='nutrition'
   addWater: (amount) => get().setUserData(data => ({
     ...data,
     nutrition: {
@@ -412,7 +404,6 @@ const useAppStore = create(persist((set, get) => ({
   checkDailyReset: () => get().setUserData(data => {
     const today = new Date().toISOString().split('T')[0];
     if (data.nutrition?.lastResetDate !== today) {
-      console.log('Daily Reset Triggered (Focus)');
       return {
         ...data,
         nutrition: {
@@ -576,15 +567,29 @@ const useAppStore = create(persist((set, get) => ({
     restrictions: (data.restrictions || []).filter(r => r.id !== id)
   })),
 
-  // --- Dream Actions ---
-  addDream: (dream) => get().setUserData(data => ({
-    ...data,
-    dreams: [...(data.dreams || []), { ...dream, id: Date.now().toString() }]
-  })),
-  removeDream: (id) => get().setUserData(data => ({
-    ...data,
-    dreams: (data.dreams || []).filter(d => d.id !== id)
-  })),
+  // --- Dream Actions (Subcollection) ---
+  addDream: async (dream) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
+    try {
+      await addDoc(collection(db, 'users', currentUser.uid, 'dreams'), {
+        ...dream,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Add Dream Failed:", error);
+    }
+  },
+
+  removeDream: async (id) => {
+    const { currentUser } = get();
+    if (!currentUser) return;
+    try {
+      await deleteDoc(doc(db, 'users', currentUser.uid, 'dreams', id));
+    } catch (error) {
+      console.error("Remove Dream Failed:", error);
+    }
+  },
 
 }), {
   name: 'planejador-storage',

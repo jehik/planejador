@@ -46,7 +46,7 @@ const RelationshipView = () => {
     };
 
     return (
-        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: 'env(safe-area-inset-top, 24px)' }}>
+        <div className="fade-in" style={{ paddingBottom: '120px', paddingTop: '100px' }}>
             {/* Hero Profile Section */}
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                 <div style={{ position: 'relative', width: '160px', height: '160px', margin: '0 auto 24px auto' }}>
