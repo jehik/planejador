@@ -28,19 +28,29 @@ const ProjectsView = () => {
         ? tasks.filter(t => t.projectId === activeProject.id)
         : [];
 
-    const handleAddTask = (e) => {
+    const handleAddTask = async (e) => {
         e.preventDefault();
-        if (!newTask.trim()) return;
-        addTask({
-            title: newTask,
-            projectId: activeProject.id,
-            category: 'projects',
-            scheduledAt: new Date().toISOString(),
-            completed: false,
-            description: notes
-        });
-        setNewTask('');
-        setNotes('');
+        if (!newTask.trim() || !activeProject) return;
+
+        console.log('Adding task to project:', activeProject.id);
+
+        try {
+            await addTask({
+                title: newTask,
+                projectId: activeProject.id,
+                category: 'projects',
+                scheduledAt: new Date(), // Use current date for project tasks
+                completed: false,
+                description: notes,
+                periodType: 'day', // Default to work with other filters
+                priority: 'medium'
+            });
+            setNewTask('');
+            setNotes('');
+            console.log('Task added successfully');
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
     };
 
     const handleDeleteProject = (e, projectId) => {
