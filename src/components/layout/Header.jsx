@@ -8,7 +8,8 @@ const Header = () => {
     const user = userData || { name: 'Visitante' };
 
     const isDebora = currentUser?.email?.includes('debora');
-    const userPhoto = isDebora ? deboraImg : cassioImg;
+    const defaultPhoto = isDebora ? deboraImg : cassioImg;
+    const userPhoto = currentUser?.photoURL || defaultPhoto;
 
     const [greeting, setGreeting] = useState('');
 
